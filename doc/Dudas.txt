@@ -1,0 +1,2 @@
+* En tiposIguales cuando decimos que no son tipos iguales tiramos error interno
+  ¿Esto está bien? ¿Realmente son errores internos? VER AL HACER TOPSORT.
