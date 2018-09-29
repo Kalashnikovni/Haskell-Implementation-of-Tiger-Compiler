@@ -17,6 +17,7 @@ library
   exposed-modules:
       -- Primer entrega
           TigerAbs
+        , TigerEnv
         , TigerErrores
         , TigerEscap
         , TigerLexer

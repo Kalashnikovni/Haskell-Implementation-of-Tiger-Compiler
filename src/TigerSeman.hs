@@ -1,7 +1,18 @@
 module TigerSeman where
 
+import Data.List as List
+import Data.Ord  as Ord
+import Prelude   as P
+
+-- Monads
+import qualified Control.Conditional as C
+import Control.Monad
+import Control.Monad.State
+import Control.Monad.Trans.Except
+
 import TigerAbs
-import TigerErrores as E
+import TigerEnv     as Env
+import TigerErrores as Err
 import TigerSres
 import TigerSymbol
 import TigerTips
@@ -11,107 +22,19 @@ import TigerUnique
 import TigerTemp
 -- import           TigerTrans
 
--- Monads
-import qualified Control.Conditional as C
-import Control.Monad
-import Control.Monad.State
-import Control.Monad.Trans.Except
-
--- Data
-import Data.List as List
-import Data.Map  as M
-import Data.Ord  as Ord
-
--- Le doy nombre al Preludio.
-import Prelude as P
-
--- Debugging. 'trace :: String -> a -> a'
--- imprime en pantalla la string cuando se ejecuta.
-import Debug.Trace (trace)
-
 -- * Análisis Semántico, aka Inferidor de Tipos
 
--- ** Notas :
-
--- [1] No deberían fallar las búsquedas de variables. Recuerden que
--- el calculo de variables escapadas debería detectar las variables
--- no definidas. => Si falla, entonces es error interno.
-
--- [2] En la siguiente etapa vamos a ir generando el código intermedio
--- mezclado con esta etapa por lo que es muy posible que tengan que revisar
--- este modulo. Mi consejo es que sean /lo más ordenados posible/ teniendo en cuenta
--- que van a tener que reescribir bastante.
-
-class (Demon w, Monad w) => Manticore w where
-  -- | Inserta una Variable al entorno
-  insertValV :: Symbol -> ValEntry -> w a -> w a
-  -- | Inserta una Función al entorno
-  insertFunV :: Symbol -> FunEntry -> w a -> w a
-  -- | Inserta una Variable de sólo lectura al entorno
-  insertVRO :: Symbol -> w a -> w a
-  -- | Inserta una variable de tipo al entorno
-  insertTipoT :: Symbol -> Tipo -> w a -> w a
-  -- | Busca una función en el entorno
-  getTipoFunV :: Symbol -> w FunEntry
-  -- | Busca una variable en el entorno. Ver [1]
-  getTipoValV :: Symbol -> w ValEntry
-  -- | Busca un tipo en el entorno
-  getTipoT :: Symbol -> w Tipo
-  -- | Funciones de Debugging!
-  showVEnv :: w a -> w a
-  showTEnv :: w a -> w a
-  -- | Función monadica que determina si dos tipos son iguales.
-  -- El catch está en que tenemos una especie de referencia entre los
-  -- nombres de los tipos, ya que cuando estamos analizando la existencia de bucles
-  -- en la definición permitimos cierto alias hasta que los linearizamos con el
-  -- sort topológico.
-  tiposIguales :: Tipo -> Tipo -> w Bool
-  tiposIguales (RefRecord s) l@(TRecord _ u) = 
-    do st <- getTipoT s
-       case st of
-         TRecord _ u'   -> return (u' == u)
-         ls@RefRecord{} -> tiposIguales ls l
-         _             -> E.internal $ pack "No son tipos iguales [1]"
-  tiposIguales l@(TRecord _ u) (RefRecord s) = 
-    do st <- getTipoT s
-       case st of
-         TRecord _ u1   -> return (u1 == u)
-         ls@RefRecord{} -> tiposIguales l ls
-         _              -> E.internal $ pack "No son tipos iguales [2]"
-  tiposIguales (RefRecord s) (RefRecord s') = 
-    do s1 <- getTipoT s
-       s2 <- getTipoT s'
-       tiposIguales s1 s2
-  tiposIguales TNil  (RefRecord _) = return True
-  tiposIguales (RefRecord _) TNil  = return True
-  tiposIguales (RefRecord _) _     = E.internal $ pack "No son tipos iguales [3]"
-  tiposIguales e (RefRecord s)     = E.internal $ pack $ "No son tipos iguales [4]" ++ (show e ++ show s)
-  tiposIguales a b                 = return (equivTipo a b)
-  -- | Generador de uniques.
-  ugen :: w Unique
-
--- | Definimos algunos helpers
-
--- | `addpos` nos permite agregar información al error.
-addpos :: (Demon w, Show b) => w a -> b -> w a
-addpos t p = E.adder t (pack $ show p)
-
--- | Patrón de errores...
-errorTiposMsg :: (Demon w, Show p)
-              => p -> String -> Tipo -> Tipo -> w a
-errorTiposMsg p msg t1 t2 = flip addpos p
-    $ flip adder (pack msg)
-    $ errorTipos t1 t2
+-- \\\\\\\\\\\\\\\\\\\\\\\\\
+-- Definimos algunos helpers -------------------------------------------------------------------------------------
+-- /////////////////////////
 
 depend :: Ty -> [Symbol]
 depend (NameTy s)    = [s]
 depend (ArrayTy s)   = [s]
 depend (RecordTy ts) = concatMap (depend . snd) ts
 
-
--- | Función auxiliar que chequea cuales son los tipos
--- comparables.
--- Por ejemplo, ` if nil = nil then ...` es una expresión ilegal
+-- | Función auxiliar que chequea cuales son los tipos comparables.
+-- Por ejemplo, `if nil = nil then ...` es una expresión ilegal
 -- ya que no se puede determinar el tipo de cada uno de los nils.
 -- Referencia: [A.3.Expressions.Nil]
 tiposComparables :: Tipo -> Tipo -> Oper -> Bool
@@ -128,8 +51,8 @@ tiposComparables _ _ _           = True
 -- Ver 'transExp (CallExp ...)'
 cmpZip :: (Demon m, Monad m) => [(Symbol, Tipo)] -> [(Symbol, Tipo, Int)] -> m () --Bool
 cmpZip [] [] = return ()
-cmpZip [] _ = derror $ pack "Diferencia en la cantidad. 1"
-cmpZip _ [] = derror $ pack "Diferencia en la cantidad. 2"
+cmpZip [] _  = derror $ pack "Diferencia en la cantidad. 1"
+cmpZip _ []  = derror $ pack "Diferencia en la cantidad. 2"
 cmpZip ((sl,tl):xs) ((sr,tr,p):ys) =
         if (equivTipo tl tr && sl == sr)
         then cmpZip xs ys
@@ -139,6 +62,14 @@ buscarM :: Symbol -> [(Symbol, Tipo, Int)] -> Maybe Tipo
 buscarM s [] = Nothing
 buscarM s ((s',t,_):xs) | s == s' = Just t
                         | otherwise = buscarM s xs
+
+-- \\\\\\\\\\\\\\
+-- END OF HELPERS ------------------------------------------------------------------------------------------------
+-- //////////////
+
+-- \\\\\\\\\\\\\\\\\\\\\\\
+-- Funciones de traduccion ---------------------------------------------------------------------------------------
+-- ///////////////////////
 
 -- | __Completar__ 'transVar'.
 -- El objetivo de esta función es obtener el tipo
@@ -177,10 +108,10 @@ transDecs ((TypeDec xs): xss)              = id
 
 -- ** transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
 transExp :: (Manticore w) => Exp -> w (() , Tipo)
-transExp (VarExp v p) = addpos (transVar v) p
-transExp UnitExp{} = return ((), TUnit) -- ** fmap (,TUnit) unitExp
-transExp NilExp{} = return ((), TNil) -- ** fmap (,TNil) nilExp
-transExp (IntExp i _) = return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
+transExp (VarExp v p)    = Err.addpos (transVar v) p
+transExp UnitExp{}       = return ((), TUnit) -- ** fmap (,TUnit) unitExp
+transExp NilExp{}        = return ((), TNil) -- ** fmap (,TNil) nilExp
+transExp (IntExp i _)    = return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
 transExp (StringExp s _) = return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
 transExp (CallExp nm args p) = undefined -- Completar
 transExp (OpExp el' oper er' p) = do -- Esta va /gratis/
@@ -265,58 +196,9 @@ transExp(LetExp dcs body p) = transDecs dcs (transExp body)
 transExp(BreakExp p) = return ((), TUnit)
 transExp(ArrayExp sn cant init p) = error "Completar" -- Completar
 
-
--- Un ejemplo de estado que alcanzaría para realizar todas la funciones es:
-data Estado = Est {vEnv :: M.Map Symbol EnvEntry, tEnv :: M.Map Symbol Tipo}
-    deriving Show
--- data EstadoG = G {vEnv :: [M.Map Symbol EnvEntry], tEnv :: [M.Map Symbol Tipo]}
---     deriving Show
---
--- Estado Inicial con los entornos
--- * int y string como tipos básicos. -> tEnv
--- * todas las funciones del *runtime* disponibles. -> vEnv
-initConf :: Estado
-initConf = Est
-           { tEnv = M.insert (pack "int") (TInt RW) (M.singleton (pack "string") TString)
-           , vEnv = M.fromList
-                    [(pack "print", Func (1,pack "print",[TString], TUnit, Runtime))
-                    ,(pack "flush", Func (1,pack "flush",[],TUnit, Runtime))
-                    ,(pack "getchar",Func (1,pack "getchar",[],TString,Runtime))
-                    ,(pack "ord",Func (1,pack "ord",[TString],TInt RW,Runtime))
-                    ,(pack "chr",Func (1,pack "chr",[TInt RW],TString,Runtime))
-                    ,(pack "size",Func (1,pack "size",[TString],TInt RW,Runtime))
-                    ,(pack "substring",Func (1,pack "substring",[TString,TInt RW, TInt RW],TString,Runtime))
-                    ,(pack "concat",Func (1,pack "concat",[TString,TString],TString,Runtime))
-                    ,(pack "not",Func (1,pack "not",[TBool],TBool,Runtime))
-                    ,(pack "exit",Func (1,pack "exit",[TInt RW],TUnit,Runtime))
-                    ]
-           }
-
--- Utilizando alguna especie de run de la monada definida, obtenemos algo así
-type Monada = ExceptT Symbol (StateT Estado StGen)
-  -- StateT Estado (ExceptT Symbol StGen)
-
-instance Demon Monada where
-  -- | 'throwE' de la mónada de excepciones.
-  derror =  throwE
-  -- TODO: Parte del estudiante
-  -- adder :: w a -> Symbol -> w a
-instance Manticore Monada where
-  -- | A modo de ejemplo esta es una opción de ejemplo de 'insertValV :: Symbol -> ValEntry -> w a -> w'
-    insertValV sym ventry m = do
-      -- | Guardamos el estado actual
-      oldEst <- get
-      -- | Insertamos la variable al entorno (sobrescribiéndolo)
-      put (oldEst{ vEnv = M.insert sym (Var ventry) (vEnv oldEst) })
-      -- | ejecutamos la computación que tomamos como argumentos una vez que expandimos el entorno
-      a <- m
-      -- | Volvemos a poner el entorno viejo
-      put oldEst
-      -- | retornamos el valor que resultó de ejecutar la monada en el entorno expandido.
-      return a
-    -- ugen :: w Unique
-    ugen = mkUnique
-  -- TODO: Parte del estudiante
+-- \\\\\\\\\\\\\\\\\\\
+-- END OF TRADUCCIONES -------------------------------------------------------------------------------------------
+-- ///////////////////
 
 runMonada :: Monada ((), Tipo)-> StGen (Either Symbol ((), Tipo))
 runMonada =  flip evalStateT initConf . runExceptT

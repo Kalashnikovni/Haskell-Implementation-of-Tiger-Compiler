@@ -6,8 +6,7 @@
 
 module TigerTips where
 
-import           TigerErrores
-import           TigerSymbol
+import TigerSymbol
 import TigerUnique
 
 data RWO = RW | RO
@@ -70,10 +69,3 @@ equivTipo (TTipo _) _                   = error "Referencia a un tipo.[1]"
 equivTipo _ (TTipo _)                   = error "Referencia a un tipo.[2]"
 equivTipo a b                           = a == b -- Eq
 
--- | Función /linda/ para mostrar un error de tipos.
-errorTipos :: Demon w => Tipo -> Tipo -> w a
-errorTipos t1 t2 = derror $ pack $ "Error de tipos."
-                   -- Notar que acá se van a mostrar de forma re crota.
-                   ++ " Tipo *" ++ show t1
-                   ++ "* es distinto a *"
-                   ++ show t2 ++ "*."

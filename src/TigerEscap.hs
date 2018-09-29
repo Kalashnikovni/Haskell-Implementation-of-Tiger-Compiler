@@ -97,7 +97,7 @@ travExp (IfExp c t (Just e) p) =
   do c' <- travExp c
      t' <- travExp t
      e' <- travExp e
-  return (IfExp c' t' (Just e') p)
+     return (IfExp c' t' (Just e') p)
 travExp (WhileExp c b p) = 
   do c' <- travExp c
      b' <- travExp b
@@ -109,15 +109,16 @@ travExp (ForExp s e lo hi body p) =
      body' <- insert s e (travExp body)
      return (ForExp s e lo' hi' body' p)
 travExp (LetExp ds e p) = 
- do (ds', e') <- travDecs ds (do e' <- travExp e
-                                 ds' <- mapM (\case (VarDec name _ typ exp p) -> 
-                                                do chk <- lookup name
-                                                   maybe (internal $ pack $ "666+1 -- Linea:" ++ show p)
-                                                         (\(_, esc) -> return (VarDec name esc typ exp p)) 
-                                                         chk
-                                                    l -> return l) ds
+ do (ds', e') <- travDecs ds (do e'  <- travExp e
+                                 ds' <- mapM (\case 
+                                                (VarDec name _ typ exp p) -> 
+                                                  do chk <- lookup name
+                                                     maybe (internal $ pack $ "666+1 -- Linea:" ++ show p)
+                                                           (\(_, esc) -> return (VarDec name esc typ exp p)) 
+                                                           chk
+                                                l -> return l) ds
                                  return (ds', e'))
-   return (LetExp ds' e' p)
+    return (LetExp ds' e' p)
 travExp (ArrayExp typ size init p) = 
   do s'    <- travExp size
      init' <- travExp init

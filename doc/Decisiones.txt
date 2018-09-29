@@ -9,3 +9,7 @@
 -- hay 4 posibles errores identificados con número, para saber en qué
 -- caso se dio el error. No significan nada en especial
 -- /////////////////////////////////////////////////////////////////////
+
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+-- Separamos el análisis semántico de toda la parte de entornos
+-- ////////////////////////////////////////////////////////////
