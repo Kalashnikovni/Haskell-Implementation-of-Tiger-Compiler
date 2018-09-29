@@ -5,13 +5,10 @@ Proyecto final de la materia "Compiladores" del IV año de LCC - FCEIA, Rosario,
 # Testing
 
 Para testear usamos la herramienta *stack* que buildea proyectos pasándole un archivito
-de configuración. Para empezar a probar código:
+de configuración. Para empezar a probar como está el código:
 
 ```
-stack new name-of-project
-cd name-of-project
-stack setup
-stack build
+stack ghci
 ```
 
 Pd: stack funcionó solo instalando usando el siguiente comando:
