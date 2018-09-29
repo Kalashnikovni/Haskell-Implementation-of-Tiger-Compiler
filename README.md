@@ -16,3 +16,8 @@ Pd: stack funcionó solo instalando usando el siguiente comando:
 ```
 curl -sSL https://get.haskellstack.org/ | sh
 ```
+Para chequear tipos podemos hacer:
+
+```
+evalState (runSeman exp) 0
+```

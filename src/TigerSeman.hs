@@ -46,6 +46,15 @@ tiposComparables TUnit _ NeqOp   = False
 tiposComparables _ _ NeqOp       = True
 tiposComparables _ _ _           = True
 
+{-
+tiposComparables :: Tipo -> Tipo -> Oper -> Bool
+tiposComparables TNil TNil EqOp  = False
+tiposComparables TUnit _ EqOp    = False
+tiposComparables TNil TNil NeqOp = False
+tiposComparables TUnit _ NeqOp   = False
+tiposComparables _ _ _           = True
+-}
+
 -- | Función que chequea que los tipos de los campos sean los mismos
 -- Ver 'transExp (RecordExp ...)'
 -- Ver 'transExp (CallExp ...)'
@@ -108,34 +117,36 @@ transDecs ((TypeDec xs): xss)              = id
 
 -- ** transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
 transExp :: (Manticore w) => Exp -> w (() , Tipo)
-transExp (VarExp v p)    = Err.addpos (transVar v) p
-transExp UnitExp{}       = return ((), TUnit) -- ** fmap (,TUnit) unitExp
-transExp NilExp{}        = return ((), TNil) -- ** fmap (,TNil) nilExp
-transExp (IntExp i _)    = return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
-transExp (StringExp s _) = return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
-transExp (CallExp nm args p) = undefined -- Completar
-transExp (OpExp el' oper er' p) = do -- Esta va /gratis/
-        (_ , el) <- transExp el'
-        (_ , er) <- transExp er'
-        case oper of
-          EqOp -> if tiposComparables el er EqOp then oOps el er
-                  else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
-          NeqOp ->if tiposComparables el er EqOp then oOps el er
-                  else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
-          -- Los unifico en esta etapa porque solo chequeamos los tipos, en la próxima
-          -- tendrán que hacer algo más interesante.
-          PlusOp -> oOps el er
-          MinusOp -> oOps el er
-          TimesOp -> oOps el er
-          DivideOp -> oOps el er
-          LtOp -> oOps el er
-          LeOp -> oOps el er
-          GtOp -> oOps el er
-          GeOp -> oOps el er
-          where oOps l r = if equivTipo l r -- Chequeamos que son el mismo tipo
-                              && equivTipo l (TInt RO) -- y que además es Entero. [Equiv Tipo es una rel de equiv]
-                           then return ((), TInt RO)
-                           else addpos (derror (pack "Error en el chequeo de una comparación.")) p
+transExp (VarExp v p)           = Err.addpos (transVar v) p -- Pequeño hack, no es un error en realidad
+transExp UnitExp{}              = return ((), TUnit) -- ** fmap (,TUnit) unitExp
+transExp NilExp{}               = return ((), TNil) -- ** fmap (,TNil) nilExp
+transExp (IntExp i _)           = return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
+transExp (StringExp s _)        = return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
+transExp (CallExp nm args p)    = undefined -- Completar
+transExp (OpExp el oper er p) = -- Esta va /gratis/
+  do (_ , el') <- transExp el
+     (_ , er') <- transExp er
+     case oper of
+       EqOp     -> if tiposComparables el' er' EqOp then oOps el' er'
+                     else notcomp el' er' p
+       NeqOp    -> if tiposComparables el' er' EqOp then oOps el' er'
+                     else notcomp el' er' p
+       -- Los unifico en esta etapa porque solo chequeamos los tipos, en la próxima
+       -- tendrán que hacer algo más interesante.
+       PlusOp   -> oOps el' er'
+       MinusOp  -> oOps el' er'
+       TimesOp  -> oOps el' er'
+       DivideOp -> oOps el' er'
+       LtOp     -> oOps el' er'
+       LeOp     -> oOps el' er'
+       GtOp     -> oOps el' er'
+       GeOp     -> oOps el' er'
+  where oOps l r = if equivTipo l r && -- Chequeamos que son el mismo tipo
+                      equivTipo l (TInt RO) -- y que además es Entero. [Equiv Tipo es una rel de equiv]
+                   then return ((), TInt RO)
+                   else addpos (derror (pack "Error en el chequeo de una comparación.")) p
+        notcomp l r pos = 
+          addpos (derror (pack $ "Error de tipos: " ++ show l ++ " no se puede comparar con " ++ show r)) pos
 -- | Recordemos que 'RecordExp :: [(Symbol, Exp)] -> Symbol -> Pos -> Exp'
 -- Donde el primer argumento son los campos del records, y el segundo es
 -- el texto plano de un tipo (que ya debería estar definido). Una expresión

@@ -1,3 +1,8 @@
 * En tiposIguales cuando decimos que no son tipos iguales tiramos error interno
   ¿Esto está bien? ¿Realmente son errores internos? VER AL HACER TOPSORT.
+* ¿La definición alternativa de tiposComparables es correcta?
+
+------------------------------------------------------------------------------------------------------------------
+
 * ¿A dónde irían los helpers de TigerSeman realmente?
+  ~~~ A: Parece que se quedan en TigerSeman
