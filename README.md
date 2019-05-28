@@ -22,7 +22,7 @@ Para chequear tipos podemos hacer:
 evalState (runSeman exp) 0
 ```
 
-#TODO
+# TODO
 
 - [] Ver el caso de transTy en RecordTy.
 - [] Completar TigerSeman (transDec, transExp e instancias de mónada).
