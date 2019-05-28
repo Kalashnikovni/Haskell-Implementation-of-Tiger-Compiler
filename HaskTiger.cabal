@@ -12,7 +12,7 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  hs-source-dirs:      src, interp
+  hs-source-dirs: src, interp
   other-modules: State
   exposed-modules:
       -- Primer entrega

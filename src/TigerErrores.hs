@@ -1,6 +1,6 @@
 module TigerErrores where
 
-import           TigerSymbol
+import TigerSymbol
 
 -- | La semántica de Demon es que espera que después de 'derror' la computación
 -- __no continúe__.

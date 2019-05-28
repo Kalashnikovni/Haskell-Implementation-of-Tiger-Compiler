@@ -112,7 +112,7 @@ travExp (LetExp ds e p) = do
                                 ds' <- mapM (\case
                                                 (VarDec name _ typ exp p) -> do
                                                   chk <- lookup name
-                                                  maybe (internal $ pack $ "666+1 -- Linea:" ++ show p)
+                                                  maybe (internal $ pack $ "Error en TigerEscap.115 -- Linea:" ++ show p)
                                                         (\(_,esc) -> return (VarDec name esc typ exp p)
                                                            ) chk
                                                 l -> return l) ds
@@ -132,7 +132,7 @@ travF (name, params, res, body, p) = do
       ds' <- mapM (\(s,_,ty) -> do
                                 mb <- lookup s
                                 case mb of
-                                    Nothing -> internal $ pack $ "666+2 -- Linea:" ++ show p
+                                    Nothing -> internal $ pack $ "Error en TigerEscap.135 -- Linea:" ++ show p
                                     Just (_,esc) -> return (s,esc,ty)) params
       return (body', ds'))
     return (name, params', res, body', p)

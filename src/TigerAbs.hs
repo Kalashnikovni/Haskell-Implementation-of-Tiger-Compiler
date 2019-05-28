@@ -1,14 +1,14 @@
 module TigerAbs where
 
-import           TigerSymbol
+import TigerSymbol
 
 -- | Esto lo introducimos para derivar Typeable y Data que nos sirve
 -- más adelante en el modulo [TigerQQ](TigerQQ.hs).
-import           Data.Generics
+import Data.Generics
 
 -- | 'Pos' representa la posición, simple de una linea y columna, o bien un rango
 -- de posiciones
-data Pos = Simple {line::Int, col :: Int} | Range Pos Pos
+data Pos = Simple {line :: Int, col :: Int} | Range Pos Pos
     deriving (Show, Typeable, Data)
 
 -- | 'Escapa' representa la idea si una variable /escapa/ o no... Ver en el libro
@@ -16,7 +16,7 @@ data Escapa = Escapa | NoEscapa
     deriving (Show, Typeable, Data)
 
 posToLabel :: Pos -> String
-posToLabel (Simple l r) = show l ++ '.' : show r
+posToLabel (Simple l c) = show l ++ '.' : show c
 posToLabel (Range  l r) = posToLabel l ++ '.' : posToLabel r
 
 printPos :: Pos -> String

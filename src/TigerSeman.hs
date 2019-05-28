@@ -73,21 +73,21 @@ class (Demon w, Monad w) => Manticore w where
         case st of
             TRecord _ u1 -> return (u1 == u)
             ls@RefRecord{} -> tiposIguales ls l
-            _ -> E.internal $ pack "No son tipos iguales... 123+1"
+            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales1" ++ (show e ++ show st)
     tiposIguales l@(TRecord _ u) (RefRecord s) = do
         st <- getTipoT s
         case st of
             TRecord _ u1 -> return (u1 == u)
             ls@RefRecord{} -> tiposIguales l ls
-            _ -> E.internal $ pack "No son tipos iguales... 123+2"
+            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales2" ++ (show e ++ show st)
     tiposIguales (RefRecord s) (RefRecord s') = do
         s1 <- getTipoT s
         s2 <- getTipoT s'
         tiposIguales s1 s2
     tiposIguales TNil  (RefRecord _) = return True
     tiposIguales (RefRecord _) TNil = return True
-    tiposIguales (RefRecord _) _ = E.internal $ pack "No son tipos iguales... 123+3"
-    tiposIguales  e (RefRecord s) = E.internal $ pack $ "No son tipos iguales... 123+4" ++ (show e ++ show s)
+    tiposIguales (RefRecord s) e = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales3" ++ (show e ++ show s)
+    tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
     tiposIguales a b = return (equivTipo a b)
 
 -- | Definimos algunos helpers
@@ -107,7 +107,6 @@ depend :: Ty -> [Symbol]
 depend (NameTy s)    = [s]
 depend (ArrayTy s)   = [s]
 depend (RecordTy ts) = concatMap (depend . snd) ts
-
 
 -- | Función auxiliar que chequea cuales son los tipos
 -- comparables.
@@ -138,10 +137,12 @@ cmpZip ((sl,tl):xs) ((sr,tr,p):ys) =
 -- Función auxiliar que utilizaremos para separar una lista utilizando una
 -- función que separe los elementos en pares.
 splitWith :: (a -> Either b c) -> [a] -> ([b], [c])
-addIzq :: ([a], [b]) -> a -> ([a],[b])
-addDer :: ([a], [b]) -> b -> ([a],[b])
 splitWith f = P.foldr (\x rs -> either (addIzq rs) (addDer rs) (f x)) ([] , [])
+
+addIzq :: ([a], [b]) -> a -> ([a],[b])
 addIzq (as,bs) a = (a : as, bs)
+
+addDer :: ([a], [b]) -> b -> ([a],[b])
 addDer (as,bs) b = (as, b : bs)
 
 buscarM :: Symbol -> [(Symbol, Tipo, Int)] -> Maybe Tipo
@@ -153,10 +154,25 @@ buscarM s ((s',t,_):xs) | s == s' = Just t
 -- El objetivo de esta función es obtener el tipo
 -- de la variable a la que se está __accediendo__.
 -- ** transVar :: (MemM w, Manticore w) => Var -> w (BExp, Tipo)
-transVar :: (Manticore w) => Var -> w ( () , Tipo)
-transVar (SimpleVar s)      = undefined -- Nota [1]
-transVar (FieldVar v s)     = undefined
-transVar (SubscriptVar v e) = undefined
+transVar :: (Manticore w) => Var -> w ((), Tipo)
+transVar (SimpleVar s)      = 
+  do t <- getTipoValV s
+     return ((), t)
+transVar (FieldVar v s)     =
+  do (_, t) <- transVar v
+     case t of
+       TRecord l _ -> maybe (E.internal "Se intenta acceder a un campo que no pertenece al record") 
+                            (\tx -> return ((), tx))
+                            (buscarM s l) 
+       _           -> E.internal "Se intenta acceder al campo de una variable que no es un record"
+transVar (SubscriptVar v e) =
+  do (_, te) <- transExp e 
+     case te of
+       TInt _ -> do (_, tv) <- transVar v
+                    case tv of
+                      TArray ta _ -> return ((), ta)
+                      _           -> E.internal "Se intenta indexar algo que no es un arreglo"
+       _      -> E.internal "El indice del arreglo no es un número"
 
 -- | __Completar__ 'TransTy'
 -- El objetivo de esta función es dado un tipo
@@ -167,14 +183,14 @@ transVar (SubscriptVar v e) = undefined
 -- que 'TransTy ' no necesita ni 'MemM ' ni devuelve 'BExp'
 -- porque no se genera código intermedio en la definición de un tipo.
 transTy :: (Manticore w) => Ty -> w Tipo
-transTy (NameTy s)      = undefined
-transTy (RecordTy flds) = undefined
-transTy (ArrayTy s)     = undefined
-
+transTy (NameTy s)      = getTipoT s
+transTy (RecordTy flds) =
+-- splitWith splitRecordTy flds
+transTy (ArrayTy s)     = getTipoT s
 
 fromTy :: (Manticore w) => Ty -> w Tipo
 fromTy (NameTy s) = getTipoT s
-fromTy _ = P.error "no debería haber una definición de tipos en los args..."
+fromTy _          = P.error "no debería haber una definición de tipos en los args..."
 
 -- | transDecs es la encargada de tipar las definiciones y posteriormente
 -- generar código intermedio solamente para las declaraciones de variables.
