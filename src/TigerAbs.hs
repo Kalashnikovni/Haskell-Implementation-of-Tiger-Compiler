@@ -85,7 +85,7 @@ data Exp where
     -- Pos
     LetExp :: [Dec] -> Exp -> Pos -> Exp
     -- | Representa un valor de tipo Arreglo. Nos define un nuevo valor de tipo
-    -- arreglo. Pj: intArray [3+4] of (2*2). Nos genra el árbol: ArrayExp
+    -- arreglo. Pj: intArray [3+4] of (2*2). Nos genera el árbol: ArrayExp
     -- "intArray" (OpExp (IntExp 3 Pos) PlusOp (IntExp 4 Pos)) (OpExp (IntExp 2
     -- Pos) TimesOp (IntExp 2 Pos)) Pos
     ArrayExp :: Symbol -> Exp -> Exp -> Pos -> Exp

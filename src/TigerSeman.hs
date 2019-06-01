@@ -132,8 +132,8 @@ tiposComparables _ _ _           = True
 -- Ver 'transExp (CallExp ...)'
 cmpZip :: (Demon m, Monad m) => [(Symbol, Tipo)] -> [(Symbol, Tipo, Int)] -> m () --Bool
 cmpZip [] [] = return ()
-cmpZip [] _ = derror $ pack "Diferencia en la cantidad. 1"
-cmpZip _ [] = derror $ pack "Diferencia en la cantidad. 2"
+cmpZip [] _ = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip1"
+cmpZip _ [] = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip2"
 cmpZip ((sl,tl):xs) ((sr,tr,p):ys) =
         if (equivTipo tl tr && sl == sr)
         then cmpZip xs ys
@@ -357,10 +357,10 @@ transExp (OpExp el' oper er' p) =
   do (_ , el) <- transExp el'
      (_ , er) <- transExp er'
      case oper of
-       EqOp -> if tiposComparables el er EqOp then oOps el er
-               else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
-       NeqOp ->if tiposComparables el er EqOp then oOps el er
-               else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
+       EqOp  -> if tiposComparables el er EqOp then oOps el er
+                else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
+       NeqOp -> if tiposComparables el er EqOp then oOps el er
+                else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
        -- Los unifico en esta etapa porque solo chequeamos los tipos, en la próxima
        -- tendrán que hacer algo más interesante.
        PlusOp -> oOps el er
@@ -402,39 +402,56 @@ transExp(SeqExp es p) = fmap last (mapM transExp es)
 -- do
 --       es' <- mapM transExp es
 --       return ( () , snd $ last es')
-transExp(AssignExp var val p) = error "Completar"
+transExp(AssignExp var val p) =
+  do (_, tvar) <- transVar var
+     (_, tval) <- transExp val
+     case equivTipo tvar tval of
+       True -> return ((), TUnit) 
+       _    -> errorTiposMsg p "El tipo de la variable y del valor no son iguales" tvar tval  
 transExp(IfExp co th Nothing p) = do
-        -- ** (ccond , co') <- transExp co
+  -- ** (ccond , co') <- transExp co
   -- Analizamos el tipo de la condición
-        (_ , co') <- transExp co
+  (_ , co') <- transExp co
   -- chequeamos que sea un entero.
-        unless (equivTipo co' TBool) $ errorTiposMsg p "En la condición del if->" co' TBool -- Claramente acá se puede dar un mejor error.
-        -- ** (cth , th') <- transExp th
+  unless (equivTipo co' TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" co' TBool 
+  -- ** (cth , th') <- transExp th
   -- Analizamos el tipo del branch.
-        (() , th') <- transExp th
+  (() , th') <- transExp th
   -- chequeamos que sea de tipo Unit.
-        unless (equivTipo th' TUnit) $ errorTiposMsg p "En el branch del if->" th' TUnit
+  unless (equivTipo th' TUnit) $ errorTiposMsg p "La branch está devolviendo un resultado" th' TUnit
   -- Si todo fue bien, devolvemos que el tipo de todo el 'if' es de tipo Unit.
-        return (() , TUnit)
+  return (() , TUnit)
 transExp(IfExp co th (Just el) p) = do
   (_ , condType) <- transExp co
-  unless (equivTipo condType TBool) $ errorTiposMsg p "En la condición del if ->" condType TBool
+  unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
   (_, ttType) <- transExp th
   (_, ffType) <- transExp el
-  C.unlessM (tiposIguales ttType ffType) $ errorTiposMsg p "En los branches." ttType ffType
+  C.unlessM (tiposIguales ttType ffType) $ errorTiposMsg p "Las branches devuelven resultados de distinto tipo" ttType ffType
   -- Si todo fue bien devolvemos el tipo de una de las branches.
   return ((), ttType)
 transExp(WhileExp co body p) = do
   (_ , coTy) <- transExp co
-  unless (equivTipo coTy TBool) $ errorTiposMsg p "Error en la condición del While" coTy TBool
+  unless (equivTipo coTy TBool) $ errorTiposMsg p "La condicion del While no es booleana" coTy TBool
   (_ , boTy) <- transExp body
-  unless (equivTipo boTy TUnit) $ errorTiposMsg p "Error en el cuerpo del While" boTy TBool
+  unless (equivTipo boTy TUnit) $ errorTiposMsg p "El cuerpo del While devuelve un resultado" boTy TBool
   return ((), TUnit)
-transExp(ForExp nv mb lo hi bo p) = error "Completar" -- Completar
+-- TODO: ¿Cómo chequeamos que nv sea una variable "fresca"?
+-- TODO: ¿Acá tenemos que chequear si lo < hi?
+transExp(ForExp nv mb lo hi bo p) =
+  do tnv <- getTipoValV nv
+     unless (equivTipo tnv (TInt RO)) $ errorTiposMsg p "El contador del for no es un entero de solo lectura" tnv (TInt RO)
+     (_, tlo) <- transExp  lo
+     unless (equivTipo tlo (TInt RW)) $ errorTiposMsg p "La cota inferior del for no es un entero modificable" tlo (TInt RW)
+     (_, thi) <- transExp  hi
+     unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
+     (_, tbo) <- transExp bo
+     unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
+     return ((), TUnit)
 transExp(LetExp dcs body p) = transDecs dcs (transExp body)
 transExp(BreakExp p) = return ((), TUnit)
-transExp(ArrayExp sn cant init p) = error "Completar" -- Completar
-
+transExp(ArrayExp sn cant init p) =
+  do tsn <- getTipoValV sn
+     unless (equivTipo tsn (TArray _ _)) $ errorTiposMsg p "La variable no es de tipo arreglo" tsn TArray
 
 -- Un ejemplo de estado que alcanzaría para realizar todas la funciones es:
 data Estado = Est {vEnv :: M.Map Symbol EnvEntry, tEnv :: M.Map Symbol Tipo}

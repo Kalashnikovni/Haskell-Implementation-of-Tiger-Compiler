@@ -26,6 +26,12 @@ evalState (runSeman exp) 0
 
 - [X] Ver el caso de transTy en RecordTy.
 - [ ] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
-- [ ] Terminar transExp.
+- [ ] Terminar transExp (solo queda el caso de ArrayExp).
 - [ ] Completar TigerSeman (transDec, instancias de mónada).
 - [ ] Opcional: ver lo de pretty-printing.
+
+# Dudas
+
+- [ ] ¿Qué es el argumento de escape de una ForExp?
+- [ ] En transExp, para el caso de ForExp ¿No tendríamos que chequear si nv es "fresca"?
+- [ ] En transExp, para el caso de ForExp ¿Tenemos que chequear si lo < hi?
