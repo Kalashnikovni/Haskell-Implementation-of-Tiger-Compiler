@@ -1,11 +1,11 @@
-{-# Language MultiParamTypeClasses #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
+
 module TigerUnique where
 
-import           Control.Monad.Trans
-import           Control.Monad.State.Class
-                                         hiding ( modify )
-
-import           State                         as St
+import Control.Monad.Trans
+import Control.Monad.State.Class hiding (modify)
+import State as St
 
 -- | Los 'Uniques' nos vendrán bien para definir números que supondremos únicos.
 -- Ya que los vamos a usar a lo largo del compilador, voy a definir una mónada

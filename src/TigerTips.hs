@@ -1,7 +1,9 @@
+{-# LANGUAGE PatternSynonyms #-}
+
 module TigerTips where
 
-import           TigerErrores
-import           TigerSymbol
+import TigerErrores
+import TigerSymbol
 import TigerUnique
 
 data RWO = RW | RO
@@ -32,10 +34,10 @@ data Tipo = TUnit
           | TRecord [(Symbol, Tipo, Posicion)] Unique
           -- ^ Tipo de los records, similar a los arreglos pero con campos
           -- con nombre.
-          -- | Referencia a un record y a un Tipo.
+          | RefRecord Symbol
+          -- ^ Referencia a un record y a un Tipo.
           -- Estos elementos son útiles en el proceso de detección de ciclos,
           -- pero no deberían verse una vez realizada la detección.
-          | RefRecord Symbol
     deriving (Show,Eq)
 
 -- | Internamente capaz que es mejor usar esta construcción.

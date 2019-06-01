@@ -1,3 +1,6 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module TigerAbs where
 
 import TigerSymbol

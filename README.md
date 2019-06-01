@@ -24,6 +24,8 @@ evalState (runSeman exp) 0
 
 # TODO
 
-- [ ] Ver el caso de transTy en RecordTy.
-- [ ] Completar TigerSeman (transDec, transExp e instancias de mónada).
+- [X] Ver el caso de transTy en RecordTy.
+- [ ] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
+- [ ] Terminar transExp.
+- [ ] Completar TigerSeman (transDec, instancias de mónada).
 - [ ] Opcional: ver lo de pretty-printing.

@@ -1,34 +1,38 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module TigerSeman where
 
-import           TigerAbs
-import           TigerErrores               as E
-import           TigerSres
-import           TigerSymbol
-import           TigerTips
-import           TigerUnique
-import           TigerTopSort
+import TigerAbs
+import TigerErrores as E
+import TigerSres
+import TigerSymbol
+import TigerTips
+import TigerUnique
+import TigerTopSort
 
 -- Segunda parte imports:
-import           TigerTemp
--- import           TigerTrans
+import TigerTemp
+-- import TigerTrans
 
 -- Monads
-import qualified Control.Conditional        as C
-import           Control.Monad
-import           Control.Monad.State
-import           Control.Monad.Trans.Except
+import qualified Control.Conditional as C
+import Control.Monad
+import Control.Monad.State
+import Control.Monad.Trans.Except
 
 -- Data
-import           Data.List                  as List
-import           Data.Map                   as M
-import           Data.Ord                   as Ord
+import Data.List as List
+import Data.Map as M
+import Data.Ord as Ord
 
 -- Le doy nombre al Preludio.
-import           Prelude                    as P
+import Prelude as P
 
 -- Debugging. 'trace :: String -> a -> a'
 -- imprime en pantalla la string cuando se ejecuta.
-import           Debug.Trace                (trace)
+import Debug.Trace (trace)
 
 -- * Análisis Semántico, aka Inferidor de Tipos
 
@@ -43,7 +47,7 @@ import           Debug.Trace                (trace)
 -- este modulo. Mi consejo es que sean /lo más ordenados posible/ teniendo en cuenta
 -- que van a tener que reescribir bastante.
 
-class (Demon w, Monad w) => Manticore w where
+class (Demon w, Monad w, UniqueGenerator w) => Manticore w where
   -- | Inserta una Variable al entorno
     insertValV :: Symbol -> ValEntry -> w a -> w a
   -- | Inserta una Función al entorno
@@ -61,6 +65,7 @@ class (Demon w, Monad w) => Manticore w where
   -- | Funciones de Debugging!
     showVEnv :: w a -> w a
     showTEnv :: w a -> w a
+    ugen :: w a -> w Unique
     --
     -- | Función monadica que determina si dos tipos son iguales.
     -- El catch está en que tenemos una especie de referencia entre los
@@ -161,18 +166,18 @@ transVar (SimpleVar s)      =
 transVar (FieldVar v s)     =
   do (_, t) <- transVar v
      case t of
-       TRecord l _ -> maybe (E.internal "Se intenta acceder a un campo que no pertenece al record") 
+       TRecord l _ -> maybe (E.internal $ pack "Se intenta acceder a un campo que no pertenece al record") 
                             (\tx -> return ((), tx))
                             (buscarM s l) 
-       _           -> E.internal "Se intenta acceder al campo de una variable que no es un record"
+       _           -> E.internal $ pack "Se intenta acceder al campo de una variable que no es un record"
 transVar (SubscriptVar v e) =
   do (_, te) <- transExp e 
      case te of
        TInt _ -> do (_, tv) <- transVar v
                     case tv of
                       TArray ta _ -> return ((), ta)
-                      _           -> E.internal "Se intenta indexar algo que no es un arreglo"
-       _      -> E.internal "El indice del arreglo no es un número"
+                      _           -> E.internal $ pack "Se intenta indexar algo que no es un arreglo"
+       _      -> E.internal $ pack "El indice del arreglo no es un número"
 
 -- | __Completar__ 'TransTy'
 -- El objetivo de esta función es dado un tipo
@@ -184,8 +189,11 @@ transVar (SubscriptVar v e) =
 -- porque no se genera código intermedio en la definición de un tipo.
 transTy :: (Manticore w) => Ty -> w Tipo
 transTy (NameTy s)      = getTipoT s
+-- TODO: chequear posicion de los campos
 transTy (RecordTy flds) =
--- splitWith splitRecordTy flds
+  do u   <- mkUnique
+     foldM (\(TRecord lf u) (s, t) -> do t' <- transTy t
+                                         return (TRecord ((s, t', 0):lf) u)) (TRecord [] u) flds
 transTy (ArrayTy s)     = getTipoT s
 
 fromTy :: (Manticore w) => Ty -> w Tipo
@@ -334,40 +342,45 @@ updateRefs  s t s' m = do
 
 -- ** transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
 transExp :: (Manticore w) => Exp -> w (() , Tipo)
-transExp (VarExp v p) = addpos (transVar v) p
-transExp UnitExp{} = return ((), TUnit) -- ** fmap (,TUnit) unitExp
-transExp NilExp{} = return ((), TNil) -- ** fmap (,TNil) nilExp
-transExp (IntExp i _) = return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
-transExp (StringExp s _) = return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
+transExp (VarExp v p) = 
+  addpos (transVar v) p
+transExp UnitExp{} = 
+  return ((), TUnit) -- ** fmap (,TUnit) unitExp
+transExp NilExp{} = 
+  return ((), TNil) -- ** fmap (,TNil) nilExp
+transExp (IntExp i _) = 
+  return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
+transExp (StringExp s _) = 
+  return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
 transExp (CallExp nm args p) = undefined -- Completar
-transExp (OpExp el' oper er' p) = do -- Esta va /gratis/
-        (_ , el) <- transExp el'
-        (_ , er) <- transExp er'
-        case oper of
-          EqOp -> if tiposComparables el er EqOp then oOps el er
-                  else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
-          NeqOp ->if tiposComparables el er EqOp then oOps el er
-                  else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
-          -- Los unifico en esta etapa porque solo chequeamos los tipos, en la próxima
-          -- tendrán que hacer algo más interesante.
-          PlusOp -> oOps el er
-          MinusOp -> oOps el er
-          TimesOp -> oOps el er
-          DivideOp -> oOps el er
-          LtOp -> oOps el er
-          LeOp -> oOps el er
-          GtOp -> oOps el er
-          GeOp -> oOps el er
-          where oOps l r = if equivTipo l r -- Chequeamos que son el mismo tipo
-                              && equivTipo l (TInt RO) -- y que además es Entero. [Equiv Tipo es una rel de equiv]
-                           then return ((), TInt RO)
-                           else addpos (derror (pack "Error en el chequeo de una comparación.")) p
+transExp (OpExp el' oper er' p) = 
+  do (_ , el) <- transExp el'
+     (_ , er) <- transExp er'
+     case oper of
+       EqOp -> if tiposComparables el er EqOp then oOps el er
+               else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
+       NeqOp ->if tiposComparables el er EqOp then oOps el er
+               else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
+       -- Los unifico en esta etapa porque solo chequeamos los tipos, en la próxima
+       -- tendrán que hacer algo más interesante.
+       PlusOp -> oOps el er
+       MinusOp -> oOps el er
+       TimesOp -> oOps el er
+       DivideOp -> oOps el er
+       LtOp -> oOps el er
+       LeOp -> oOps el er
+       GtOp -> oOps el er
+       GeOp -> oOps el er
+  where oOps l r = if equivTipo l r -- Chequeamos que son el mismo tipo
+                      && equivTipo l (TInt RO) -- y que además es Entero. [Equiv Tipo es una rel de equiv]
+                   then return ((), TInt RO)
+                   else addpos (derror (pack "Error en el chequeo de una comparación.")) p
 -- | Recordemos que 'RecordExp :: [(Symbol, Exp)] -> Symbol -> Pos -> Exp'
 -- Donde el primer argumento son los campos del records, y el segundo es
 -- el texto plano de un tipo (que ya debería estar definido). Una expresión
 -- de este tipo está creando un nuevo record.
 transExp(RecordExp flds rt p) =
-  addpos (getTipoT rt) p >>= \case -- Buscamos en la tabla que tipo es 'rt', y hacemos un análisis por casos.
+  addpos (getTipoT rt) p >>= \x -> case x of -- Buscamos en la tabla que tipo es 'rt', y hacemos un análisis por casos.
     trec@(TRecord fldsTy _) -> -- ':: TRecord [(Symbol, Tipo, Int)] Unique'
       do
         -- Especial atención acá.
