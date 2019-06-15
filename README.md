@@ -25,9 +25,12 @@ evalState (runSeman exp) 0
 # TODO
 
 - [X] Ver el caso de transTy en RecordTy.
+- [X] Terminar transExp (solo queda el caso de ArrayExp).
+- [ ] Dar las instancias de mónada.
+- [ ] Completar transDecs.
+- [ ] Chequeos de breaks bien anidados, y que las definiciones mutuamente recursivas sean a través de  
+      arrays o records (¿Puede que se haga en la etapa de parseo?)
 - [ ] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
-- [ ] Terminar transExp (solo queda el caso de ArrayExp).
-- [ ] Completar TigerSeman (transDec, instancias de mónada).
 - [ ] Opcional: ver lo de pretty-printing.
 
 # Dudas

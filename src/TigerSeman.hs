@@ -47,53 +47,10 @@ import Debug.Trace (trace)
 -- este modulo. Mi consejo es que sean /lo más ordenados posible/ teniendo en cuenta
 -- que van a tener que reescribir bastante.
 
-class (Demon w, Monad w, UniqueGenerator w) => Manticore w where
-  -- | Inserta una Variable al entorno
-    insertValV :: Symbol -> ValEntry -> w a -> w a
-  -- | Inserta una Función al entorno
-    insertFunV :: Symbol -> FunEntry -> w a -> w a
-  -- | Inserta una Variable de sólo lectura al entorno
-    insertVRO :: Symbol -> w a -> w a
-  -- | Inserta una variable de tipo al entorno
-    insertTipoT :: Symbol -> Tipo -> w a -> w a
-  -- | Busca una función en el entorno
-    getTipoFunV :: Symbol -> w FunEntry
-  -- | Busca una variable en el entorno. Ver [1]
-    getTipoValV :: Symbol -> w ValEntry
-  -- | Busca un tipo en el entorno
-    getTipoT :: Symbol -> w Tipo
-  -- | Funciones de Debugging!
-    showVEnv :: w a -> w a
-    showTEnv :: w a -> w a
-    ugen :: w a -> w Unique
-    --
-    -- | Función monadica que determina si dos tipos son iguales.
-    -- El catch está en que tenemos una especie de referencia entre los
-    -- nombres de los tipos, ya que cuando estamos analizando la existencia de bucles
-    -- en la definición permitimos cierto alias hasta que los linearizamos con el
-    -- sort topológico.
-    tiposIguales :: Tipo -> Tipo -> w Bool
-    tiposIguales (RefRecord s) l@(TRecord _ u) = do
-        st <- getTipoT s
-        case st of
-            TRecord _ u1 -> return (u1 == u)
-            ls@RefRecord{} -> tiposIguales ls l
-            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales1" ++ (show e ++ show st)
-    tiposIguales l@(TRecord _ u) (RefRecord s) = do
-        st <- getTipoT s
-        case st of
-            TRecord _ u1 -> return (u1 == u)
-            ls@RefRecord{} -> tiposIguales l ls
-            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales2" ++ (show e ++ show st)
-    tiposIguales (RefRecord s) (RefRecord s') = do
-        s1 <- getTipoT s
-        s2 <- getTipoT s'
-        tiposIguales s1 s2
-    tiposIguales TNil  (RefRecord _) = return True
-    tiposIguales (RefRecord _) TNil = return True
-    tiposIguales (RefRecord s) e = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales3" ++ (show e ++ show s)
-    tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
-    tiposIguales a b = return (equivTipo a b)
+
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Helpers ----------------------------------------------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- | Definimos algunos helpers
 
@@ -155,7 +112,10 @@ buscarM s [] = Nothing
 buscarM s ((s',t,_):xs) | s == s' = Just t
                         | otherwise = buscarM s xs
 
--- | __Completar__ 'transVar'.
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Traduccion de variables ------------------------------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
+
 -- El objetivo de esta función es obtener el tipo
 -- de la variable a la que se está __accediendo__.
 -- ** transVar :: (MemM w, Manticore w) => Var -> w (BExp, Tipo)
@@ -179,6 +139,10 @@ transVar (SubscriptVar v e) =
                       _           -> E.internal $ pack "Se intenta indexar algo que no es un arreglo"
        _      -> E.internal $ pack "El indice del arreglo no es un número"
 
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Traduccion de tipos ----------------------------------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
+
 -- | __Completar__ 'TransTy'
 -- El objetivo de esta función es dado un tipo
 -- que proviene de la gramática, dar una representación
@@ -199,6 +163,10 @@ transTy (ArrayTy s)     = getTipoT s
 fromTy :: (Manticore w) => Ty -> w Tipo
 fromTy (NameTy s) = getTipoT s
 fromTy _          = P.error "no debería haber una definición de tipos en los args..."
+
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Traduccion de declaraciones---------------------------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- | transDecs es la encargada de tipar las definiciones y posteriormente
 -- generar código intermedio solamente para las declaraciones de variables.
@@ -340,6 +308,10 @@ updateRefs  s t s' m = do
   -- | Insertamos el nuevo tipo eliminando si la tiene, las referencias a |s|
   insertTipoT s' (autoRef s t t') m
 
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Traduccion de expresiones------------------------------------------------------------------------------ --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
+
 -- ** transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
 transExp :: (Manticore w) => Exp -> w (() , Tipo)
 transExp (VarExp v p) = 
@@ -450,8 +422,70 @@ transExp(ForExp nv mb lo hi bo p) =
 transExp(LetExp dcs body p) = transDecs dcs (transExp body)
 transExp(BreakExp p) = return ((), TUnit)
 transExp(ArrayExp sn cant init p) =
-  do tsn <- getTipoValV sn
-     unless (equivTipo tsn (TArray _ _)) $ errorTiposMsg p "La variable no es de tipo arreglo" tsn TArray
+  do tsn@(TArray ta _) <- getTipoT sn
+     -- TODO: corregir bien los campos de TArray, completamos con valores por defecto para que funcione.
+     unless (equivTipo tsn (TArray TUnit 0)) $ errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
+     (_, tca) <- transExp cant
+     unless (equivTipo tca (TInt RO)) $ errorTiposMsg p "El indice no es un entero" tca (TInt RO)
+     (_, tin) <- transExp init
+     unless (equivTipo ta tin) $ errorTiposMsg p "El valor inicial no es del tipo del arreglo" ta tin
+     return ((), tsn)
+
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Clase de estados -------------------------------------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
+
+class (Demon w, Monad w, UniqueGenerator w) => Manticore w where
+  -- | Inserta una Variable al entorno
+    insertValV :: Symbol -> ValEntry -> w a -> w a
+  -- | Inserta una Función al entorno
+    insertFunV :: Symbol -> FunEntry -> w a -> w a
+  -- | Inserta una Variable de sólo lectura al entorno
+    insertVRO :: Symbol -> w a -> w a
+  -- | Inserta una variable de tipo al entorno
+    insertTipoT :: Symbol -> Tipo -> w a -> w a
+  -- | Busca una función en el entorno
+    getTipoFunV :: Symbol -> w FunEntry
+  -- | Busca una variable en el entorno. Ver [1]
+    getTipoValV :: Symbol -> w ValEntry
+  -- | Busca un tipo en el entorno
+    getTipoT :: Symbol -> w Tipo
+  -- | Funciones de Debugging!
+    showVEnv :: w a -> w a
+    showTEnv :: w a -> w a
+    ugen :: w a -> w Unique
+    --
+    -- | Función monadica que determina si dos tipos son iguales.
+    -- El catch está en que tenemos una especie de referencia entre los
+    -- nombres de los tipos, ya que cuando estamos analizando la existencia de bucles
+    -- en la definición permitimos cierto alias hasta que los linearizamos con el
+    -- sort topológico.
+    tiposIguales :: Tipo -> Tipo -> w Bool
+    tiposIguales (RefRecord s) l@(TRecord _ u) = do
+        st <- getTipoT s
+        case st of
+            TRecord _ u1 -> return (u1 == u)
+            ls@RefRecord{} -> tiposIguales ls l
+            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales1" ++ (show e ++ show st)
+    tiposIguales l@(TRecord _ u) (RefRecord s) = do
+        st <- getTipoT s
+        case st of
+            TRecord _ u1 -> return (u1 == u)
+            ls@RefRecord{} -> tiposIguales l ls
+            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales2" ++ (show e ++ show st)
+    tiposIguales (RefRecord s) (RefRecord s') = do
+        s1 <- getTipoT s
+        s2 <- getTipoT s'
+        tiposIguales s1 s2
+    tiposIguales TNil  (RefRecord _) = return True
+    tiposIguales (RefRecord _) TNil = return True
+    tiposIguales (RefRecord s) e = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales3" ++ (show e ++ show s)
+    tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
+    tiposIguales a b = return (equivTipo a b)
+
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Instancia de estados ---------------------------------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- Un ejemplo de estado que alcanzaría para realizar todas la funciones es:
 data Estado = Est {vEnv :: M.Map Symbol EnvEntry, tEnv :: M.Map Symbol Tipo}
@@ -475,9 +509,7 @@ initConf = Est
                     ,(pack "substring",Func (1,pack "substring",[TString,TInt RW, TInt RW],TString,Runtime))
                     ,(pack "concat",Func (1,pack "concat",[TString,TString],TString,Runtime))
                     ,(pack "not",Func (1,pack "not",[TBool],TBool,Runtime))
-                    ,(pack "exit",Func (1,pack "exit",[TInt RW],TUnit,Runtime))
-                    ]
-           }
+                    ,(pack "exit",Func (1,pack "exit",[TInt RW],TUnit,Runtime))]}
 
 -- Utilizando alguna especie de run de la monada definida, obtenemos algo así
 type Monada = ExceptT Symbol (StateT Estado StGen)
