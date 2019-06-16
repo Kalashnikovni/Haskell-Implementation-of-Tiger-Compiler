@@ -25,6 +25,8 @@ import           Text.PrettyPrint
 import           Data.List                     as L
 import           TigerPrettyIr
 
+tabWidth = 4
+ 
 prettyDato (TI.Str s) = text $ unpack s
 prettyDato (DInt   i) = int i
 prettyDato (FBody (accs, stms, _)) =

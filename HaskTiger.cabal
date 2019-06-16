@@ -13,10 +13,11 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs: src, interp
-  other-modules: State
+--  other-modules: State
   exposed-modules:
       -- Primer entrega
           TigerAbs
+        , State
         , TigerErrores
         , TigerEscap
         , TigerLexer
@@ -36,12 +37,12 @@ library
         , TigerTrans
         , TigerFrame
         , TigerPrettyIr
-        , TigerCanon
+        --, TigerCanon
         -- Experimental
-        , TigerInterpPP
-        , TigerInteractive
-        , TigerInterpTypes
-        , TigerInterpFrame
+        -- , TigerInterpPP
+        -- , TigerInteractive
+        -- , TigerInterpTypes
+        -- , TigerInterpFrame
         , TigerQQ
       -- Tercer entrega. So vo.
   build-depends:       base
@@ -118,20 +119,20 @@ test-suite Escap
   default-language:    Haskell2010
   default-extensions: QuasiQuotes
 
-test-suite Interp
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Interp.hs
-  build-depends:       base
-                     , parsec
-                     , directory
-                     , ansi-terminal
-                     , containers
-                     , cond
-                     , HaskTiger
-  other-modules: Tools
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
+-- test-suite Interp
+--  type:                exitcode-stdio-1.0
+--  hs-source-dirs:      test
+--  main-is:             Interp.hs
+--  build-depends:       base
+--                     , parsec
+--                     , directory
+--                     , ansi-terminal
+--                     , containers
+--                     , cond
+--                    , HaskTiger
+--  other-modules: Tools
+--  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+--  default-language:    Haskell2010
 
 source-repository head
   type:     git

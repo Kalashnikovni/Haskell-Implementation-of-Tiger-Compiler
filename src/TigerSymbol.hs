@@ -11,7 +11,6 @@ module TigerSymbol
 where
 
 import           Prelude                       as P
-
 import           Data.Text                     as T
 
 -- | Symbol es como representamos las cadenas a lo largo del compilador...

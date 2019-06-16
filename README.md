@@ -26,7 +26,8 @@ evalState (runSeman exp) 0
 
 - [X] Ver el caso de transTy en RecordTy.
 - [X] Terminar transExp (solo queda el caso de ArrayExp).
-- [ ] Dar las instancias de mónada.
+- [X] Dar las instancias de mónada (falta testearlas).
+- [ ] Completar transExp (caso CallExp)
 - [ ] Completar transDecs.
 - [ ] Chequeos de breaks bien anidados, y que las definiciones mutuamente recursivas sean a través de  
       arrays o records (¿Puede que se haga en la etapa de parseo?)

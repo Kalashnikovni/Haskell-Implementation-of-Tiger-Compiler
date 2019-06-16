@@ -454,34 +454,7 @@ class (Demon w, Monad w, UniqueGenerator w) => Manticore w where
     showVEnv :: w a -> w a
     showTEnv :: w a -> w a
     ugen :: w a -> w Unique
-    --
-    -- | Función monadica que determina si dos tipos son iguales.
-    -- El catch está en que tenemos una especie de referencia entre los
-    -- nombres de los tipos, ya que cuando estamos analizando la existencia de bucles
-    -- en la definición permitimos cierto alias hasta que los linearizamos con el
-    -- sort topológico.
     tiposIguales :: Tipo -> Tipo -> w Bool
-    tiposIguales (RefRecord s) l@(TRecord _ u) = do
-        st <- getTipoT s
-        case st of
-            TRecord _ u1 -> return (u1 == u)
-            ls@RefRecord{} -> tiposIguales ls l
-            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales1" ++ (show e ++ show st)
-    tiposIguales l@(TRecord _ u) (RefRecord s) = do
-        st <- getTipoT s
-        case st of
-            TRecord _ u1 -> return (u1 == u)
-            ls@RefRecord{} -> tiposIguales l ls
-            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales2" ++ (show e ++ show st)
-    tiposIguales (RefRecord s) (RefRecord s') = do
-        s1 <- getTipoT s
-        s2 <- getTipoT s'
-        tiposIguales s1 s2
-    tiposIguales TNil  (RefRecord _) = return True
-    tiposIguales (RefRecord _) TNil = return True
-    tiposIguales (RefRecord s) e = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales3" ++ (show e ++ show s)
-    tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
-    tiposIguales a b = return (equivTipo a b)
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Instancia de estados ---------------------------------------------------------------------------------- --
@@ -513,27 +486,110 @@ initConf = Est
 
 -- Utilizando alguna especie de run de la monada definida, obtenemos algo así
 type Monada = ExceptT Symbol (StateT Estado StGen)
-  -- StateT Estado (ExceptT Symbol StGen)
 
 instance Demon Monada where
-  -- | 'throwE' de la mónada de excepciones.
-  derror =  throwE
-  -- TODO: Parte del estudiante
+  -- derror :: Symbol -> w a 
+  derror      =  throwE
   -- adder :: w a -> Symbol -> w a
+  adder w msg = withExceptT (\e -> TigerSymbol.append msg e) w 
+
 instance Manticore Monada where
-  -- | A modo de ejemplo esta es una opción de ejemplo de 'insertValV :: Symbol -> ValEntry -> w a -> w'
-    insertValV sym ventry m = do
-      -- | Guardamos el estado actual
-      oldEst <- get
-      -- | Insertamos la variable al entorno (sobrescribiéndolo)
-      put (oldEst{ vEnv = M.insert sym (Var ventry) (vEnv oldEst) })
-      -- | ejecutamos la computación que tomamos como argumentos una vez que expandimos el entorno
-      a <- m
-      -- | Volvemos a poner el entorno viejo
-      put oldEst
-      -- | retornamos el valor que resultó de ejecutar la monada en el entorno expandido.
-      return a
-  -- TODO: Parte del estudiante
+    --insertValV :: Symbol -> ValEntry -> w a -> w a
+    insertValV sym ventry w = 
+      do -- | Guardamos el estado actual
+         oldEst <- get
+         -- | Insertamos la variable al entorno (sobrescribiéndolo)
+         put (oldEst{vEnv = M.insert sym (Var ventry) (vEnv oldEst)})
+         -- | ejecutamos la computación que tomamos como argumento una vez que expandimos el entorno
+         a <- w
+         -- | Volvemos a poner el entorno viejo
+         put oldEst
+         -- | retornamos el valor que resultó de ejecutar la monada en el entorno expandido.
+         return a
+    -- insertFunV :: Symbol -> FunEntry -> w a -> w a
+    insertFunV sym fentry w =
+      do oldEst <- get
+         put (oldEst{vEnv = M.insert sym (Func fentry) (vEnv oldEst)})
+         a <- w
+         put oldEst
+         return a
+    -- insertVRO :: Symbol -> w a -> w a
+    insertVRO sym w =
+      do oldEst <- get
+         put (oldEst{vEnv = M.insert sym (Var $ TInt RO) (vEnv oldEst)})
+         a <- w
+         put oldEst
+         return a
+    -- insertTipoT :: Symbol -> Tipo -> w a -> w a
+    insertTipoT sym t w = 
+      do oldEst <- get
+         put (oldEst{tEnv = M.insert sym t (tEnv oldEst)})
+         a <- w
+         put oldEst
+         return a
+    -- getTipoFunV :: Symbol -> w FunEntry
+    getTipoFunV sym =
+      do st <- get
+         case M.lookup sym $ vEnv st of
+           Just (Func f)  -> return f
+           Just (Var _)   -> derror (pack "Corregir compilador")
+           Nothing        -> internal $ TigerSymbol.appends [(pack "Error de Haskell, "),
+                                                             sym,
+                                                             (pack " debería estar en el entorno")] 
+    -- getTipoValV :: Symbol -> w ValEntry
+    getTipoValV sym =
+      do st <- get
+         case M.lookup sym $ vEnv st of
+           Just (Var v)  -> return v
+           Just (Func _) -> derror (pack "Corregir compilador")
+           Nothing       -> internal $ TigerSymbol.appends [(pack "Error de Haskell, "),
+                                                            sym, 
+                                                            (pack " debería estar en el entorno")]
+    -- getTipoT :: Symbol -> w Tipo
+    getTipoT sym = 
+      do st <- get
+         case M.lookup sym $ tEnv st of
+           Just t  -> return t
+           Nothing -> internal $ TigerSymbol.appends [(pack "Error de Haskell, "),
+                                                      sym,
+                                                      (pack " debería estar en el entorno")]
+    -- showVEnv :: w a -> w a
+    showVEnv w = 
+      do st <- get
+         trace (show $ vEnv st) w
+    -- showTEnv :: w a -> w a
+    showTEnv w = 
+      do st <- get
+         trace (show $ tEnv st) w
+    -- ugen :: w a -> w Unique
+    ugen w = mkUnique
+    -- | Función monadica que determina si dos tipos son iguales.
+    -- El catch está en que tenemos una especie de referencia entre los
+    -- nombres de los tipos, ya que cuando estamos analizando la existencia de bucles
+    -- en la definición permitimos cierto alias hasta que los linearizamos con el
+    -- sort topológico.
+    -- tiposIguales :: Tipo -> Tipo -> w Bool
+    tiposIguales (RefRecord s) l@(TRecord _ u) = do
+        st <- getTipoT s
+        case st of
+            TRecord _ u1 -> return (u1 == u)
+            ls@RefRecord{} -> tiposIguales ls l
+            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales1" ++ (show e ++ show st)
+    tiposIguales l@(TRecord _ u) (RefRecord s) = do
+        st <- getTipoT s
+        case st of
+            TRecord _ u1 -> return (u1 == u)
+            ls@RefRecord{} -> tiposIguales l ls
+            e -> E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales2" ++ (show e ++ show st)
+    tiposIguales (RefRecord s) (RefRecord s') = do
+        s1 <- getTipoT s
+        s2 <- getTipoT s'
+        tiposIguales s1 s2
+    tiposIguales TNil  (RefRecord _) = return True
+    tiposIguales (RefRecord _) TNil = return True
+    tiposIguales (RefRecord s) e = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales3" ++ (show e ++ show s)
+    tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
+    tiposIguales a b = return (equivTipo a b)
 
 runMonada :: Monada ((), Tipo)-> StGen (Either Symbol ((), Tipo))
 runMonada =  flip evalStateT initConf . runExceptT

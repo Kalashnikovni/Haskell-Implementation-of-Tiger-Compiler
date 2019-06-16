@@ -13,4 +13,4 @@ class Demon w where
     internal :: Symbol -> w a
     internal = derror . addStr "Internal: "
     notfound :: Symbol -> w a
-    notfound  = derror . addStr "Not found:"
+    notfound  = derror . addStr "Not found: "

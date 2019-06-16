@@ -1,6 +1,5 @@
-import           Text.Parsec
-import           TigerParser
-
+import Text.Parsec
+import TigerParser
 import Tools
 
 main :: IO ()
