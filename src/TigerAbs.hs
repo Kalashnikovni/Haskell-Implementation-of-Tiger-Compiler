@@ -57,7 +57,6 @@ data Exp where
     IntExp :: Int -> Pos -> Exp
     -- | Cadenas de texto
     StringExp :: String -> Pos -> Exp
-://en.wikipedia.org/wiki/Topological_sorting
     -- | Llamada de una función. Ej: f (45). Daría lugar al sig árbol: CallExp
     -- "f" [IntExp 45] Pos
     CallExp :: Symbol -> [Exp] -> Pos -> Exp

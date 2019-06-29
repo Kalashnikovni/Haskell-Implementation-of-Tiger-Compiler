@@ -28,9 +28,9 @@ evalState (runSeman exp) 0
 - [X] Terminar transExp (solo queda el caso de ArrayExp).
 - [X] Dar las instancias de mónada (falta testearlas).
 - [X] Completar transExp (caso CallExp)
-- [ ] Completar transDecs.
+- [ ] Corregir transDecs, caso TypeDec.
 - [ ] Chequeos de breaks bien anidados, y que las definiciones mutuamente recursivas sean a través de  
-      arrays o records (¿Puede que se haga en la etapa de parseo?)
+      arrays o records.
 - [ ] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
 - [ ] Errores significativos en TopSort ¿Qué más podemos dar como error?
 - [ ] Opcional: ver lo de pretty-printing.

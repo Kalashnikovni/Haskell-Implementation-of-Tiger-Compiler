@@ -5,7 +5,7 @@ import Tools
 
 main :: IO ()
 main = 
-  putStrLn "\n======= Test suite Spec in progress =======" >>
+  putStrLn "\n======= Test suite Spec [for TigerSeman testing] in progress =======" >>
   putStrLn "Good:" >>
   testDir good_loc (testGood good_loc tester) >>
   putStrLn "Type:" >>

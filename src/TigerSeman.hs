@@ -129,41 +129,69 @@ fromTy _          = P.error "No deberia haber una definición de tipos en los ar
 
 -- ** transDecs :: (MemM w, Manticore w) => [Dec] -> w a -> w a
 transDecs :: Manticore w => [Dec] -> w a -> w a
-transDecs [] m                               = m
-transDecs ((VarDec nm escap t init p): xs) m = 
+transDecs [] w                               = w
+transDecs ((VarDec nm escap t init p): xs) w = 
   do (_, ti) <- transExp init
      case t of
        Just sv -> do tv <- getTipoT sv
                      unless (equivTipo tv ti) $ errorTiposMsg p "El tipo del valor inicial es incorrecto" tv ti
        Nothing -> unless (not $ equivTipo ti TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
-     insertValV nm ti m
-transDecs ((FunctionDec fs) : xs)          m = m
-transDecs ((TypeDec xs) : xss)             m =
-  let
-    xs' = fmap (\(x,y,_) -> (x,y)) xs
+     insertValV nm ti $ transDecs xs w
+transDecs ((FunctionDec fs) : xs)          w =
+  let 
+    env = insertFFold fs w 
+  in    
+    do mapM_ (\f@(_, params, tf, bd, p) -> 
+               do insertFFold' params env 
+                  (_, t) <- transExp bd
+                  case tf of
+                    Just td -> do tdd <- getTipoT td
+                                  unless (equivTipo t tdd) $
+                                         errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
+                    Nothing -> unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit) fs 
+       transDecs xs env
+transDecs ((TypeDec xs) : xss)             w =
+  let 
+    xs'     = fmap (\(x,y,_) -> (x,y)) xs
     tyNames =  fst $ unzip xs'
     (recordsTy, nrTy) = splitWith (\(s , t) -> either (Left . (s,)) (Right . (s,)) (splitRecordTy t)) xs'
     sortedTys = kahnSort nrTy
-  in
+  in 
     insertRecordsAsRef recordsTy $
     insertSortedTys sortedTys $
-    specialFold recordsTy xs' m
+    insertTFold recordsTy xs' $ transDecs xss w
+
+-- insertFunV :: Symbol -> FunEntry -> w a -> w a
+-- params :: [(Symbol, Escapa, Ty)]
+insertFFold :: Manticore w => [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> w a -> w a
+insertFFold [] w                              = w
+insertFFold ((nm, params, res, bd, _) : fs) w =
+  do u  <- ugen w
+     ts <- mapM (\(_, _, p) -> transTy p) params
+     case res of
+       Just t  -> do tt <- getTipoT t
+                     insertFFold fs $ insertFunV nm (u, nm, ts, tt, Propia) w
+       Nothing -> insertFFold fs $ insertFunV nm (u, nm, ts, TUnit, Propia) w   
+
+--insertValV :: Symbol -> ValEntry -> w a -> w a
+insertFFold' :: Manticore w => [(Symbol, Escapa, Ty)] -> w a -> w a
+insertFFold' [] w                              = w
+insertFFold' ((nm, _, t) : params) w =
+  do tt <- transTy t
+     insertFFold' params (insertValV nm tt w)  
 
 -- Primero argumento: lista de records
-specialFold :: Manticore w => [(Symbol, Ty)] -> [(Symbol, Ty)] -> w a -> w a
-specialFold [] _ w      = w
-specialFold ((sr, tr):rs) lt w =
+insertTFold :: Manticore w => [(Symbol, Ty)] -> [(Symbol, Ty)] -> w a -> w a
+insertTFold [] _ w             = w
+insertTFold ((sr, tr):rs) lt w =
   do ttr <- getTipoT sr
-     specialFold2 (sr, ttr) lt w
+     insertTFold' (sr, ttr) lt w
 
-specialFold2 :: Manticore w => (Symbol, Tipo) -> [(Symbol, Ty)] -> w a -> w a
-specialFold2 _ [] w                  = w
-specialFold2 (sr, ttr) ((s, r):lt) w =
-  specialFold2 (sr, ttr) lt (updateRefs sr ttr s w)
+insertTFold' :: Manticore w => (Symbol, Tipo) -> [(Symbol, Ty)] -> w a -> w a
+insertTFold' _ [] w                  = w
+insertTFold' (sr, ttr) ((s, r):lt) w =
+  insertTFold' (sr, ttr) lt (updateRefs sr ttr s w)
 
--- updateRefs :: Symbol -> Tipo -> Symbol -> w a -> w a
--- foldM :: (Foldable t, Monad m) => (w a -> (Symbol, Ty) -> w (w a)) -> w a -> [(Symbol, Ty)] -> w (w a) 
--- foldM :: (Foldable t, Monad m) => (b -> a -> m b) -> b -> t a -> m b 
 insertRecordsAsRef  :: Manticore w => [(Symbol, Ty)] -> w a -> w a
 insertRecordsAsRef [] m = m
 insertRecordsAsRef ((rSym, rTy) : rs) m =
@@ -277,14 +305,15 @@ transExp(ForExp nv mb lo hi bo p) =
 transExp(LetExp dcs body p) = transDecs dcs (transExp body)
 transExp(BreakExp p) = return ((), TUnit)
 transExp(ArrayExp sn cant init p) =
-  do tsn@(TArray ta _) <- getTipoT sn
+  do tsn <- getTipoT sn 
      -- TODO: corregir bien los campos de TArray, completamos con valores por defecto para que funcione.
-     unless (equivTipo tsn (TArray TUnit 0)) $ errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
-     (_, tca) <- transExp cant
-     unless (equivTipo tca (TInt RO)) $ errorTiposMsg p "El indice no es un entero" tca (TInt RO)
-     (_, tin) <- transExp init
-     unless (equivTipo ta tin) $ errorTiposMsg p "El valor inicial no es del tipo del arreglo" ta tin
-     return ((), tsn)
+     case tsn of
+       TArray ta _ -> do (_, tca) <- transExp cant
+                         unless (equivTipo tca (TInt RO)) $ errorTiposMsg p "El indice no es un entero" tca (TInt RO)
+                         (_, tin) <- transExp init
+                         unless (equivTipo ta tin) $ errorTiposMsg p "El valor inicial no es del tipo del arreglo" ta tin
+                         return ((), tsn)
+       _           -> errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Clase de estados -------------------------------------------------------------------------------------- --
