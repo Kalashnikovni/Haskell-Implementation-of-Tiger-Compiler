@@ -112,12 +112,15 @@ transVar (SubscriptVar v e) =
 
 transTy :: (Manticore w) => Ty -> w Tipo
 transTy (NameTy s)      = getTipoT s
--- TODO: chequear posicion de los campos
 transTy (RecordTy flds) =
   do u   <- mkUnique
-     foldM (\(TRecord lf u) (s, t) -> do t' <- transTy t
-                                         return (TRecord ((s, t', 0):lf) u)) (TRecord [] u) flds
-transTy (ArrayTy s)     = getTipoT s
+     res <- foldM (\((TRecord lf u), p) (s, t) -> do t' <- transTy t
+                                                     return (TRecord ((s, t', p):lf) u, p + 1)) ((TRecord [] u), 0) flds
+     return $ fst res
+transTy (ArrayTy s)     =
+  do ts <- getTipoT s
+     u <- mkUnique
+     return $ TArray ts u
 
 fromTy :: (Manticore w) => Ty -> w Tipo
 fromTy (NameTy s) = getTipoT s
@@ -142,8 +145,8 @@ transDecs ((FunctionDec fs) : xs)          w =
     env = insertFFold fs w 
   in    
     do mapM_ (\f@(_, params, tf, bd, p) -> 
-               do insertFFold' params env 
-                  (_, t) <- transExp bd
+               do --insertFFFold params env 
+                  (_, t) <- insertFFold fs $ insertFFFold params $ transExp bd
                   case tf of
                     Just td -> do tdd <- getTipoT td
                                   unless (equivTipo t tdd) $
@@ -159,7 +162,8 @@ transDecs ((TypeDec xs) : xss)             w =
   in 
     insertRecordsAsRef recordsTy $
     insertSortedTys sortedTys $
-    insertTFold recordsTy xs' $ transDecs xss w
+    selfRefs recordsTy $ 
+    insertTTTFold (P.map fst recordsTy) 0 $ transDecs xss w
 
 -- insertFunV :: Symbol -> FunEntry -> w a -> w a
 -- params :: [(Symbol, Escapa, Ty)]
@@ -170,38 +174,74 @@ insertFFold ((nm, params, res, bd, _) : fs) w =
      ts <- mapM (\(_, _, p) -> transTy p) params
      case res of
        Just t  -> do tt <- getTipoT t
-                     insertFFold fs $ insertFunV nm (u, nm, ts, tt, Propia) w
-       Nothing -> insertFFold fs $ insertFunV nm (u, nm, ts, TUnit, Propia) w   
+                     insertFunV nm (u, nm, ts, tt, Propia) $ insertFFold fs w
+                     --insertFFold fs $ insertFunV nm (u, nm, ts, tt, Propia) w
+       Nothing -> insertFunV nm (u, nm, ts, TUnit, Propia) $ insertFFold fs w
+                  --insertFFold fs $ insertFunV nm (u, nm, ts, TUnit, Propia) w   
 
 --insertValV :: Symbol -> ValEntry -> w a -> w a
-insertFFold' :: Manticore w => [(Symbol, Escapa, Ty)] -> w a -> w a
-insertFFold' [] w                              = w
-insertFFold' ((nm, _, t) : params) w =
+insertFFFold :: Manticore w => [(Symbol, Escapa, Ty)] -> w a -> w a
+insertFFFold [] w                    = w
+insertFFFold ((nm, _, t) : params) w =
   do tt <- transTy t
-     insertFFold' params (insertValV nm tt w)  
-
--- Primero argumento: lista de records
-insertTFold :: Manticore w => [(Symbol, Ty)] -> [(Symbol, Ty)] -> w a -> w a
-insertTFold [] _ w             = w
-insertTFold ((sr, tr):rs) lt w =
-  do ttr <- getTipoT sr
-     insertTFold' (sr, ttr) lt w
-
-insertTFold' :: Manticore w => (Symbol, Tipo) -> [(Symbol, Ty)] -> w a -> w a
-insertTFold' _ [] w                  = w
-insertTFold' (sr, ttr) ((s, r):lt) w =
-  insertTFold' (sr, ttr) lt (updateRefs sr ttr s w)
+     insertValV nm tt $ insertFFFold params w
+     --insertFFold' params (insertValV nm tt w)  
 
 insertRecordsAsRef  :: Manticore w => [(Symbol, Ty)] -> w a -> w a
 insertRecordsAsRef [] m = m
 insertRecordsAsRef ((rSym, rTy) : rs) m =
-  insertRecordsAsRef rs $ insertTipoT rSym (RefRecord rSym) m
+  insertTipoT rSym (RefRecord rSym) $ insertRecordsAsRef rs m
+  --insertRecordsAsRef rs $ insertTipoT rSym (RefRecord rSym) m
 
 insertSortedTys :: Manticore w => [(Symbol, Ty)] -> w a -> w a
 insertSortedTys [] m = m
 insertSortedTys ((tSym, tTy) : ts) m =
   do tty <- transTy tTy
-     insertSortedTys ts $ insertTipoT tSym tty m
+     insertTipoT tSym tty $ insertSortedTys ts m
+     --insertSortedTys ts $ insertTipoT tSym tty m
+
+selfRefs :: Manticore w => [(Symbol, Ty)] -> w a -> w a
+selfRefs [] w           = w
+selfRefs ((sr, tr):rs) w =
+  do tr' <- transTy tr
+     case tr' of
+       TRecord rs' u ->
+         insertTipoT sr tt $ selfRefs rs w
+         where tt = TRecord (P.map (\(s, ti, p) -> (s, autoRef sr tt ti, p)) rs') u 
+       _        -> internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
+
+insertTFold :: Manticore w => (Symbol, Tipo) -> [Symbol] -> w a -> w a
+insertTFold _ [] w            = w
+insertTFold (s, ts) (s':rs) w = 
+  updateRefs s ts s' $ insertTFold (s, ts) rs w
+
+insertTTFold :: Manticore w => (Symbol, Tipo) -> [Tipo] -> w a -> w a
+insertTTFold _ [] w = w
+insertTTFold (s, ts) (r:rs) w = 
+  case r of
+    TRecord lt _ -> insertTFold (s, ts) (P.map fst3 lt) $ insertTTFold (s, ts) rs w
+    _            -> internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
+  where fst3 (a, _, _) = a
+
+insertTTTFold :: Manticore w => [Symbol] -> Int -> w a -> w a
+insertTTTFold [] _ w       = w
+insertTTTFold rs i w 
+  | (P.length rs - 1) == i =
+    let
+      rs' = P.take i rs ++ P.drop (i + 1) rs
+      s   = rs !! i
+    in
+      do ts   <- getTipoT s
+         rss' <- mapM getTipoT rs'
+         insertTTFold (s, ts) rss' w
+  | otherwise              = 
+    let
+      rs' = P.take i rs ++ P.drop (i + 1) rs
+      s   = rs !! i
+    in 
+      do ts   <- getTipoT s
+         rss' <- mapM getTipoT rs'
+         insertTTFold (s, ts) rss' $ insertTTTFold rs (i + 1) w
 
 autoRef :: Symbol -> Tipo -> Tipo -> Tipo
 autoRef s t r@(RefRecord s') 
@@ -255,7 +295,7 @@ transExp (OpExp el' oper er' p) =
   where oOps l r = if equivTipo l r 
                       && equivTipo l (TInt RO) 
                    then return ((), TInt RO)
-                   else addpos (derror (pack "Error en el chequeo de una comparación.")) p
+                   else addpos (derror (pack "Error en el chequeo de una comparacion.")) p
 transExp(RecordExp flds rt p) =
   addpos (getTipoT rt) p >>= \x -> case x of 
     trec@(TRecord fldsTy _) -> 
@@ -263,7 +303,8 @@ transExp(RecordExp flds rt p) =
          let ordered = List.sortBy (Ord.comparing fst) fldsTys
          _ <- flip addpos p $ cmpZip ( (\(s,(c,t)) -> (s,t)) <$> ordered) fldsTy 
          return ((), trec) 
-    _ -> flip addpos p $ derror (pack "Error de tipos.")
+    t -> errorTiposMsg p "La variable no es de tipo record" t (TRecord [] 0)
+         --flip addpos p $ derror (pack "Error de tipos (recordExp).")
 transExp(SeqExp es p) = fmap last (mapM transExp es)
 transExp(AssignExp var val p) =
   do (_, tvar) <- transVar var
@@ -293,16 +334,14 @@ transExp(WhileExp co body p) = do
 -- TODO: ¿Cómo chequeamos que nv sea una variable "fresca"?
 -- TODO: ¿Acá tenemos que chequear si lo < hi?
 transExp(ForExp nv mb lo hi bo p) =
-  do tnv <- getTipoValV nv
-     unless (equivTipo tnv (TInt RO)) $ errorTiposMsg p "El contador del for no es un entero de solo lectura" tnv (TInt RO)
-     (_, tlo) <- transExp  lo
+  do (_, tlo) <- transExp  lo
      unless (equivTipo tlo (TInt RW)) $ errorTiposMsg p "La cota inferior del for no es un entero modificable" tlo (TInt RW)
      (_, thi) <- transExp  hi
      unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
-     (_, tbo) <- transExp bo
+     (_, tbo) <- insertValV nv (TInt RO) $ transExp bo
      unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
      return ((), TUnit)
-transExp(LetExp dcs body p) = transDecs dcs (transExp body)
+transExp(LetExp dcs body p) = transDecs dcs $ transExp body
 transExp(BreakExp p) = return ((), TUnit)
 transExp(ArrayExp sn cant init p) =
   do tsn <- getTipoT sn 
@@ -366,9 +405,9 @@ type Monada = ExceptT Symbol (StateT Estado StGen)
 
 instance Demon Monada where
   -- derror :: Symbol -> w a 
-  derror      =  throwE
+  derror      =  throwE 
   -- adder :: w a -> Symbol -> w a
-  adder w msg = withExceptT (\e -> TigerSymbol.append msg e) w 
+  adder w msg = withExceptT (\e -> addStr (unpack msg) e) w 
 
 instance Manticore Monada where
     --insertValV :: Symbol -> ValEntry -> w a -> w a
@@ -404,8 +443,8 @@ instance Manticore Monada where
       do st <- get
          case M.lookup sym $ vEnv st of
            Just (Func f)  -> return f
-           Just (Var _)   -> derror (pack "Corregir compilador")
-           Nothing        -> internal $ TigerSymbol.appends [(pack "Error de Haskell, "),
+           Just (Var _)   -> derror (pack "Corregir compilador (fun)")
+           Nothing        -> internal $ TigerSymbol.appends [(pack "Error de Haskell (func), "),
                                                              sym,
                                                              (pack " deberia estar en el entorno")] 
     -- getTipoValV :: Symbol -> w ValEntry
@@ -413,8 +452,8 @@ instance Manticore Monada where
       do st <- get
          case M.lookup sym $ vEnv st of
            Just (Var v)  -> return v
-           Just (Func _) -> derror (pack "Corregir compilador")
-           Nothing       -> internal $ TigerSymbol.appends [(pack "Error de Haskell, "),
+           Just (Func _) -> derror (pack "Corregir compilador (val)")
+           Nothing       -> internal $ TigerSymbol.appends [(pack "Error de Haskell (val), "),
                                                             sym, 
                                                             (pack " deberia estar en el entorno")]
     -- getTipoT :: Symbol -> w Tipo
@@ -422,9 +461,9 @@ instance Manticore Monada where
       do st <- get
          case M.lookup sym $ tEnv st of
            Just t  -> return t
-           Nothing -> internal $ TigerSymbol.appends [(pack "Error de Haskell, "),
+           Nothing -> internal $ TigerSymbol.appends [(pack "Error de Haskell (tipo), "),
                                                       sym,
-                                                      (pack " debería estar en el entorno")]
+                                                      (pack " deberia estar en el entorno")]
     -- showVEnv :: w a -> w a
     showVEnv w = 
       do st <- get
@@ -457,7 +496,7 @@ instance Manticore Monada where
     tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
     tiposIguales a b = return (equivTipo a b)
 
-runMonada :: Monada ((), Tipo)-> StGen (Either Symbol ((), Tipo))
+runMonada :: Monada ((), Tipo) -> StGen (Either Symbol ((), Tipo))
 runMonada =  flip evalStateT initConf . runExceptT
 
 runSeman :: Exp -> StGen (Either Symbol ((), Tipo))

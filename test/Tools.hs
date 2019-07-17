@@ -46,13 +46,13 @@ test loc bad good f s = readFile (loc ++ '/' : s) >>=
 -- |badRes| que muestra un mensaje en rojo, y a derecha es correcto y mostramos un
 -- mensaje en azul.
 testGood :: Show a => String -> (String -> Either a b) -> String -> IO ()
-testGood loc = test loc ( badRes . show )
-                        ( const bluenice )
+testGood loc = test loc (badRes . show)
+                        (const bluenice)
 
 -- | Acá asumimos que los test deben fallar, y por ende detectar la falla es
 -- algo positivo y lo mostramos en azul.
-testBad loc  = test loc (const bluefail )
-               (const rednice )
+testBad loc  = test loc (const bluefail)
+                        (const rednice)
 
 -- | Esto testea permite testear archivos en la carpeta |good_loc|
 testSTDGood :: Show a => (String -> Either a b) -> String -> IO ()
@@ -87,7 +87,6 @@ bluenice = colorPrint setBlue "NICE!"
 
 rednice :: IO()
 rednice = colorPrint setRed "BAD NICE!"
-
 
 goodRes :: String -> IO ()
 goodRes = colorPrint setBlue

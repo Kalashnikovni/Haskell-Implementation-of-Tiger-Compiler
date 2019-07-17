@@ -30,6 +30,8 @@ main =
   either (const redfail) (const bluenice) (calcularEEsc ejemplo2) >>
   putStrLn "\n======= Test Ejemplo1 =======" >>
   print (calcularEEsc ejemplo1) >>
+  putStrLn "\n======= Test Ejemplo3 =======" >>
+  print (calcularEEsc ejemplo3) >>
   putStrLn "\n==== [escapa.tig, intro.tig] ====" >>
   test "./test/test_code" (const bluefail) (const rednice) tester "escapa.tig" >>
   test "./test/test_code" (const redfail) (const bluenice) tester "intro.tig" >>
@@ -67,3 +69,12 @@ ejemplo2 = LetExp
             ]
             (IntExp 42 (Simple 8 1))
             (Simple 1 0)
+
+ejemplo3 :: Exp
+ejemplo3 = [expr|
+                let
+                  type intlist = {hd:int, tl:intlist}
+                  var lis : intlist := intlist {hd = 0, tl = nil}
+                in
+                  lis;0
+                end|]

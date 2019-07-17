@@ -7,6 +7,7 @@ module TigerSymbol
   , appends
   , T.length
   , T.empty
+  , T.unlines
   )
 where
 
