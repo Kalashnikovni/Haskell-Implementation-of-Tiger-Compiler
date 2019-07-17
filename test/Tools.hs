@@ -1,7 +1,8 @@
 module Tools where
 
-import           System.Console.ANSI
-import           System.Directory
+import Data.Text
+import System.Console.ANSI
+import System.Directory
 
 -- Pequeña librería para generar suit de pruebas para el compilador.
 -- En gral cada |String| que veamos es en realidad un PATHFILE.
@@ -74,7 +75,11 @@ setRed = setSGR [SetColor Foreground Vivid Red]
 setBlue = setSGR [SetColor Foreground Vivid Blue]
 reset = setSGR []
 
-colorPrint c s = c >> putStrLn s >> reset
+colorPrint c s = c >> mapM_ putStrLn (Prelude.lines (replaceS "\\n" "\n" s)) >> reset
+
+replaceS :: String -> String -> String -> String
+replaceS s1 s2 s3 = 
+  unpack $ replace (pack s1) (pack s2) (pack s3)
 
 redfail :: IO()
 redfail = colorPrint setRed "FAIL"

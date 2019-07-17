@@ -36,7 +36,7 @@ import Debug.Trace (trace)
 
 -- | Definimos algunos helpers
 addpos :: (Demon w, Show b) => w a -> b -> w a
-addpos t p = E.adder t (pack $ show p)
+addpos t p = E.adder t (pack $ show p ++ "\n")
 
 -- | Patrón de errores...
 errorTiposMsg :: (Demon w, Show p)
@@ -61,8 +61,8 @@ tiposComparables _ _ _           = True
 
 cmpZip :: (Demon m, Monad m) => [(Symbol, Tipo)] -> [(Symbol, Tipo, Int)] -> m () --Bool
 cmpZip [] [] = return ()
-cmpZip [] _ = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip1"
-cmpZip _ [] = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip2"
+cmpZip [] _ = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip1\n"
+cmpZip _ [] = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip2\n"
 cmpZip ((sl,tl):xs) ((sr,tr,p):ys) =
         if (equivTipo tl tr && sl == sr)
         then cmpZip xs ys
@@ -405,7 +405,7 @@ type Monada = ExceptT Symbol (StateT Estado StGen)
 
 instance Demon Monada where
   -- derror :: Symbol -> w a 
-  derror      =  throwE 
+  derror      =  throwE . pack . (++ "\n") . unpack 
   -- adder :: w a -> Symbol -> w a
   adder w msg = withExceptT (\e -> addStr (unpack msg) e) w 
 
