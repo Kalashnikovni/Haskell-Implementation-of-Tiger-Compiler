@@ -42,7 +42,7 @@ addpos t p = E.adder t (pack $ show p ++ "\n")
 errorTiposMsg :: (Demon w, Show p)
               => p -> String -> Tipo -> Tipo -> w a
 errorTiposMsg p msg t1 t2 = flip addpos p
-    $ flip adder (pack msg)
+    $ flip adder (pack $ msg ++ "\n")
     $ errorTipos t1 t2
 
 depend :: Ty -> [Symbol]
@@ -163,7 +163,8 @@ transDecs ((TypeDec xs) : xss)             w =
     insertRecordsAsRef recordsTy $
     insertSortedTys sortedTys $
     selfRefs recordsTy $ 
-    insertTTTFold (P.map fst recordsTy) 0 $ transDecs xss w
+    --foldURefs recordsTy xs' $
+    transDecs xss w
 
 -- insertFunV :: Symbol -> FunEntry -> w a -> w a
 -- params :: [(Symbol, Escapa, Ty)]
@@ -200,48 +201,22 @@ insertSortedTys ((tSym, tTy) : ts) m =
      insertTipoT tSym tty $ insertSortedTys ts m
      --insertSortedTys ts $ insertTipoT tSym tty m
 
-selfRefs :: Manticore w => [(Symbol, Ty)] -> w a -> w a
-selfRefs [] w           = w
+selfRefs :: Manticore w => [(Symbol, Ty)] ->  w a -> w a
+selfRefs [] w            = w
 selfRefs ((sr, tr):rs) w =
   do tr' <- transTy tr
-     case tr' of
-       TRecord rs' u ->
-         insertTipoT sr tt $ selfRefs rs w
+     case tr' of 
+       TRecord rs' u -> insertTipoT sr tt $ selfRefs rs w 
          where tt = TRecord (P.map (\(s, ti, p) -> (s, autoRef sr tt ti, p)) rs') u 
-       _        -> internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
+       _             -> internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
 
-insertTFold :: Manticore w => (Symbol, Tipo) -> [Symbol] -> w a -> w a
-insertTFold _ [] w            = w
-insertTFold (s, ts) (s':rs) w = 
-  updateRefs s ts s' $ insertTFold (s, ts) rs w
-
-insertTTFold :: Manticore w => (Symbol, Tipo) -> [Tipo] -> w a -> w a
-insertTTFold _ [] w = w
-insertTTFold (s, ts) (r:rs) w = 
-  case r of
-    TRecord lt _ -> insertTFold (s, ts) (P.map fst3 lt) $ insertTTFold (s, ts) rs w
-    _            -> internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
-  where fst3 (a, _, _) = a
-
-insertTTTFold :: Manticore w => [Symbol] -> Int -> w a -> w a
-insertTTTFold [] _ w       = w
-insertTTTFold rs i w 
-  | (P.length rs - 1) == i =
-    let
-      rs' = P.take i rs ++ P.drop (i + 1) rs
-      s   = rs !! i
-    in
-      do ts   <- getTipoT s
-         rss' <- mapM getTipoT rs'
-         insertTTFold (s, ts) rss' w
-  | otherwise              = 
-    let
-      rs' = P.take i rs ++ P.drop (i + 1) rs
-      s   = rs !! i
-    in 
-      do ts   <- getTipoT s
-         rss' <- mapM getTipoT rs'
-         insertTTFold (s, ts) rss' $ insertTTTFold rs (i + 1) w
+{-
+foldURefs :: Manticore w => [(Symbol, Ty)] -> [(Symbol, Ty)] -> w a -> w a
+foldURefs [] _ w             = w 
+foldURefs ((sr, tr):rs) ls w = w
+  foldURefs rs ls $ P.foldl (\w' (sr', _) -> do tr' <- getTipoT sr
+                                                updateRefs sr tr' sr' w') w ls
+-}
 
 autoRef :: Symbol -> Tipo -> Tipo -> Tipo
 autoRef s t r@(RefRecord s') 
