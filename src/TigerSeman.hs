@@ -113,13 +113,14 @@ transVar (SubscriptVar v e) =
 transTy :: (Manticore w) => Ty -> w Tipo
 transTy (NameTy s)      = getTipoT s
 transTy (RecordTy flds) =
-  do u   <- mkUnique
-     res <- foldM (\((TRecord lf u), p) (s, t) -> do t' <- transTy t
-                                                     return (TRecord ((s, t', p):lf) u, p + 1)) ((TRecord [] u), 0) flds
+  do u   <- ugen
+     res <- foldM (\((TRecord lf u'), p) (s, t) -> do t' <- transTy t
+                                                      return (TRecord ((s, t', p):lf) u', p + 1)) ((TRecord [] u), 0) flds'
      return $ fst res
+  where flds' = List.sortBy (Ord.comparing fst) flds
 transTy (ArrayTy s)     =
   do ts <- getTipoT s
-     u <- mkUnique
+     u <- ugen
      return $ TArray ts u
 
 fromTy :: (Manticore w) => Ty -> w Tipo
@@ -162,61 +163,52 @@ transDecs ((TypeDec xs) : xss)             w =
   in 
     insertRecordsAsRef recordsTy $
     insertSortedTys sortedTys $
-    selfRefs recordsTy $ 
-    --foldURefs recordsTy xs' $
+    selfRefs recordsTy xs' $ 
     transDecs xss w
 
--- insertFunV :: Symbol -> FunEntry -> w a -> w a
--- params :: [(Symbol, Escapa, Ty)]
 insertFFold :: Manticore w => [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> w a -> w a
 insertFFold [] w                              = w
 insertFFold ((nm, params, res, bd, _) : fs) w =
-  do u  <- ugen w
+  do u  <- ugen 
      ts <- mapM (\(_, _, p) -> transTy p) params
      case res of
        Just t  -> do tt <- getTipoT t
                      insertFunV nm (u, nm, ts, tt, Propia) $ insertFFold fs w
-                     --insertFFold fs $ insertFunV nm (u, nm, ts, tt, Propia) w
        Nothing -> insertFunV nm (u, nm, ts, TUnit, Propia) $ insertFFold fs w
-                  --insertFFold fs $ insertFunV nm (u, nm, ts, TUnit, Propia) w   
 
---insertValV :: Symbol -> ValEntry -> w a -> w a
 insertFFFold :: Manticore w => [(Symbol, Escapa, Ty)] -> w a -> w a
 insertFFFold [] w                    = w
 insertFFFold ((nm, _, t) : params) w =
   do tt <- transTy t
      insertValV nm tt $ insertFFFold params w
-     --insertFFold' params (insertValV nm tt w)  
 
 insertRecordsAsRef  :: Manticore w => [(Symbol, Ty)] -> w a -> w a
-insertRecordsAsRef [] m = m
+insertRecordsAsRef [] m                 = m
 insertRecordsAsRef ((rSym, rTy) : rs) m =
   insertTipoT rSym (RefRecord rSym) $ insertRecordsAsRef rs m
-  --insertRecordsAsRef rs $ insertTipoT rSym (RefRecord rSym) m
 
 insertSortedTys :: Manticore w => [(Symbol, Ty)] -> w a -> w a
 insertSortedTys [] m = m
 insertSortedTys ((tSym, tTy) : ts) m =
   do tty <- transTy tTy
      insertTipoT tSym tty $ insertSortedTys ts m
-     --insertSortedTys ts $ insertTipoT tSym tty m
 
-selfRefs :: Manticore w => [(Symbol, Ty)] ->  w a -> w a
-selfRefs [] w            = w
-selfRefs ((sr, tr):rs) w =
+-- Primer argumento: lista de records
+-- Segundo argumento: lista de todos los tipos
+selfRefs :: Manticore w => [(Symbol, Ty)] -> [(Symbol, Ty)] -> w a -> w a
+selfRefs [] ls w            = w
+selfRefs ((sr, tr):rs) ls w =
   do tr' <- transTy tr
      case tr' of 
-       TRecord rs' u -> insertTipoT sr tt $ selfRefs rs w 
+       TRecord rs' u -> insertTipoT sr tt $ updateRest (sr, tt) ls $ selfRefs rs ls w  
          where tt = TRecord (P.map (\(s, ti, p) -> (s, autoRef sr tt ti, p)) rs') u 
        _             -> internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
 
-{-
-foldURefs :: Manticore w => [(Symbol, Ty)] -> [(Symbol, Ty)] -> w a -> w a
-foldURefs [] _ w             = w 
-foldURefs ((sr, tr):rs) ls w = w
-  foldURefs rs ls $ P.foldl (\w' (sr', _) -> do tr' <- getTipoT sr
-                                                updateRefs sr tr' sr' w') w ls
--}
+updateRest :: Manticore w => (Symbol, Tipo) -> [(Symbol, Ty)] -> w a -> w a
+updateRest _ [] w                  = w
+updateRest (s, ts) ((sr, tr):rs) w = 
+  updateRefs s ts sr $ updateRest (s, ts) rs w
+
 
 autoRef :: Symbol -> Tipo -> Tipo -> Tipo
 autoRef s t r@(RefRecord s') 
@@ -227,7 +219,13 @@ autoRef _ _ r = r
 updateRefs :: Manticore w => Symbol -> Tipo -> Symbol -> w a -> w a
 updateRefs  s t s' m = 
   do t'  <- getTipoT s'
-     insertTipoT s' (autoRef s t t') m
+     case t' of
+       TArray ta u  -> 
+         insertTipoT s' (TArray (autoRef s t ta) u) m 
+       TRecord ls u -> 
+         insertTipoT s' (TRecord (P.map (\(ss, tt, pp) -> (ss, autoRef s t tt, pp)) ls) u) m
+       _            -> 
+         insertTipoT s' (autoRef s t t') m
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Traduccion de expresiones ----------------------------------------------------------------------------- --
@@ -276,10 +274,11 @@ transExp(RecordExp flds rt p) =
     trec@(TRecord fldsTy _) -> 
       do fldsTys <- mapM (\(nm, cod) -> (nm,) <$> transExp cod) flds 
          let ordered = List.sortBy (Ord.comparing fst) fldsTys
-         _ <- flip addpos p $ cmpZip ( (\(s,(c,t)) -> (s,t)) <$> ordered) fldsTy 
+             ordered' = List.sortBy (Ord.comparing fst3) fldsTy
+         _ <- flip addpos p $ cmpZip ((\(s,(c,t)) -> (s,t)) <$> ordered) ordered' 
          return ((), trec) 
     t -> errorTiposMsg p "La variable no es de tipo record" t (TRecord [] 0)
-         --flip addpos p $ derror (pack "Error de tipos (recordExp).")
+  where fst3 (a, _, _) = a
 transExp(SeqExp es p) = fmap last (mapM transExp es)
 transExp(AssignExp var val p) =
   do (_, tvar) <- transVar var
@@ -351,7 +350,7 @@ class (Demon w, Monad w, UniqueGenerator w) => Manticore w where
   -- | Funciones de Debugging!
     showVEnv :: w a -> w a
     showTEnv :: w a -> w a
-    ugen :: w a -> w Unique
+    ugen :: w Unique
     tiposIguales :: Tipo -> Tipo -> w Bool
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
@@ -447,8 +446,8 @@ instance Manticore Monada where
     showTEnv w = 
       do st <- get
          trace (show $ tEnv st) w
-    -- ugen :: w a -> w Unique
-    ugen w = mkUnique
+    -- ugen :: w Unique
+    ugen = mkUnique
     tiposIguales (RefRecord s) l@(TRecord _ u) = do
         st <- getTipoT s
         case st of
