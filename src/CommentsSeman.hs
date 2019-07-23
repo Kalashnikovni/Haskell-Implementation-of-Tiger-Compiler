@@ -612,3 +612,5 @@ runMonada =  flip evalStateT initConf . runExceptT
 
 runSeman :: Exp -> StGen (Either Symbol ((), Tipo))
 runSeman = runMonada . transExp
+
+
