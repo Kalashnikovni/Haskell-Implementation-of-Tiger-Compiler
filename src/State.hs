@@ -1,6 +1,6 @@
 module State where
 
-import           Control.Arrow
+import Control.Arrow
 
 newtype State s v = St {runSt :: s -> (v , s)}
 

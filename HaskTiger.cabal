@@ -16,7 +16,8 @@ library
 --  other-modules: State
   exposed-modules:
       -- Primer entrega
-          TigerAbs
+          Manticore
+        , TigerAbs
         , State
         , TigerErrores
         , TigerEscap
