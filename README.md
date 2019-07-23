@@ -28,15 +28,17 @@ evalState (runSeman exp) 0
 - [X] Terminar transExp (solo queda el caso de ArrayExp).
 - [X] Dar las instancias de mónada (falta testearlas).
 - [X] Completar transExp (caso CallExp)
-- [ ] Corregir transDecs, caso TypeDec.
-- [ ] Chequeos de breaks bien anidados, y que las definiciones mutuamente recursivas sean a través de  
-      arrays o records.
-- [ ] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
-- [ ] Errores significativos en TopSort ¿Qué más podemos dar como error?
-- [ ] Opcional: ver lo de pretty-printing.
+- [X] Corregir transDecs, caso TypeDec.
+- [ ] Chequear que las definiciones mutuamente recursivas sean a través de arrays o records.
+- [X] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
+- [ ] Errores significativos en TopSort ¿Qué más podemos dar como error? Rta: cambiar error para que 
+      no se corte el testeo.
+- [ ] Revisar qué pasa con merge.tig que no encuentra readint
+- [X] Opcional: ver lo de pretty-printing.
 
 # Dudas
 
 - [ ] ¿Qué es el argumento de escape de una ForExp?
 - [ ] En transExp, para el caso de ForExp ¿No tendríamos que chequear si nv es "fresca"?
-- [ ] En transExp, para el caso de ForExp ¿Tenemos que chequear si lo < hi?
+- [ ] En transExp, para el caso de ForExp ¿Tenemos que chequear si lo < hi? Alto mambo!
+- [ ] ¿Qué hacemos cuando se declaran variables y funciones con el mismo nombre? (three-name-spaces2.tig, fun-vs-var.tig)

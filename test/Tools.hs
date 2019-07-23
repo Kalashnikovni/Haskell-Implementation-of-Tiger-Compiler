@@ -41,7 +41,8 @@ test :: String
   -> String
   ->  IO ()
 test loc bad good f s = readFile (loc ++ '/' : s) >>=
-                        either (\a -> print ("Filename:" ++ s) >> bad a) good . f
+                        either (\a -> print ("Filename: " ++ s) >> bad a) 
+                               (\b -> print ("Filename: " ++ s) >> good b) . f
 
 -- | Simplificamos |test| asumiendo que a izquierda es un error y usamos
 -- |badRes| que muestra un mensaje en rojo, y a derecha es correcto y mostramos un

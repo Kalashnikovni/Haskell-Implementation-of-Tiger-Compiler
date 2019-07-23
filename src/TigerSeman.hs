@@ -24,6 +24,7 @@ import Control.Monad.Trans.Except
 -- Data
 import Data.List as List
 import Data.Map as M
+import Data.Maybe
 import Data.Ord as Ord
 
 import Prelude as P
@@ -139,8 +140,9 @@ transDecs ((VarDec nm escap t init p): xs) w =
      case t of
        Just sv -> do tv <- getTipoT sv
                      unless (equivTipo tv ti) $ errorTiposMsg p "El tipo del valor inicial es incorrecto" tv ti
-       Nothing -> unless (not $ equivTipo ti TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
-     insertValV nm ti $ transDecs xs w
+                     insertValV nm tv $ transDecs xs w
+       Nothing -> do when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
+                     insertValV nm ti $ transDecs xs w
 transDecs ((FunctionDec fs) : xs)          w =
   let 
     env = insertFFold fs w 
@@ -156,11 +158,17 @@ transDecs ((FunctionDec fs) : xs)          w =
        transDecs xs env
 transDecs ((TypeDec xs) : xss)             w =
   let 
+    checkNames [] w'     = w' 
+    checkNames (z:zs) w' = 
+      case elem (fst z) (P.map fst zs) of
+        False -> checkNames zs w'
+        True  -> addpos (derror $ pack "Hay dos tipos con el mismo nombre en un batch") (snd z) 
     xs'     = fmap (\(x,y,_) -> (x,y)) xs
     tyNames =  fst $ unzip xs'
     (recordsTy, nrTy) = splitWith (\(s , t) -> either (Left . (s,)) (Right . (s,)) (splitRecordTy t)) xs'
     sortedTys = kahnSort nrTy
   in 
+    checkNames (P.map (\(a, _, c) -> (a, c)) xs) $
     insertRecordsAsRef recordsTy $
     insertSortedTys sortedTys $
     selfRefs recordsTy xs' $ 
@@ -168,13 +176,17 @@ transDecs ((TypeDec xs) : xss)             w =
 
 insertFFold :: Manticore w => [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> w a -> w a
 insertFFold [] w                              = w
-insertFFold ((nm, params, res, bd, _) : fs) w =
+insertFFold ((nm, params, res, bd, p) : fs) w =
   do u  <- ugen 
      ts <- mapM (\(_, _, p) -> transTy p) params
-     case res of
-       Just t  -> do tt <- getTipoT t
-                     insertFunV nm (u, nm, ts, tt, Propia) $ insertFFold fs w
-       Nothing -> insertFunV nm (u, nm, ts, TUnit, Propia) $ insertFFold fs w
+     case elem nm $ P.map fst5 fs of
+       False ->
+         case res of
+           Just t  -> do tt <- getTipoT t
+                         insertFunV nm (u, nm, ts, tt, Propia) $ insertFFold fs w
+           Nothing -> insertFunV nm (u, nm, ts, TUnit, Propia) $ insertFFold fs w
+       True -> addpos (derror $ pack "Hay dos funciones con el mismo nombre en un batch") p 
+  where fst5 (a, _, _, _, _) = a
 
 insertFFFold :: Manticore w => [(Symbol, Escapa, Ty)] -> w a -> w a
 insertFFFold [] w                    = w
@@ -245,80 +257,128 @@ transExp (StringExp s _) =
   return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
 transExp (CallExp nm args p) =
   do (_, _, tfargs, tf, _) <- getTipoFunV nm
+     mapM_ checkBreaks args
      targs <- mapM transExp args
+     when (P.length tfargs /= P.length targs) $ addpos (derror $ pack ("La cantidad de argumentos pasados no coincide " ++
+                                                                       "con la cantidad de argumentos de la declaracion")) p
      zipWithM_ (\ta tb -> do unless (equivTipo ta (snd tb)) $ 
                                      errorTiposMsg p "No coincide el tipo de los argumentos" ta (snd tb)) tfargs targs 
      return ((), tf)
 transExp (OpExp el' oper er' p) = 
   do (_ , el) <- transExp el'
      (_ , er) <- transExp er'
+     checkBreaks el'
+     checkBreaks er'
      case oper of
-       EqOp  -> if tiposComparables el er EqOp then oOps el er
-                else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
-       NeqOp -> if tiposComparables el er EqOp then oOps el er
-                else addpos (derror (pack "Error de Tipos. Tipos no comparables")) p
+       EqOp  -> if tiposComparables el er EqOp then eqOps el er
+                else errmsg "Error de tipos. Tipos no comparables 1:" el er
+       NeqOp -> if tiposComparables el er EqOp then eqOps el er
+                else errmsg "Error de tipos. Tipos no comparables 2:" el er
        PlusOp -> oOps el er
        MinusOp -> oOps el er
        TimesOp -> oOps el er
        DivideOp -> oOps el er
-       LtOp -> oOps el er
-       LeOp -> oOps el er
-       GtOp -> oOps el er
-       GeOp -> oOps el er
-  where oOps l r = if equivTipo l r 
-                      && equivTipo l (TInt RO) 
-                   then return ((), TInt RO)
-                   else addpos (derror (pack "Error en el chequeo de una comparacion.")) p
+       LtOp -> ineqOps el er
+       LeOp -> ineqOps el er
+       GtOp -> ineqOps el er
+       GeOp -> ineqOps el er
+  where errmsg msg t1 t2 = addpos (derror $ pack $ msg ++ " " ++ show t1 ++ " " ++ show t2) p
+        getUnique (TArray _ u)  = return u
+        getUnique (TRecord _ u) = return u
+        getUnique _             = addpos (derror $ pack "Error en el chequeo de una comparacion 1.") p
+        oOps l r  = if equivTipo l r 
+                       && equivTipo l (TInt RO) 
+                    then return ((), TInt RO)
+                    else errmsg "Error en el chequeo de una comparacion 2." l r
+        eqOps TNil TNil = errmsg "Error en el chequeo de una comparacion 3." TNil TNil -- Redundant
+        eqOps TNil r    = if equivTipo TNil r
+                          then return ((), TInt RO)
+                          else errmsg "Error en el chequeo de una comparacion 4." TNil r 
+        eqOps l TNil    = if equivTipo l TNil
+                          then return ((), TInt RO)
+                          else errmsg "Error en el chequeo de una comparacion 5." l TNil 
+        eqOps l r = if equivTipo l r &&
+                       (equivTipo l (TInt RO) || equivTipo l TString)
+                    then return ((), TInt RO)
+                    else do l' <- getUnique l
+                            r' <- getUnique r 
+                            if l' == r'
+                            then return ((), TInt RO)
+                            else errmsg "No se pueden comparar los tipos 1:" l r
+        ineqOps l r = if equivTipo l r &&
+                         (equivTipo l (TInt RO) || equivTipo l TString)
+                      then return ((), TInt RO)
+                      else errmsg "No se pueden comparar los tipos 2:" l r
 transExp(RecordExp flds rt p) =
   addpos (getTipoT rt) p >>= \x -> case x of 
     trec@(TRecord fldsTy _) -> 
-      do fldsTys <- mapM (\(nm, cod) -> (nm,) <$> transExp cod) flds 
-         let ordered = List.sortBy (Ord.comparing fst) fldsTys
+      do mapM_ checkBreaks (P.map snd flds)
+         fldsTys <- mapM (\(nm, cod) -> (nm,) <$> transExp cod) flds 
+         let ordered  = List.sortBy (Ord.comparing fst) fldsTys
              ordered' = List.sortBy (Ord.comparing fst3) fldsTy
          _ <- flip addpos p $ cmpZip ((\(s,(c,t)) -> (s,t)) <$> ordered) ordered' 
          return ((), trec) 
     t -> errorTiposMsg p "La variable no es de tipo record" t (TRecord [] 0)
   where fst3 (a, _, _) = a
-transExp(SeqExp es p) = fmap last (mapM transExp es)
+transExp(SeqExp es p) = 
+  do mapM_ checkBreaks es
+     fmap last (mapM transExp es)
 transExp(AssignExp var val p) =
-  do (_, tvar) <- transVar var
+  do checkBreaks val
+     (_, tvar) <- transVar var
      (_, tval) <- transExp val
      case equivTipo tvar tval of
        True -> return ((), TUnit) 
        _    -> errorTiposMsg p "El tipo de la variable y del valor no son iguales" tvar tval  
-transExp(IfExp co th Nothing p) = do
-  (_ , co') <- transExp co
-  unless (equivTipo co' TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" co' TBool 
-  (() , th') <- transExp th
-  unless (equivTipo th' TUnit) $ errorTiposMsg p "La branch está devolviendo un resultado" th' TUnit
-  return (() , TUnit)
-transExp(IfExp co th (Just el) p) = do
-  (_ , condType) <- transExp co
-  unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
-  (_, ttType) <- transExp th
-  (_, ffType) <- transExp el
-  C.unlessM (tiposIguales ttType ffType) $ errorTiposMsg p "Las branches devuelven resultados de distinto tipo" ttType ffType
-  return ((), ttType)
-transExp(WhileExp co body p) = do
-  (_ , coTy) <- transExp co
-  unless (equivTipo coTy TBool) $ errorTiposMsg p "La condicion del While no es booleana" coTy TBool
-  (_ , boTy) <- transExp body
-  unless (equivTipo boTy TUnit) $ errorTiposMsg p "El cuerpo del While devuelve un resultado" boTy TBool
-  return ((), TUnit)
+transExp(IfExp co th Nothing p) =
+  do checkBreaks co
+     checkBreaks th
+     (_ , co') <- transExp co
+     unless (equivTipo co' TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" co' TBool 
+     (() , th') <- transExp th
+     unless (equivTipo th' TUnit) $ errorTiposMsg p "La branch está devolviendo un resultado" th' TUnit
+     return (() , TUnit)
+transExp(IfExp co th (Just el) p) = 
+  do checkBreaks co
+     checkBreaks th
+     checkBreaks el
+     (_ , condType) <- transExp co
+     unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
+     (_, ttType) <- transExp th
+     (_, ffType) <- transExp el
+     C.unlessM (tiposIguales ttType ffType) $ errorTiposMsg p "Las branches devuelven resultados de distinto tipo" ttType ffType
+     return ((), ttType)
+transExp(WhileExp co body p) = 
+  do checkBreaks co
+     (_ , coTy) <- transExp co
+     unless (equivTipo coTy TBool) $ errorTiposMsg p "La condicion del While no es booleana" coTy TBool
+     (_ , boTy) <- transExp $ scanBreaks body
+     unless (equivTipo boTy TUnit) $ errorTiposMsg p "El cuerpo del While devuelve un resultado" boTy TBool
+     return ((), TUnit)
 -- TODO: ¿Cómo chequeamos que nv sea una variable "fresca"?
--- TODO: ¿Acá tenemos que chequear si lo < hi?
 transExp(ForExp nv mb lo hi bo p) =
-  do (_, tlo) <- transExp  lo
+  do checkBreaks lo
+     checkBreaks hi
+     (_, tlo) <- transExp  lo
      unless (equivTipo tlo (TInt RW)) $ errorTiposMsg p "La cota inferior del for no es un entero modificable" tlo (TInt RW)
      (_, thi) <- transExp  hi
      unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
-     (_, tbo) <- insertValV nv (TInt RO) $ transExp bo
+     i1 <- getN lo
+     i2 <- getN hi
+     when (i2 < i1) $ addpos (derror $ pack "Chequear cotas del loop") p 
+     (_, tbo) <- insertValV nv (TInt RO) $ transExp (scanBreaks bo)
      unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
      return ((), TUnit)
-transExp(LetExp dcs body p) = transDecs dcs $ transExp body
+  where getN (IntExp i _) = return i
+        getN _            = addpos (internal $ pack "No es IntExp") p 
+transExp(LetExp dcs body p) = 
+  do checkBreaks body
+     transDecs dcs $ transExp body
 transExp(BreakExp p) = return ((), TUnit)
 transExp(ArrayExp sn cant init p) =
-  do tsn <- getTipoT sn 
+  do checkBreaks cant
+     checkBreaks init
+     tsn <- getTipoT sn 
      -- TODO: corregir bien los campos de TArray, completamos con valores por defecto para que funcione.
      case tsn of
        TArray ta _ -> do (_, tca) <- transExp cant
@@ -327,6 +387,26 @@ transExp(ArrayExp sn cant init p) =
                          unless (equivTipo ta tin) $ errorTiposMsg p "El valor inicial no es del tipo del arreglo" ta tin
                          return ((), tsn)
        _           -> errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
+
+checkBreaks :: Manticore w => Exp -> w ((), Tipo)
+checkBreaks (BreakExp p) = addpos (derror $ pack "Break fuera de loop") p 
+checkBreaks _            = return ((), TUnit) 
+
+scanBreaks :: Exp -> Exp
+scanBreaks (CallExp s le p)          = CallExp s (P.map scanBreaks le) p
+scanBreaks (OpExp el o er p)         = OpExp (scanBreaks el) o (scanBreaks er) p
+scanBreaks (RecordExp es s p)        = RecordExp (P.map (\(sym, exp) -> (sym, scanBreaks exp)) es) s p
+scanBreaks (SeqExp le p)             = SeqExp (P.map scanBreaks le) p
+scanBreaks (AssignExp v e p)         = AssignExp v (scanBreaks e) p
+scanBreaks (IfExp co th el p)  
+  | isNothing el = IfExp (scanBreaks co) (scanBreaks th) Nothing p
+  | otherwise    = IfExp (scanBreaks co) (scanBreaks th) (Just $ scanBreaks (fromJust el)) p
+scanBreaks (WhileExp co bd p)  = WhileExp (scanBreaks co) (scanBreaks bd) p
+scanBreaks (ForExp s esc lo hi bd p) = ForExp s esc (scanBreaks lo) (scanBreaks hi) (scanBreaks bd) p
+scanBreaks (LetExp dcs e p)          = LetExp dcs (scanBreaks e) p
+scanBreaks (ArrayExp s ct i p)       = ArrayExp s (scanBreaks ct) (scanBreaks i) p 
+scanBreaks (BreakExp p)              = UnitExp p
+scanBreaks ex                        = ex
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Clase de estados -------------------------------------------------------------------------------------- --

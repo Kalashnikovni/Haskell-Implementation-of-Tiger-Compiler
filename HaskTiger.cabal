@@ -83,7 +83,7 @@ executable HaskTiger
 test-suite HaskTiger-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             Seman.hs
   build-depends:       base
                      , parsec
                      , directory
