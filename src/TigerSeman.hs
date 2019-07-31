@@ -78,18 +78,18 @@ transVar (SimpleVar s)      =
 transVar (FieldVar v s)     =
   do (_, t) <- transVar v
      case t of
-       TRecord l _ -> maybe (E.internal $ pack "Se intenta acceder a un campo que no pertenece al record") 
+       TRecord l _ -> maybe (derror $ pack "Se intenta acceder a un campo que no pertenece al record") 
                             (\tx -> return ((), tx))
                             (buscarM s l) 
-       _           -> E.internal $ pack "Se intenta acceder al campo de una variable que no es un record"
+       _           -> derror $ pack "Se intenta acceder al campo de una variable que no es un record"
 transVar (SubscriptVar v e) =
   do (_, te) <- transExp e 
      case te of
        TInt _ -> do (_, tv) <- transVar v
                     case tv of
                       TArray ta _ -> return ((), ta)
-                      _           -> E.internal $ pack "Se intenta indexar algo que no es un arreglo"
-       _      -> E.internal $ pack "El indice del arreglo no es un número"
+                      _           -> derror $ pack "Se intenta indexar algo que no es un arreglo"
+       _      -> derror $ pack "El indice del arreglo no es un número"
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Traduccion de tipos ----------------------------------------------------------------------------------- --
@@ -128,17 +128,14 @@ transDecs ((VarDec nm escap t init p): xs) w =
        Nothing -> do C.when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
                      insertValV nm ti $ transDecs xs w
 transDecs ((FunctionDec fs) : xs)          w =
-  let 
-    env = insertFFold fs w 
-  in    
-    do mapM_ (\f@(_, params, tf, bd, p) -> 
-               do (_, t) <- insertFFold fs $ insertFFFold params $ transExp bd
-                  case tf of
-                    Just td -> do tdd <- getTipoT td
-                                  C.unless (equivTipo t tdd) $
+  do mapM_ (\f@(_, params, tf, bd, p) -> 
+             do (_, t) <- insertFFold fs $ insertFFFold params $ transExp bd
+                case tf of
+                  Just td -> do tdd <- getTipoT td
+                                C.unless (equivTipo t tdd) $
                                          errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
-                    Nothing -> C.unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit) fs 
-       transDecs xs env
+                  Nothing -> C.unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit) fs 
+     insertFFold fs $ transDecs xs w
 transDecs ((TypeDec xs) : xss)             w =
   let 
     checkNames [] w'     = w' 
@@ -397,6 +394,9 @@ scanBreaks (ArrayExp s ct i p)       = ArrayExp s (scanBreaks ct) (scanBreaks i)
 scanBreaks (BreakExp p)              = UnitExp p
 scanBreaks ex                        = ex
 
+-- Evaluador de expresiones para chequear cotas
+{-evalIntExp :: Manticore w => Exp -> w a -> w Int
+evalIntExp (VarExp (SimpleVar s) _) w =-}
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Estado inicial y ejecucion ---------------------------------------------------------------------------- --

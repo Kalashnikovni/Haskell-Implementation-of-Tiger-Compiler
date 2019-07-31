@@ -29,12 +29,13 @@ evalState (runSeman exp) 0
 - [X] Dar las instancias de mónada (falta testearlas).
 - [X] Completar transExp (caso CallExp)
 - [X] Corregir transDecs, caso TypeDec.
-- [ ] Chequear que las definiciones mutuamente recursivas sean a través de arrays o records.
+- [X] Chequear que las definiciones mutuamente recursivas sean a través de arrays o records.
 - [X] Chequear en transTy qué Posicion debería tener cada campo ¿Es algo de la segunda o tercer etapa?
-- [ ] Errores significativos en TopSort ¿Qué más podemos dar como error? Rta: cambiar error para que 
+- [X] Errores significativos en TopSort ¿Qué más podemos dar como error? Rta: cambiar error para que 
       no se corte el testeo.
-- [ ] Revisar qué pasa con merge.tig que no encuentra readint
+- [X] Revisar qué pasa con merge.tig que no encuentra readint
 - [X] Opcional: ver lo de pretty-printing.
+- [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
 
 # Dudas
 
