@@ -36,10 +36,15 @@ evalState (runSeman exp) 0
 - [X] Revisar qué pasa con merge.tig que no encuentra readint
 - [X] Opcional: ver lo de pretty-printing.
 - [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
+- [ ] 2° etapa
 
 # Dudas
 
-- [ ] ¿Qué es el argumento de escape de una ForExp?
-- [ ] En transExp, para el caso de ForExp ¿No tendríamos que chequear si nv es "fresca"?
-- [ ] En transExp, para el caso de ForExp ¿Tenemos que chequear si lo < hi? Alto mambo!
-- [ ] ¿Qué hacemos cuando se declaran variables y funciones con el mismo nombre? (three-name-spaces2.tig, fun-vs-var.tig)
+- [X] ¿Qué es el argumento de escape de una ForExp? Se refiere si a la variable del contador
+      es contador.
+- [X] En transExp, para el caso de ForExp ¿No tendríamos que chequear si nv es "fresca"?
+      Noup, no vamos a hacer ese chequeo porque somos re heavies y re jodidas.
+- [X] En transExp, para el caso de ForExp ¿Tenemos que chequear si lo < hi? Alto mambo!
+      Acá nos dejamos llevar por la moda: a llorar a magoya si no te avivaste de lo > hi.
+- [X] ¿Qué hacemos cuando se declaran variables y funciones con el mismo nombre? (three-name-spaces2.tig, fun-vs-var.tig)
+      Tenemos en cuenta el scope, acá vale la última que se declaró (se re cuelan!).

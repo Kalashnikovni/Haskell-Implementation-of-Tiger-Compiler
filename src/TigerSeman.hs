@@ -335,7 +335,6 @@ transExp(WhileExp co body p) =
      (_ , boTy) <- transExp $ scanBreaks body
      C.unless (equivTipo boTy TUnit) $ errorTiposMsg p "El cuerpo del While devuelve un resultado" boTy TBool
      return ((), TUnit)
--- TODO: ¿Cómo chequeamos que nv sea una variable "fresca"?
 transExp(ForExp nv mb lo hi bo p) =
   do checkBreaks lo
      checkBreaks hi
@@ -343,14 +342,9 @@ transExp(ForExp nv mb lo hi bo p) =
      C.unless (equivTipo tlo (TInt RW)) $ errorTiposMsg p "La cota inferior del for no es un entero modificable" tlo (TInt RW)
      (_, thi) <- transExp  hi
      C.unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
-     i1 <- getN lo
-     i2 <- getN hi
-     C.when (i2 < i1) $ addpos (derror $ pack "Chequear cotas del loop") p 
      (_, tbo) <- insertValV nv (TInt RO) $ transExp (scanBreaks bo)
      C.unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
      return ((), TUnit)
-  where getN (IntExp i _) = return i
-        getN _            = addpos (E.internal $ pack "No es IntExp") p 
 transExp(LetExp dcs body p) = 
   do checkBreaks body
      transDecs dcs $ transExp body
@@ -359,7 +353,6 @@ transExp(ArrayExp sn cant init p) =
   do checkBreaks cant
      checkBreaks init
      tsn <- getTipoT sn 
-     -- TODO: corregir bien los campos de TArray, completamos con valores por defecto para que funcione.
      case tsn of
        TArray ta _ -> do (_, tca) <- transExp cant
                          C.unless (equivTipo tca (TInt RO)) $ errorTiposMsg p "El indice no es un entero" tca (TInt RO)
@@ -376,7 +369,7 @@ checkBreaks _            = return ((), TUnit)
 
 -- scanBreaks reemplazará todas las ocurrencias de BreakExp por
 -- UnitExp. scanBreaks se llamará en transExp para los casos de
--- WhileExp, y ForExp, de manera que el reemplazó se haga dentro
+-- WhileExp, y ForExp, de manera que el reemplazo se haga dentro
 -- de los bucles.
 scanBreaks :: Exp -> Exp
 scanBreaks (CallExp s le p)          = CallExp s (P.map scanBreaks le) p
@@ -387,16 +380,12 @@ scanBreaks (AssignExp v e p)         = AssignExp v (scanBreaks e) p
 scanBreaks (IfExp co th el p)  
   | isNothing el = IfExp (scanBreaks co) (scanBreaks th) Nothing p
   | otherwise    = IfExp (scanBreaks co) (scanBreaks th) (Just $ scanBreaks (fromJust el)) p
-scanBreaks (WhileExp co bd p)  = WhileExp (scanBreaks co) (scanBreaks bd) p
+scanBreaks (WhileExp co bd p)        = WhileExp (scanBreaks co) (scanBreaks bd) p
 scanBreaks (ForExp s esc lo hi bd p) = ForExp s esc (scanBreaks lo) (scanBreaks hi) (scanBreaks bd) p
 scanBreaks (LetExp dcs e p)          = LetExp dcs (scanBreaks e) p
 scanBreaks (ArrayExp s ct i p)       = ArrayExp s (scanBreaks ct) (scanBreaks i) p 
 scanBreaks (BreakExp p)              = UnitExp p
 scanBreaks ex                        = ex
-
--- Evaluador de expresiones para chequear cotas
-{-evalIntExp :: Manticore w => Exp -> w a -> w Int
-evalIntExp (VarExp (SimpleVar s) _) w =-}
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Estado inicial y ejecucion ---------------------------------------------------------------------------- --
