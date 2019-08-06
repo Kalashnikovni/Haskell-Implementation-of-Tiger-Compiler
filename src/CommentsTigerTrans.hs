@@ -200,14 +200,14 @@ class IrGen w where
     -- básicamente es la que va a agregar el Fragmento que es generado por la
     -- función y ponerlo como el efecto secundario mencionado más arriba
     procEntryExit :: Level -> BExp -> w ()
-    simpleVar :: Access -> Int -> w BExp
-    fieldVar :: BExp -> Int -> w BExp
-    subscriptVar :: BExp -> BExp -> w BExp
     unitExp :: w BExp
     nilExp :: w BExp
     intExp :: Int -> w BExp
     stringExp :: Symbol -> w BExp
+    simpleVar :: Access -> Int -> w BExp
     varDec :: Access -> w BExp
+    fieldVar :: BExp -> Int -> w BExp
+    subscriptVar :: BExp -> BExp -> w BExp
     recordExp :: [(BExp,Int)]  -> w BExp
     callExp :: Label -> Externa -> IsProc -> Level -> [BExp] -> w BExp
     letExp :: [BExp] -> BExp -> w BExp
@@ -233,38 +233,18 @@ class IrGen w where
     arrayExp :: BExp -> BExp -> w BExp
 
 instance (MemM w) => IrGen w where
-  procEntryExit lvl bd =  
-    do bd' <- unNx bd
-       let res = Proc bd' (getFrame lvl)
-       pushFrag res
-  -- simpleVar :: Access -> Int -> w BExp
-  simpleVar acc lvl = P.error "COMPLETAR"
-  {-simpleVar acc lvl
-    | lvl > 0 = 
-    --Ex-}
-  -- fieldVar :: BExp -> Int -> w BExp
-  fieldVar be i =
-    do ebe <- unEx be
-       tbe <- newTemp
-       return $ Ex $ Eseq (seq [Move (Temp tbe) ebe,
-                                Mem (Binop Plus Temp tbe (Binop Mul (Const i) (Const wSz)))])
-  subscriptVar var ind = 
-    do evar <- unEx var
-       eind <- unEx ind
-       tvar <- newTemp
-       tind <- newTemp
-       return $ Ex $ Eseq (seq [Move (Temp tvar) evar,
-                                Move (Temp tind) eind,
-                                ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
-                     (Mem $ Binop Plus (Temp tvar) (Binop Mul (Temp tind) (Const wSz)))
-  stringExp t = 
-    do -- | Esto debería ser dependiente de la arquitectura...
-       -- No estoy seguro que tenga que estar esto acá.
-       l <- newLabel
-       let ln = T.append (pack ".long ")  (pack $ show $ T.length t)
-       let str = T.append (T.append (pack ".string \"") t) (pack "\"")
-       pushFrag $ AString l [ln,str]
-       return $ Ex $ Name l
+    procEntryExit lvl bd =  do
+        bd' <- unNx bd
+        let res = Proc bd' (getFrame lvl)
+        pushFrag res
+    stringExp t = do
+      -- | Esto debería ser dependiente de la arquitectura...
+      -- No estoy seguro que tenga que estar esto acá.
+        l <- newLabel
+        let ln = T.append (pack ".long ")  (pack $ show $ T.length t)
+        let str = T.append (T.append (pack ".string \"") t) (pack "\"")
+        pushFrag $ AString l [ln,str]
+        return $ Ex $ Name l
     -- | Función utilizada para la declaración de una función.
     envFunctionDec lvl funDec = do
         -- preFunctionDec
@@ -287,11 +267,24 @@ instance (MemM w) => IrGen w where
                   IsFun  -> Move (Temp rv) <$> unEx bd
         procEntryExit lvl (Nx body)
         return $ Ex $ Const 0
-    varDec acc = do {i <- getActualLevel; simpleVar acc i}
+    simpleVar acc level = P.error "COMPLETAR"
+    varDec acc = do { i <- getActualLevel; simpleVar acc i}
     unitExp = return $ Ex (Const 0)
     nilExp = return $ Ex (Const 0)
     intExp i = return $ Ex (Const i)
+    fieldVar be i = P.error "COMPLETAR"
     -- subscriptVar :: BExp -> BExp -> w BExp
+    subscriptVar var ind = do
+        evar <- unEx var
+        eind <- unEx ind
+        tvar <- newTemp
+        tind <- newTemp
+        return $ Ex $
+            Eseq
+                (seq    [Move (Temp tvar) evar
+                        ,Move (Temp tind) eind
+                        ,ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
+                (Mem $ Binop Plus (Temp tvar) (Binop Mul (Temp tind) (Const wSz)))
     -- recordExp :: [(BExp,Int)]  -> w BExp
     recordExp flds = P.error "COMPLETAR"
     -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp

@@ -14,7 +14,7 @@ import TigerTopSort
 import TigerUnique
 
 import TigerTemp
--- import TigerTrans
+import TigerTrans
 
 -- Monads
 import qualified Control.Conditional as C
@@ -62,32 +62,38 @@ addIzq (as,bs) a = (a : as, bs)
 addDer :: ([a], [b]) -> b -> ([a],[b])
 addDer (as,bs) b = (as, b : bs)
 
-buscarM :: Symbol -> [(Symbol, Tipo, Int)] -> Maybe Tipo
-buscarM s [] = Nothing
-buscarM s ((s',t,_):xs) | s == s' = Just t
-                        | otherwise = buscarM s xs
+buscarM :: Symbol -> [(Symbol, Tipo, Int)] -> Maybe (Tipo, Int)
+buscarM s []              = Nothing
+buscarM s ((s', t, p):xs) 
+  | s == s'   = Just (t, p)
+  | otherwise = buscarM s xs
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Traduccion de variables ------------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
-transVar :: (Manticore w) => Var -> w ((), Tipo)
+transVar :: (MemM w, Manticore w) => Var -> w (BExp, Tipo)
 transVar (SimpleVar s)      = 
-  do t <- getTipoValV s
-     return ((), t)
+  do t    <- getTipoValV s
+     lvl  <- getActualLevel
+     acc  <- allocLocal True 
+     bexp <- simpleVar acc lvl 
+     return (bexp, t)
 transVar (FieldVar v s)     =
-  do (_, t) <- transVar v
+  do (bexp, t) <- transVar v
      case t of
        TRecord l _ -> maybe (derror $ pack "Se intenta acceder a un campo que no pertenece al record") 
-                            (\tx -> return ((), tx))
+                            (\(tx, px) -> do bexp' <- fieldVar bexp px  
+                                             return (bexp', tx))
                             (buscarM s l) 
        _           -> derror $ pack "Se intenta acceder al campo de una variable que no es un record"
 transVar (SubscriptVar v e) =
-  do (_, te) <- transExp e 
+  do (bexpe, te) <- transExp e 
      case te of
-       TInt _ -> do (_, tv) <- transVar v
+       TInt _ -> do (bexpv, tv) <- transVar v
                     case tv of
-                      TArray ta _ -> return ((), ta)
+                      TArray ta _ -> do bexp <- subscriptVar bexpv bexpe
+                                        return (bexp, ta)
                       _           -> derror $ pack "Se intenta indexar algo que no es un arreglo"
        _      -> derror $ pack "El indice del arreglo no es un número"
 

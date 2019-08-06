@@ -1,11 +1,10 @@
 module TigerTree where
 
-import qualified TigerTemp                     as Temp
+import qualified TigerTemp as Temp
 
-import           Prelude                 hiding ( EQ
-                                                , GT
-                                                , LT
-                                                )
+import Prelude hiding (EQ,
+                       GT,
+                       LT)
 
 data Exp
     = Const Int

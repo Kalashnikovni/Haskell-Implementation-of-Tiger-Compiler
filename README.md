@@ -36,6 +36,7 @@ evalState (runSeman exp) 0
 - [X] Revisar qué pasa con merge.tig que no encuentra readint
 - [X] Opcional: ver lo de pretty-printing.
 - [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
+- [ ] simpleVar en TigerTrans
 - [ ] 2° etapa
 
 # Dudas
@@ -48,3 +49,8 @@ evalState (runSeman exp) 0
       Acá nos dejamos llevar por la moda: a llorar a magoya si no te avivaste de lo > hi.
 - [X] ¿Qué hacemos cuando se declaran variables y funciones con el mismo nombre? (three-name-spaces2.tig, fun-vs-var.tig)
       Tenemos en cuenta el scope, acá vale la última que se declaró (se re cuelan!).
+- [ ] ¿Por qué chequeamos que deltaprof > 0 en simpleVar en TigerTrans?
+
+# Decisiones
+- No hacemos chequeos en las cotas de los loops (si lo < hi).
+- Por ahora todas las variables escapan.
