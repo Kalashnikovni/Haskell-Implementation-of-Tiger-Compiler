@@ -74,11 +74,12 @@ buscarM s ((s', t, p):xs)
 
 transVar :: (MemM w, Manticore w) => Var -> w (BExp, Tipo)
 transVar (SimpleVar s)      = 
-  do t    <- getTipoValV s
-     lvl  <- getActualLevel
-     acc  <- allocLocal True 
-     bexp <- simpleVar acc lvl 
+  do (t, acc, vLvl) <- getTipoValV s
+     actLvl         <- getActualLevel
+     bexp           <- simpleVar acc (actLvl - vLvl) 
      return (bexp, t)
+  where getVarLvl (Var t) = t 
+        getVarLvl _       = derror $ pack "Chequear el compilador.transVar, o el codigo"
 transVar (FieldVar v s)     =
   do (bexp, t) <- transVar v
      case t of

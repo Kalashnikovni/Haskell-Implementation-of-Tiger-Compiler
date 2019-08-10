@@ -8,7 +8,7 @@ import Prelude hiding (EQ,
                        error,
                        exp,
                        seq)
-import qualified Prelude as P (error)
+import qualified Prelude as P (error, length)
 
 import TigerAbs (Escapa(..))
 import qualified TigerAbs as Abs
@@ -237,12 +237,23 @@ instance (MemM w) => IrGen w where
     do bd' <- unNx bd
        let res = Proc bd' (getFrame lvl)
        pushFrag res
-  -- simpleVar :: Access -> Int -> w BExp
-  simpleVar acc lvl = P.error "COMPLETAR"
-  {-simpleVar acc lvl
-    | lvl > 0 = 
-    --Ex-}
-  -- fieldVar :: BExp -> Int -> w BExp
+  -- lvl es nivel donde se usa la variable menos nivel donde se declaro
+  simpleVar acc lvl  
+    | lvl >= 0  =
+      case exp acc lvl of
+        Just e  -> 
+          do tmpDec <- newTemp
+             tmpOff <- newTemp
+             case getOffset acc of
+               Just k -> 
+                 return $ Ex $ Eseq $ (seq [(Move (Temp tmpDec) e), 
+                                            (Move (Temp tmpOff) (Binop Plus (Temp tmpDec) (Const k)))]) 
+                                      (Temp tmpOff)
+               _      -> derror $ pack "Revisar el compilador.simpleVar, o revisar codigo del programa.
+                                        La variable no escapa."
+        _ -> derror $ pack "Revisar compilador.simpleVar, o revisar codigo del programa."  
+    | otherwise = derror $ pack "Revisar compilador.simpleVar, o revisar codigo del programa. La variable
+                                 se usa en un nivel inferior a su declaracion."   
   fieldVar be i =
     do ebe <- unEx be
        tbe <- newTemp
@@ -266,123 +277,208 @@ instance (MemM w) => IrGen w where
        pushFrag $ AString l [ln,str]
        return $ Ex $ Name l
     -- | Función utilizada para la declaración de una función.
-    envFunctionDec lvl funDec = do
-        -- preFunctionDec
-        -- mandamos un nada al stack, por si un /break/ aparece en algún lado que
-        -- no tenga un while y detectamos el error. Ver [breakExp]
-        pushSalida Nothing
-        upLvl
-        pushLevel lvl
-        fun <- funDec
-        -- posFunctionDec
-        -- | Cuando salimos de la función sacamos el 'Nothing' que agregamos en 'preFunctionDec'.
-        popSalida
-        downLvl
-        -- devolvemos el código en el entorno donde fue computada.
-        return fun
-    -- functionDec :: BExp -> Level -> Bool -> w BExp
-    functionDec bd lvl proc = do
-        body <- case proc of
-                  IsProc -> unNx bd
-                  IsFun  -> Move (Temp rv) <$> unEx bd
-        procEntryExit lvl (Nx body)
-        return $ Ex $ Const 0
-    varDec acc = do {i <- getActualLevel; simpleVar acc i}
-    unitExp = return $ Ex (Const 0)
-    nilExp = return $ Ex (Const 0)
-    intExp i = return $ Ex (Const i)
-    -- subscriptVar :: BExp -> BExp -> w BExp
-    -- recordExp :: [(BExp,Int)]  -> w BExp
-    recordExp flds = P.error "COMPLETAR"
-    -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp
-    callExp name external isproc lvl args = P.error "COMPLETAR"
-    -- letExp :: [BExp] -> BExp -> w BExp
-    letExp [] e = do
-      -- Des-empaquetar y empaquetar como un |Ex| puede generar
-      -- la creación de nuevo temporales, etc. Es decir, hay efectos que necesitamos contemplar.
-      -- Ver la def de |unEx|
-            e' <- unEx e
-            return $ Ex e'
-    letExp bs body = do
-        bes <- mapM unNx bs
-        be <- unEx body
-        return $ Ex $ Eseq (seq bes) be
-    -- breakExp :: w BExp
-    -- | JA! No está implementado
-    breakExp = P.error "COMPLETAR"
-    -- seqExp :: [BExp] -> w BExp
-    seqExp [] = return $ Nx $ ExpS $ Const 0
-    seqExp bes = case last bes of
-            Nx _ -> Nx . seq <$> mapM unNx bes
-            Ex e' -> do
-                    let bfront = init bes
-                    ess <- mapM unNx bfront
-                    return $ Ex $ Eseq (seq ess) e'
-            _ -> internal $ pack "WAT!123"
-    -- preWhileforExp :: w ()
-    preWhileforExp = newLabel >>= pushSalida . Just
-    -- posWhileforExp :: w ()
-    posWhileforExp = popSalida
-    -- whileExp :: BExp -> BExp -> Level -> w BExp
-    -- | While Loop.
-    -- ```
-    --   test:
-    --        if (condition) goto body else done
-    --        body:
-    --             body (Un break acá se traduce como un salto a done)
-    --        goto test
-    --   done:
-    -- ```
-    whileExp cond body = do
-        -- | Desempaquetamos la condición como un condicional
-        ccond <- unCx cond
-        -- | Desempaquetamos el body como un statement
-        cbody <- unNx body
-        -- | Creamos dos etiquetas para los saltos del if
-        -- una correspondiente al test
-        test <- newLabel
-        -- | otra correspondiente al cuerpo
-        body <- newLabel
-        -- | buscamos en el stackla etiqueta de salida (done).
-        lastM <- topSalida
-        case lastM of
-            Just done ->
-                return $ Nx $ seq
-                    [Label test
-                    , ccond (body,done)
-                    , Label body
-                    , cbody
-                    , Jump (Name test) test
-                    , Label done]
-            _ -> internal $ pack "no label in salida"
-    -- forExp :: BExp -> BExp -> BExp -> BExp -> w BExp
-    forExp lo hi var body = P.error "COMPLETAR"
-    -- ifThenExp :: BExp -> BExp -> w BExp
-    ifThenExp cond bod = P.error "COMPLETAR"
-    -- ifThenElseExp :: BExp -> BExp -> BExp -> w BExp
-    ifThenElseExp cond bod els = P.error "COMPLETAR"
-    -- ifThenElseExpUnit :: BExp -> BExp -> BExp -> w BExp
-    ifThenElseExpUnit _ _ _ = P.error "COmpletaR?"
-    -- assignExp :: BExp -> BExp -> w BExp
-    assignExp cvar cinit = do
-        cvara <- unEx cvar
-        cin <- unEx cinit
-        case cvara of
-            Mem v' ->  do
-                t <- newTemp
-                return $ Nx $ seq [Move (Temp t) cin, Move cvara (Temp t)]
-            _ -> return $ Nx $ Move cvara cin
-    -- binOpIntExp :: BExp -> Abs.Oper -> BExp -> w BExp
-    binOpIntExp le op re = P.error "COMPLETAR"
-    -- binOpStrExp :: BExp -> Abs.Oper -> BExp -> w BExp
-    binOpStrExp strl op strr = P.error "COMPLETAR"
-    binOpIntRelExp op strr = P.error "COMPLETAR"
-    -- arrayExp :: BExp -> BExp -> w BExp
-    arrayExp size init = do
-        sz <- unEx size
-        ini <- unEx init
-        t <- newTemp
-        return $ Ex $ Eseq (seq
-                [ExpS $ externalCall "_allocArray" [sz,ini]
-                , Move (Temp t) (Temp rv)
-                ]) (Temp t)
+  envFunctionDec lvl funDec = 
+    do -- preFunctionDec
+       -- mandamos un nada al stack, por si un /break/ aparece en algún lado que
+       -- no tenga un while y detectamos el error. Ver [breakExp]
+       pushSalida Nothing
+       upLvl
+       pushLevel lvl
+       fun <- funDec
+       -- posFunctionDec
+       -- | Cuando salimos de la función sacamos el 'Nothing' que agregamos en 'preFunctionDec'.
+       popSalida
+       downLvl
+       -- devolvemos el código en el entorno donde fue computada.
+       return fun
+  -- functionDec :: BExp -> Level -> Bool -> w BExp
+  functionDec bd lvl proc = 
+    do body <- case proc of
+                 IsProc -> unNx bd
+                 IsFun  -> Move (Temp rv) <$> unEx bd
+       procEntryExit lvl (Nx body)
+       return $ Ex $ Const 0
+  varDec acc = do {i <- getActualLevel; simpleVar acc i}
+  unitExp = return $ Ex (Const 0)
+  nilExp = return $ Ex (Const 0)
+  intExp i = return $ Ex (Const i)
+  -- recordExp :: [(BExp,Int)]  -> w BExp
+  -- ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
+  recordExp flds =
+    do tmp   <- newTmp
+       flds' <- mapM unEx $ sortOn snd flds
+       return $ Ex $ Eseq (Seq (externalCall "_allocRecord" (P.length flds : flds'))
+                               (Move (Temp tmp) (Temp rv)))  
+                          (Temp tmp)
+       {-flds' <- mapM (getInit tmp) (sortOn snd flds) 
+       return $ Ex $ Eseq $ (seq [Move (Temp tmp) $ externalCall "_allocRecord" [P.length flds],
+                                  seq flds'])
+                            (Temp tmp) 
+    where genInit t f =
+            do exp <- unEx f
+               return $ Move (Mem (Binop Plus (Temp t) (Const $ (snd f) * wSz))) exp  
+-}
+  -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp
+  callExp name external isproc lvl args = P.error "COMPLETAR"
+  -- letExp :: [BExp] -> BExp -> w BExp
+  letExp [] e = 
+    do -- Des-empaquetar y empaquetar como un |Ex| puede generar
+       -- la creación de nuevo temporales, etc. Es decir, hay efectos que necesitamos contemplar.
+       -- Ver la def de |unEx|
+       e' <- unEx e
+       return $ Ex e'
+  letExp bs body = 
+    do bes <- mapM unNx bs
+       be <- unEx body
+       return $ Ex $ Eseq (seq bes) be
+  -- breakExp :: w BExp
+  -- | JA! No está implementado
+  breakExp = P.error "COMPLETAR"
+  -- seqExp :: [BExp] -> w BExp
+  seqExp [] = return $ Nx $ ExpS $ Const 0
+  seqExp bes = 
+    case last bes of
+      Nx _ -> Nx . seq <$> mapM unNx bes
+      Ex e' -> do let bfront = init bes
+                  ess <- mapM unNx bfront
+                  return $ Ex $ Eseq (seq ess) e'
+      _ -> internal $ pack "WAT!123"
+  -- preWhileforExp :: w ()
+  preWhileforExp = newLabel >>= pushSalida . Just
+  -- posWhileforExp :: w ()
+  posWhileforExp = popSalida
+  whileExp cond body = 
+    do ccond <- unCx cond
+       cbody <- unNx body
+       test  <- newLabel
+       lbody <- newLabel
+       lastM <- topSalida
+       case lastM of
+         Just done ->
+           return $ Nx $ seq [Label test,
+                              ccond (lbody, done),
+                              Label lbody,
+                              cbody,
+                              Jump (Name test) test,
+                              Label done]
+           _ -> internal $ pack "no label in salida"
+  forExp lo hi var body =
+    do elo    <- unEx lo
+       ehi    <- unEx hi
+       evar   <- unEx var
+       cbody  <- unNx body
+       tmp    <- newTemp
+       test   <- newLabel
+       lbody  <- newLabel
+       lsigue <- newLabel
+       lastM  <- topSalida
+       case lastM of
+         Just done ->
+           return $ Nx $ seq [Move evar elo,
+                              CJump LE evar ehi lbody done,
+                              Label lbody,
+                              cbody,
+                              CJump EQ evar ehi done lsigue,
+                              Label lsigue,
+                              Move evar $ Binop Plus evar (Const 1),
+                              Jump (Name lbody) lbody,
+                              Label done]  
+  ifThenExp cond bod =
+    do ccond <- unCx cond
+       nbod  <- unNx bod
+       t     <- newLabel
+       f     <- newLabel
+       return $ Nx $ seq [ccond (t, f), Label t, nbody, Label f]
+  ifThenElseExp cond (Cx bod) (Cx els) = 
+    do ccond <- unCx cond
+       t     <- newLabel
+       f     <- newLabel
+       fin   <- newLabel
+       return $ Nx $ seq [ccond (t, f), 
+                          Label t, bod (fin, fin),   
+                          Label f, els (fin, fin),
+                          Label fin] 
+  ifThenElseExp cond (Cx bod) els =
+    do ccond <- unCx cond
+       nels  <- unNx els
+       t     <- newLabel
+       f     <- newLabel
+       fin   <- newLabel
+       return $ Nx $ seq [ccond (t, f),
+                          Label t, bod (fin, fin),
+                          Label f, nels,
+                          Label fin]
+  ifThenElseExp cond bod (Cx els) =
+    do ccond <- unCx cond
+       nbod  <- unNx bod
+       t     <- newLabel
+       f     <- newLabel
+       fin   <- newLabel
+       return $ Nx $ seq [ccond (t, f),
+                          Label t, bod, Jump (Name fin) (Label fin),
+                          Label f, els (fin, fin),
+                          Label fin]
+  ifThenElseExp cond bod els =
+    do ccond <- unCx cond
+       ebod  <- unEx bod
+       eels  <- unEx els
+       t     <- newLabel
+       f     <- newLabel
+       fin   <- newLabel
+       tmp   <- newTemp
+       return $ Ex $ Eseq $ (seq [ccond (t, f),
+                                  Label t, Move (Temp tmp) ebod, Jump (Name fin) (Label fin),
+                                  Label f, Move (Temp tmp) eels,
+                                  Label fin])
+                            (Temp tmp)
+  -- ifThenElseExpUnit :: BExp -> BExp -> BExp -> w BExp
+  --ifThenElseExpUnit _ _ _ = P.error "COmpletaR?"
+  -- assignExp :: BExp -> BExp -> w BExp
+  assignExp cvar cinit = 
+    do cvara <- unEx cvar
+       cin <- unEx cinit
+       case cvara of
+         Mem v' -> do t <- newTemp
+                      return $ Nx $ seq [Move (Temp t) cin, Move cvara (Temp t)]
+         _ -> return $ Nx $ Move cvara cin
+  binOpIntExp le op re =
+    do leex <- unEx le
+       reex <- unEx re
+       op'  <- transformOp op
+       return $ Binop op' leex reex
+    where transformOp PlusOp   = return Plus
+          transformOp MinusOp  = return Minus
+          transformOp TimesOp  = return Mul
+          transformOp DivideOp = return Div
+          transformOp _        = derror $ pack $ "Revisar el compilador.binOpIntExp o el codigo. El operador " ++
+                                                 "no es aritmetico"
+  binOpStrExp strl op strr =
+    do esl   <- unEx strl
+       esr   <- unEx strr
+       tstrl <- newTemp
+       tstrr <- newTemp
+       return $ Eseq $ (seq [Move (Temp tstrl) esl, 
+                             Move (Temp tstrr) esr, 
+                             externalCall "_stringCompare" [Temp tstrl, Temp tstrr],
+                             Move (Temp tstrl) (Temp rv)])
+                       (Temp tstrl)
+  binOpIntRelExp le op re =
+    do leex <- unEx le
+       reex <- unEx re
+       op'  <- transformOp op
+       return $ Binop op' leex reex
+    where transformOp EqOp  = return EQ
+          transformOp NeqOp = return NE
+          transformOp LtOp  = return LT
+          transformOp GtOp  = return GT
+          transformOp LeOp  = return LE
+          transformOp GeOp  = return GE
+          transformOp _     = derror $ pack $ "Revisar el compilador.binOpIntRelExp o el codigo. El operador " ++
+                                              "no es relacional"
+  arrayExp size init = 
+    do sz <- unEx size
+       ini <- unEx init
+       t <- newTemp
+       return $ Ex $ Eseq (seq [ExpS $ externalCall "_allocArray" [sz, ini],
+                                Move (Temp t) (Temp rv)]) 
+                          (Temp t)

@@ -10,8 +10,7 @@ typedef struct {
 string *consts[256];
 string empty = {0};
 
-long *_initArray(long size, long init)
-{
+long *_initArray(long size, long init){
     long i;
     long *a = malloc((size+1) * sizeof(long));
 	a[0] = size;
@@ -19,15 +18,15 @@ long *_initArray(long size, long init)
 		a[i] = init;
     return a+1;
 }
-void _checkIndexArray(long *a, long i)
-{
+
+void _checkIndexArray(long *a, long i){
 	if(i<0 || i>=a[-1]) {
 		fprintf(stderr, "indice %ld excedido!\n", i);
 		exit(-1);
 	}
 }
-long *_allocRecord(long ctos, ...)
-{
+
+long *_allocRecord(long ctos, ...){
     long i;
     long *p, *a;
 	va_list va;
@@ -37,15 +36,15 @@ long *_allocRecord(long ctos, ...)
 		*p++ = va_arg(va, long);
     return a;
 }
-void _checkNil(long* r)
-{
+
+void _checkNil(long* r){
 	if(r==0) {
 		fprintf(stderr, "Nil!\n");
 		exit(-1);
 	}
 }
-long _stringCompare(string *s, string *t)
-{
+
+long _stringCompare(string *s, string *t){
     long i;
     if(s == t)
 		return 0;
@@ -54,19 +53,19 @@ long _stringCompare(string *s, string *t)
 		    return s->chars[i]-t->chars[i];
 	return s->length-t->length;
 }
-void print(string *s)
-{
+
+void print(string *s){
     long i;
     unsigned char *p = s->chars;
     for (i = 0; i < s->length; i++, p++)
 		putchar(*p);
 }
-void flush()
-{
+
+void flush(){
     fflush(stdout);
 }
-long ord(string *s)
-{
+
+long ord(string *s){
     if (s->length != 1) {
 		fprintf(stderr, "ord: string inadecuada\n");
 		exit(-1);
@@ -74,20 +73,20 @@ long ord(string *s)
     else
 		return s->chars[0];
 }
-string *chr(long i)
-{
+
+string *chr(long i){
     if (i < 0 || i >= 256) {
 		printf("chr(%ld) out of range\n", i);
 		exit(1);
     }
     return consts[i];
 }
-long size(string *s)
-{
+
+long size(string *s){
     return s->length;
 }
-string *substring(string *s, long first, long n)
-{
+
+string *substring(string *s, long first, long n){
     if (first < 0 || first + n > s->length) {
 		fprintf(stderr, "substring([%ld],%ld,%ld) out of range\n",
 				s->length, first, n);
@@ -104,8 +103,8 @@ string *substring(string *s, long first, long n)
 		return t;
     }
 }
-string *concat(string *a, string *b)
-{
+
+string *concat(string *a, string *b){
     if (a->length == 0)
 		return b;
     else if (b->length == 0)
@@ -121,26 +120,26 @@ string *concat(string *a, string *b)
 		return t;
     }
 }
-long not(long i)
-{
+
+long not(long i){
     return !i;
 }
-string *getstr()
-{
+
+string *getstr(){
     int i = getc(stdin);
     if (i == EOF)
 		return &empty;
     else
 		return consts[i];
 }
+
 #if defined(__DEBUG__)
-long _tigermain(long l)
-{
+long _tigermain(long l){
 	return 0;
 }
 #endif
-int main()
-{
+
+int main(){
 	extern long _tigermain(long);
     int i, lelem=sizeof(string)+1;;
 	string *p=malloc(256*lelem);

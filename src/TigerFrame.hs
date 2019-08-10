@@ -62,6 +62,14 @@ data Access =
   | InReg Temp
     deriving Show
 
+getOffset :: Access -> Maybe Int
+getOffset (InFrame k) = Just k
+getOffset _           = Nothing
+
+getTemp :: Access -> Maybe Symbol
+getTemp (InReg t) = Just t
+getTemp _         = Nothing
+
 -- | Definición de fragmento usado en en la traducción.
 -- Son los bloques que van al assembler de formal individual.
 data Frag =
@@ -163,15 +171,8 @@ auxexp :: Int -> Exp
 auxexp 0 = Temp fp
 auxexp n = Mem (Binop Plus (auxexp (n - 1)) (Const fpPrevLev))
 
-exp
-  :: 
-  -- Acceso de la variable.
-     Access
-    -- Diferencia entre el nivel que se usa y donde se definió.
-  -> Int
-  -> Exp
-exp (InFrame k) e = Mem (Binop Plus (auxexp e) (Const k))
-  -- Si esta en un registro, directamente damos ese acceso. Por definición el
-  -- nivel tendría que ser el mismo, sino hay un error en el calculo de escapes.
-exp (InReg l) c | c == 0    = error "Megaerror en el calculo de escapes?"
-                | otherwise = Temp l
+exp :: Access -> Int -> Maybe Exp
+exp (InFrame k) e = Just $ Mem (Binop Plus (auxexp e) (Const k))
+exp (InReg l) c 
+  | c /= 0    = Nothing
+  | otherwise = Just $ Temp l
