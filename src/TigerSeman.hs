@@ -230,53 +230,62 @@ updateRefs  s t s' m =
 -- Traduccion de expresiones ----------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
--- ** transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
-transExp :: (Manticore w) => Exp -> w (() , Tipo)
+transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
 transExp (VarExp v p) = 
   addpos (transVar v) p
 transExp UnitExp{} = 
-  return ((), TUnit) -- ** fmap (,TUnit) unitExp
+  fmap (,TUnit) unitExp
 transExp NilExp{} = 
-  return ((), TNil) -- ** fmap (,TNil) nilExp
+  fmap (,TNil) nilExp
 transExp (IntExp i _) = 
-  return ((), TInt RW) -- ** fmap (,TInt RW) (intExp i)
+  fmap (,TInt RW) (intExp i)
 transExp (StringExp s _) = 
-  return (() , TString) -- ** fmap (,TString) (stringExp (pack s))
+  fmap (,TString) (stringExp (pack s))
 transExp (CallExp nm args p) =
-  do (_, _, tfargs, tf, _) <- getTipoFunV nm
+  do (lvl, lab, tfargs, tf, ext) <- getTipoFunV nm
      mapM_ checkBreaks args
      targs <- mapM transExp args
      C.when (P.length tfargs /= P.length targs) $ addpos (derror $ pack ("La cantidad de argumentos pasados no coincide " ++
                                                                        "con la cantidad de argumentos de la declaracion")) p
      zipWithM_ (\ta tb -> do C.unless (equivTipo ta (snd tb)) $ 
                                        errorTiposMsg p "No coincide el tipo de los argumentos" ta (snd tb)) tfargs targs 
-     return ((), tf)
+     res <- callExp lab ext (isproc tf) lvl (P.map fst targs) 
+     return (res, tf)
+  where isproc UnitExp = True
+        isproc _       = False
 transExp (OpExp el' oper er' p) = 
-  do (_ , el) <- transExp el'
-     (_ , er) <- transExp er'
+  do (resl, el) <- transExp el'
+     (resr, er) <- transExp er'
      checkBreaks el'
      checkBreaks er'
      case oper of
-       EqOp  -> if tiposComparables el er EqOp then eqOps el er
+       EqOp  -> if tiposComparables el er EqOp 
+                then do (_, t) <- eqOps el er
+                        res <- binOpIntRelExp resl EqOp resr
+                        return (res, t)
                 else errmsg "Error de tipos. Tipos no comparables 1:" el er
-       NeqOp -> if tiposComparables el er EqOp then eqOps el er
+       NeqOp -> if tiposComparables el er EqOp 
+                then do (_, t) <- eqOps el er
+                        res <- binOpIntRelExp resl NeqOp resr
+                        return (res, t)
                 else errmsg "Error de tipos. Tipos no comparables 2:" el er
-       PlusOp -> oOps el er
-       MinusOp -> oOps el er
-       TimesOp -> oOps el er
-       DivideOp -> oOps el er
-       LtOp -> ineqOps el er
-       LeOp -> ineqOps el er
-       GtOp -> ineqOps el er
-       GeOp -> ineqOps el er
+       PlusOp -> oOps el resl er resr PlusOp
+       MinusOp -> oOps el resl er resr MinusOp
+       TimesOp -> oOps el resl er resr TimesOp
+       DivideOp -> oOps el resl er resr DivideOp
+       LtOp -> ineqOps el resl er resr LtOp
+       LeOp -> ineqOps el resl er resr LeOp
+       GtOp -> ineqOps el resl er resr GtOp
+       GeOp -> ineqOps el resl er resr GeOp
   where errmsg msg t1 t2 = addpos (derror $ pack $ msg ++ " " ++ show t1 ++ " " ++ show t2) p
         getUnique (TArray _ u)  = return u
         getUnique (TRecord _ u) = return u
         getUnique _             = addpos (derror $ pack "Error en el chequeo de una comparacion 1.") p
-        oOps l r  = if equivTipo l r 
-                       && equivTipo l (TInt RO) 
-                    then return ((), TInt RO)
-                    else errmsg "Error en el chequeo de una comparacion 2." l r
+        oOps l rl r rr op = if equivTipo l r 
+                               && equivTipo l (TInt RO) 
+                            then do res <- binOpIntExp rl op rr
+                                    return (res, TInt RO)
+                            else errmsg "Error en el chequeo de una comparacion 2." l r
         eqOps TNil TNil = errmsg "Error en el chequeo de una comparacion 3." TNil TNil -- Redundant
         eqOps TNil r    = if equivTipo TNil r
                           then return ((), TInt RO)
@@ -292,21 +301,32 @@ transExp (OpExp el' oper er' p) =
                             if l' == r'
                             then return ((), TInt RO)
                             else errmsg "No se pueden comparar los tipos 1:" l r
-        ineqOps l r = if equivTipo l r &&
-                         (equivTipo l (TInt RO) || equivTipo l TString)
-                      then return ((), TInt RO)
-                      else errmsg "No se pueden comparar los tipos 2:" l r
+        ineqOps l rl r rr op = 
+          case equivTipo l r of
+            True ->
+              case equivTipo l (TInt RO) of
+                True  -> do res <- binOpIntRelExp rl op rr
+                            return (res, TInt RO) 
+                False ->
+                  case equivTipo l TString of
+                    True  -> do res <- binOpStrExp rl op rr
+                                return (res, TInt RO) 
+                    False -> errmsg "No se pueden comparar los tipos 2: " l r
+            False -> errmsg "No se pueden comparar los tipos 2: " l r
 transExp(RecordExp flds rt p) =
   addpos (getTipoT rt) p >>= \x -> case x of 
     trec@(TRecord fldsTy _) -> 
       do mapM_ checkBreaks (P.map snd flds)
-         fldsTys <- mapM (\(nm, cod) -> (nm,) <$> transExp cod) flds 
-         let ordered  = List.sortBy (Ord.comparing fst) fldsTys
+         fldsTys <- mapM (\(nm, cod) -> do cod' <- transExp cod
+                                           return (nm, fst cod', snd cod')) flds 
+         let ordered  = List.sortBy (Ord.comparing fst3) fldsTys
              ordered' = List.sortBy (Ord.comparing fst3) fldsTy
          _ <- flip addpos p $ cmpZip ((\(s,(c,t)) -> (s,t)) <$> ordered) ordered' 
-         return ((), trec) 
+         res <- recordExp (zip (P.map snd3 ordered) [0..])
+         return (res, trec) 
     t -> errorTiposMsg p "La variable no es de tipo record" t (TRecord [] 0)
   where fst3 (a, _, _) = a
+        snd3 (_, b, _) = b
 transExp(SeqExp es p) = 
   do mapM_ checkBreaks es
      fmap last (mapM transExp es)

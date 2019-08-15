@@ -310,16 +310,13 @@ instance (MemM w) => IrGen w where
        return $ Ex $ Eseq (Seq (externalCall "_allocRecord" (P.length flds : flds'))
                                (Move (Temp tmp) (Temp rv)))  
                           (Temp tmp)
-       {-flds' <- mapM (getInit tmp) (sortOn snd flds) 
-       return $ Ex $ Eseq $ (seq [Move (Temp tmp) $ externalCall "_allocRecord" [P.length flds],
-                                  seq flds'])
-                            (Temp tmp) 
-    where genInit t f =
-            do exp <- unEx f
-               return $ Move (Mem (Binop Plus (Temp t) (Const $ (snd f) * wSz))) exp  
--}
   -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp
-  callExp name external isproc lvl args = P.error "COMPLETAR"
+  callExp name external isproc lvl args = 
+    do lvlact <- getActualLevel
+       args'  <- mapM unEx args
+       case isproc of
+         True  -> return $ Nx $ ExpS $ Call (Name name) (auxexp (lvlact - lvl) : args')
+         False -> return $ Ex $ Call (Name name) (auxexp (lvlact - lvl) : args')
   -- letExp :: [BExp] -> BExp -> w BExp
   letExp [] e = 
     do -- Des-empaquetar y empaquetar como un |Ex| puede generar
@@ -332,8 +329,11 @@ instance (MemM w) => IrGen w where
        be <- unEx body
        return $ Ex $ Eseq (seq bes) be
   -- breakExp :: w BExp
-  -- | JA! No está implementado
-  breakExp = P.error "COMPLETAR"
+  breakExp =
+    do lastM <- topSalida
+       case lastM of
+         Just l -> return $ Nx $ Jump (Name l) l
+         Nothing -> derror $ pack "Break fuera de loop"
   -- seqExp :: [BExp] -> w BExp
   seqExp [] = return $ Nx $ ExpS $ Const 0
   seqExp bes = 
@@ -431,9 +431,6 @@ instance (MemM w) => IrGen w where
                                   Label f, Move (Temp tmp) eels,
                                   Label fin])
                             (Temp tmp)
-  -- ifThenElseExpUnit :: BExp -> BExp -> BExp -> w BExp
-  --ifThenElseExpUnit _ _ _ = P.error "COmpletaR?"
-  -- assignExp :: BExp -> BExp -> w BExp
   assignExp cvar cinit = 
     do cvara <- unEx cvar
        cin <- unEx cinit

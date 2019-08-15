@@ -59,6 +59,9 @@ evalState (runSeman exp) 0
 - [ ] ¿Por que cuando llamamos una externalCall no podemos guardar directamente el resultado
        en el temporario de nuestra preferencia? (TigerTrans.recordExp)
 - [ ] ¿Por que en la carpeta en TigerTrans.forExp metemos a hi en un tmp?
+- [ ] Para seguir static links ¿Cómo hacemos? ¿Nos alcanza con que el frame tenga
+      [Escapa] en vez de [Access]?
+- [ ] ¿Tenemos que diferenciar al generar codigo intermedio para las operaciones binarias?
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).

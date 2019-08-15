@@ -9,7 +9,8 @@ import TigerFrame
 data Externa = Runtime | Propia
     deriving Show
 
-type FunEntry = (Level, Label, [Tipo], Tipo, Bool)
+--(Level de declaracion, nombre, tipo de args, tipo de retorno, externa o no)
+type FunEntry = (Level, Label, [Tipo], Tipo, Externa)
 
 -- (Tipo, acceso, nivel de la variable)
 type ValEntry = (Tipo, Access, Int)
