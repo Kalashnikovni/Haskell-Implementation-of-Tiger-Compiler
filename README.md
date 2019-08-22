@@ -37,6 +37,7 @@ evalState (runSeman exp) 0
 - [X] Opcional: ver lo de pretty-printing.
 - [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
 - [X] simpleVar en TigerTrans
+- [ ] Codigo intermedio para la variable fresca de los for.
 - [ ] 2° etapa
 
 # Dudas
@@ -62,8 +63,8 @@ evalState (runSeman exp) 0
 - [ ] Para seguir static links ¿Cómo hacemos? ¿Nos alcanza con que el frame tenga
       [Escapa] en vez de [Access]?
 - [ ] ¿Tenemos que diferenciar al generar codigo intermedio para las operaciones binarias?
+- [ ] ¿Por qué no generamos codigo intermedio para las declaraciones de tipo?
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).
 - Por ahora todas las variables escapan.
-- Vamos a ajustar fpPrevLvl cada vez que entremos en una nueva función.

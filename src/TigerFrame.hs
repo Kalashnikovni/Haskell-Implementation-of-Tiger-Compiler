@@ -1,13 +1,13 @@
 module TigerFrame where
 
-import           TigerTemp
-import           TigerTree
+import TigerTemp
+import TigerTree
 
-import           TigerAbs                       ( Escapa(..) )
+import TigerAbs (Escapa(..))
 
-import           TigerSymbol
+import TigerSymbol
 
-import           Prelude                 hiding ( exp )
+import Prelude hiding ( exp )
 
 --
 
@@ -176,3 +176,6 @@ exp (InFrame k) e = Just $ Mem (Binop Plus (auxexp e) (Const k))
 exp (InReg l) c 
   | c /= 0    = Nothing
   | otherwise = Just $ Temp l
+
+procEntryExit1 :: Frame -> Stm -> Stm
+procEntryExit1 fr body = body 

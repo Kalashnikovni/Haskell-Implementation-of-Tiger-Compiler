@@ -123,17 +123,27 @@ fromTy _          = P.error "No deberia haber una definición de tipos en los ar
 -- Traduccion de declaraciones --------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
--- ** transDecs :: (MemM w, Manticore w) => [Dec] -> w a -> w a
-transDecs :: Manticore w => [Dec] -> w a -> w a
-transDecs [] w                               = w
+transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], Tipo)
+transDecs [] w                               = 
+  do (_, t) <- w
+     return ([], t)
 transDecs ((VarDec nm escap t init p): xs) w = 
-  do (_, ti) <- transExp init
+  do (bini, ti) <- transExp init
      case t of
        Just sv -> do tv <- getTipoT sv
                      C.unless (equivTipo tv ti) $ errorTiposMsg p "El tipo del valor inicial es incorrecto" tv ti
-                     insertValV nm tv $ transDecs xs w
+                     acc   <- allocLocal escap
+                     bvar  <- varDec acc
+                     res   <- assignExp bvar bini
+                     (lbexp, bt) <- insertValV nm tv $ transDecs xs w
+                     return $ (res : lbexp, bt)
        Nothing -> do C.when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
-                     insertValV nm ti $ transDecs xs w
+                     acc   <- allocLocal escap
+                     bvar  <- varDec acc
+                     res   <- assignExp bvar bini
+                     (lbexp, bt) <- insertValV nm ti $ transDecs xs w
+                     return $ (res : lbexp, bt)
+-- TODO: ver el caso de FunctionDec
 transDecs ((FunctionDec fs) : xs)          w =
   do mapM_ (\f@(_, params, tf, bd, p) -> 
              do (_, t) <- insertFFold fs $ insertFFFold params $ transExp bd
@@ -329,63 +339,79 @@ transExp(RecordExp flds rt p) =
         snd3 (_, b, _) = b
 transExp(SeqExp es p) = 
   do mapM_ checkBreaks es
-     fmap last (mapM transExp es)
+     bes <- mapM transExp es
+     res <- mapM seqExp (P.map fst bes)
+     return (res, snd $ last bes)
 transExp(AssignExp var val p) =
   do checkBreaks val
-     (_, tvar) <- transVar var
-     (_, tval) <- transExp val
+     (bvar, tvar) <- transVar var
+     (bval, tval) <- transExp val
      case equivTipo tvar tval of
-       True -> return ((), TUnit) 
+       True -> do res <- assignExp bvar bval
+                  return (res, TUnit) 
        _    -> errorTiposMsg p "El tipo de la variable y del valor no son iguales" tvar tval  
 transExp(IfExp co th Nothing p) =
   do checkBreaks co
      checkBreaks th
-     (_ , co') <- transExp co
+     (bco, co') <- transExp co
      C.unless (equivTipo co' TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" co' TBool 
-     (() , th') <- transExp th
+     (bth, th') <- transExp th
      C.unless (equivTipo th' TUnit) $ errorTiposMsg p "La branch esta devolviendo un resultado" th' TUnit
-     return (() , TUnit)
+     res <- ifThenExp bco bth
+     return (res , TUnit)
 transExp(IfExp co th (Just el) p) = 
   do checkBreaks co
      checkBreaks th
      checkBreaks el
-     (_ , condType) <- transExp co
+     (bco, condType) <- transExp co
      C.unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
-     (_, ttType) <- transExp th
-     (_, ffType) <- transExp el
+     (bth, ttType) <- transExp th
+     (bel, ffType) <- transExp el
      C.unlessM (tiposIguales ttType ffType) $ errorTiposMsg p "Las branches devuelven resultados de distinto tipo" ttType ffType
-     return ((), ttType)
+     res <- ifThenElseExp bco bth bel
+     return (res, ttType)
 transExp(WhileExp co body p) = 
   do checkBreaks co
-     (_ , coTy) <- transExp co
+     (bco, coTy) <- transExp co
      C.unless (equivTipo coTy TBool) $ errorTiposMsg p "La condicion del While no es booleana" coTy TBool
-     (_ , boTy) <- transExp $ scanBreaks body
+     preWhileforExp
+     (bbody, boTy) <- transExp $ scanBreaks body
      C.unless (equivTipo boTy TUnit) $ errorTiposMsg p "El cuerpo del While devuelve un resultado" boTy TBool
-     return ((), TUnit)
+     res <- whileExp bco bbody
+     posWhileforExp
+     return (res, TUnit)
 transExp(ForExp nv mb lo hi bo p) =
   do checkBreaks lo
      checkBreaks hi
-     (_, tlo) <- transExp  lo
+     (blo, tlo) <- transExp  lo
      C.unless (equivTipo tlo (TInt RW)) $ errorTiposMsg p "La cota inferior del for no es un entero modificable" tlo (TInt RW)
-     (_, thi) <- transExp  hi
+     (bhi, thi) <- transExp  hi
      C.unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
-     (_, tbo) <- insertValV nv (TInt RO) $ transExp (scanBreaks bo)
+     preWhileforExp
+     -- TODO: codigo intermedio para nv
+     (bbody, tbo) <- insertValV nv (TInt RO) $ transExp (scanBreaks bo)
      C.unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
-     return ((), TUnit)
+     res <- forExp blo bhi bbody
+     posWhileforExp
+     return (res, TUnit)
+--TODO, caso LetExp
 transExp(LetExp dcs body p) = 
   do checkBreaks body
      transDecs dcs $ transExp body
-transExp(BreakExp p) = return ((), TUnit)
+transExp(BreakExp p) = 
+  do res <- breakExp
+     return (res, TUnit)
 transExp(ArrayExp sn cant init p) =
   do checkBreaks cant
      checkBreaks init
      tsn <- getTipoT sn 
      case tsn of
-       TArray ta _ -> do (_, tca) <- transExp cant
+       TArray ta _ -> do (bca, tca) <- transExp cant
                          C.unless (equivTipo tca (TInt RO)) $ errorTiposMsg p "El indice no es un entero" tca (TInt RO)
-                         (_, tin) <- transExp init
+                         (bin, tin) <- transExp init
                          C.unless (equivTipo ta tin) $ errorTiposMsg p "El valor inicial no es del tipo del arreglo" ta tin
-                         return ((), tsn)
+                         res <- arrayExp bca bin
+                         return (res, tsn)
        _           -> errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
 
 -- checkBreaks se llamará en todos los casos de transExp,
