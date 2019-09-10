@@ -43,26 +43,35 @@ evalState (runSeman exp) 0
 # Dudas
 
 - [X] ¿Qué es el argumento de escape de una ForExp?
-      Dice si la variable del contador escapa o no escapa.
+      Rta: Dice si la variable del contador escapa o no escapa.
 - [X] En transExp, para el caso de ForExp ¿No tendríamos que chequear si nv es "fresca"?
-      Noup, no vamos a hacer ese chequeo porque somos re heavies y re jodidas.
+      Rta: Noup, no vamos a hacer ese chequeo porque somos re heavies y re jodidas.
 - [X] En transExp, para el caso de ForExp ¿Tenemos que chequear si lo < hi? Alto mambo!
-      Acá nos dejamos llevar por la moda: a llorar a magoya si no te avivaste de lo > hi.
+      Rta: Acá nos dejamos llevar por la moda: a llorar a magoya si no te avivaste de lo > hi.
 - [X] ¿Qué hacemos cuando se declaran variables y funciones con el mismo nombre? (three-name-spaces2.tig, fun-vs-var.tig)
-      Tenemos en cuenta el scope, acá vale la última que se declaró (se re cuelan!).
+      Rta: Tenemos en cuenta el scope, acá vale la última que se declaró (se re cuelan!).
 - [X] ¿Por qué chequeamos que deltaprof > 0 en simpleVar en TigerTrans?
-      Para ver si el nivel donde se usa la variable es mayor a aquel en donde fue declarada.
+      Rta: Para ver si el nivel donde se usa la variable es mayor a aquel en donde fue declarada.
+- [X] ¿Por que cuando llamamos una externalCall no podemos guardar directamente el resultado
+      en el temporario de nuestra preferencia? (TigerTrans.recordExp)
+      Rta: porque allocRecord devuelve en rv su resultado, y por ahí otra función lo pisa,
+      entonces mandamos el resultado a otro temporario para que no perdamos ese valor. 
 - [ ] ¿Por qué en el código de la carpeta para genSl usa 2 * wSz? ¿Y por qué siempre suma este valor?
+      ¿El static link siempre está en la misma ubicación dentro del frame de una función?
+      (Hoja 35 de carpeta de Denu).
 - [ ] ¿La idea de fpPrevLvl es que vaya cambiando cada vez que entramos en un nuevo nivel?
+      O sea, nos dice que tenemos que ajustarlo bien ¿Quizás es por la arquitectura elegida?
 - [ ] En TigerFrame.exp chequea si c == 0 y ahi tira error ¿No deberia ser al revés?
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
-- [ ] ¿Por que TigerTree.Jump no toma la lista de labels?
-- [ ] ¿Por que cuando llamamos una externalCall no podemos guardar directamente el resultado
-       en el temporario de nuestra preferencia? (TigerTrans.recordExp)
+- [ ] ¿Por que TigerTree.Jump no toma la lista de labels? (Página 150 del libro).
 - [ ] ¿Por que en la carpeta en TigerTrans.forExp metemos a hi en un tmp?
+      Onda ¿No le podemos hacer directamente unEx, y usar el resultado del unEx
+      para los CJump?
 - [ ] Para seguir static links ¿Cómo hacemos? ¿Nos alcanza con que el frame tenga
-      [Escapa] en vez de [Access]?
+      [Escapa] en vez de [Access]? (para TigerTrans.callExp, que hay que insertar el sl).
+- [ ] ¿Cómo vamos haciendo la parte de generación de código intermedio para funciones?
 - [ ] ¿Tenemos que diferenciar al generar codigo intermedio para las operaciones binarias?
+      (Onda en TigerTrans tenemos binOpIntRelExp y binOpIntExp, calculamos que es para optimizar)
 - [ ] ¿Por qué no generamos codigo intermedio para las declaraciones de tipo?
 
 # Decisiones
