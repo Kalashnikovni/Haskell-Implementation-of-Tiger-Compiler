@@ -143,15 +143,19 @@ transDecs ((VarDec nm escap t init p): xs) w =
                      res   <- assignExp bvar bini
                      (lbexp, bt) <- insertValV nm ti $ transDecs xs w
                      return $ (res : lbexp, bt)
--- TODO: ver el caso de FunctionDec
 transDecs ((FunctionDec fs) : xs)          w =
-  do mapM_ (\f@(_, params, tf, bd, p) -> 
-             do (_, t) <- insertFFold fs $ insertFFFold params $ transExp bd
+  do lvl <- newLevel
+     mapM_ (\f@(_, params, tf, bd, p) -> 
+             do (bf, t) <- insertFFold fs $ insertFFFold params $ transExp bd
                 case tf of
                   Just td -> do tdd <- getTipoT td
                                 C.unless (equivTipo t tdd) $
-                                         errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
-                  Nothing -> C.unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit) fs 
+                                   errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
+                                bd' <- functionDec bf lvl IsFun
+                                procEntryExit lvl bd'
+                  Nothing -> do C.unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit 
+                                bd' <- functionDec bf lvl IsProc
+                                procEntryExit lvl bd') fs
      insertFFold fs $ transDecs xs w
 transDecs ((TypeDec xs) : xss)             w =
   let 
@@ -444,6 +448,7 @@ scanBreaks ex                        = ex
 -- Estado inicial y ejecucion ---------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
+-- TODO: asegurarnos que devolvemos lista de fragmentos
 initConf :: Estado
 initConf = Est
            {tEnv = M.insert (pack "int") (TInt RW) (M.singleton (pack "string") TString)
@@ -459,8 +464,14 @@ initConf = Est
                       (pack "not",Func (1,pack "not",[TBool],TBool,Runtime)),
                       (pack "exit",Func (1,pack "exit",[TInt RW],TUnit,Runtime))]}
 
-runMonada :: Monada ((), Tipo) -> StGen (Either Symbol ((), Tipo))
+runMonada :: Monada a -> StGen (Either Symbol a)
 runMonada =  flip evalStateT initConf . runExceptT
 
-runSeman :: Exp -> StGen (Either Symbol ((), Tipo))
+runSeman :: Exp -> StGen (Either Symbol (BExp, Tipo))
 runSeman = runMonada . transExp
+
+runTrans :: Exp -> StGen (Either Symbol [Frag])
+runTrans e = runMonada $
+  do e'    <- transExp e
+     frags <- getFrags
+     return frags

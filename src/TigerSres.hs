@@ -3,7 +3,7 @@ module TigerSres where
 import TigerTips
 import TigerTemp
 import TigerUnique
-import TigerTrans
+--import TigerTrans
 import TigerFrame
 
 data Externa = Runtime | Propia

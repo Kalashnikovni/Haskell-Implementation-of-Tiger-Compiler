@@ -38,6 +38,7 @@ evalState (runSeman exp) 0
 - [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
 - [X] simpleVar en TigerTrans
 - [ ] Codigo intermedio para la variable fresca de los for.
+- [ ] Revisar 2° etapa: separación de código; no podemos usar las expresiones directo!
 - [ ] 2° etapa
 
 # Dudas
@@ -56,23 +57,46 @@ evalState (runSeman exp) 0
       en el temporario de nuestra preferencia? (TigerTrans.recordExp)
       Rta: porque allocRecord devuelve en rv su resultado, y por ahí otra función lo pisa,
       entonces mandamos el resultado a otro temporario para que no perdamos ese valor. 
-- [ ] ¿Por qué en el código de la carpeta para genSl usa 2 * wSz? ¿Y por qué siempre suma este valor?
+- [X] ¿Por qué en el código de la carpeta para genSl usa 2 * wSz? ¿Y por qué siempre suma este valor?
       ¿El static link siempre está en la misma ubicación dentro del frame de una función?
       (Hoja 35 de carpeta de Denu).
-- [ ] ¿La idea de fpPrevLvl es que vaya cambiando cada vez que entramos en un nuevo nivel?
+      Rta: el static link está siempre en la misma posición del frame, por eso sumamos
+      siempre la misma constante.
+- [X] ¿La idea de fpPrevLvl es que vaya cambiando cada vez que entramos en un nuevo nivel?
       O sea, nos dice que tenemos que ajustarlo bien ¿Quizás es por la arquitectura elegida?
-- [ ] En TigerFrame.exp chequea si c == 0 y ahi tira error ¿No deberia ser al revés?
-- [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
-- [ ] ¿Por que TigerTree.Jump no toma la lista de labels? (Página 150 del libro).
-- [ ] ¿Por que en la carpeta en TigerTrans.forExp metemos a hi en un tmp?
+      Rta: no, fpPrevLvl va a ser constante; tiene que ver con la arquitectura. Otro dato:
+      fpPrevLvl está por si tenemos funciones que se llaman en el mismo nivel; con fpPrevLvl
+      podemos acceder al frame del nivel anterior, y no solo al mismo nivel del llamante
+      y el llamado.
+- [X] En TigerFrame.exp chequea si c == 0 y ahi tira error ¿No deberia ser al revés?
+      Rta: sí, c == 0 debería dar error.
+- [X] ¿Por que TigerTree.Jump no toma la lista de labels? (Página 150 del libro).
+      Rta: porque en la mayoría de las arquitecturas solo saltamos a un label,
+      no a una lista de posibilidades de labels, así que tiene más sentido hacerlo
+      así. Igual si la arquitectura lo soporta, podríamos cambiar esa estructura.
+- [X] ¿Por que en la carpeta en TigerTrans.forExp metemos a hi en un tmp?
       Onda ¿No le podemos hacer directamente unEx, y usar el resultado del unEx
       para los CJump?
-- [ ] Para seguir static links ¿Cómo hacemos? ¿Nos alcanza con que el frame tenga
+      Rta: en un assembler posta no usamos las expresiones así de una, sino que los metemos
+      en registro, así que es mucho mejor mandarlos a registro y después operar con los
+      registros.
+- [X] Para seguir static links ¿Cómo hacemos? ¿Nos alcanza con que el frame tenga
       [Escapa] en vez de [Access]? (para TigerTrans.callExp, que hay que insertar el sl).
-- [ ] ¿Cómo vamos haciendo la parte de generación de código intermedio para funciones?
+      Rta: sí, nos alcanza, porque el sl siempre está en el mismo offset dentro de un frame.
+- [X] ¿Cómo vamos haciendo la parte de generación de código intermedio para funciones?
+      Rta: por ahora usamos una implementación por default, hasta que en la tercera etapa
+      terminemos de definir cosas de la arquitectura que afectan a esto de las funciones.
+- [X] ¿Por qué no generamos codigo intermedio para las declaraciones de tipo?
+      Rta: porque en assembler no tenemos tipos, onda son anotaciones en el lenguaje
+      a compilar, que nos permiten ciertos chequeos, pero no es que tengamos que
+      ejecutar nada para que se ejecuten las sentencias del programa. 
+- [X] ¿Qué es la parte de fragments? (Página 169 del libro).
+      Rta: es para separar código ejecutable, de aquel que no lo es.
+- [ ] Las llamadas externas ¿Deberían tomar en la lista las expresiones directamente
+      o antes deberíamos guardar las expresiones en temporarios?
+- [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
 - [ ] ¿Tenemos que diferenciar al generar codigo intermedio para las operaciones binarias?
       (Onda en TigerTrans tenemos binOpIntRelExp y binOpIntExp, calculamos que es para optimizar)
-- [ ] ¿Por qué no generamos codigo intermedio para las declaraciones de tipo?
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).

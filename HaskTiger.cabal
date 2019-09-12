@@ -38,7 +38,7 @@ library
         , TigerTrans
         , TigerFrame
         , TigerPrettyIr
-        --, TigerCanon
+        , TigerCanon
         -- Experimental
         -- , TigerInterpPP
         -- , TigerInteractive

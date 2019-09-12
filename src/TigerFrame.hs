@@ -164,7 +164,7 @@ allocLocal fr NoEscapa = do
   s <- newTemp
   return (fr, InReg s)
 
--- Función auxiliar par el calculo de acceso a una variable, siguiendo el Static Link.
+-- Función auxiliar para el calculo de acceso a una variable, siguiendo el Static Link.
 -- Revisar bien antes de usarla, pero ajustando correctamente la variable |fpPrevLev|
 -- debería estar relativamente cerca de la solución
 auxexp :: Int -> Exp

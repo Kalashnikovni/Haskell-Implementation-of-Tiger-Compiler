@@ -10,11 +10,11 @@ import Prelude hiding (EQ,
                        seq)
 import qualified Prelude as P (error, length)
 
-import TigerAbs (Escapa(..))
+import TigerAbs (Escapa(..), Oper(..))
 import qualified TigerAbs as Abs
 import TigerErrores
 import TigerFrame as F
-import TigerSres (Externa(..))
+--import TigerSres (Externa(..))
 import TigerSymbol as T
 import TigerTemp
 import TigerTree
@@ -26,6 +26,8 @@ import Data.Ord hiding (EQ,
                         GT,
                         LT)
 import Debug.Trace
+
+data Externa = Runtime | Propia deriving Show
 
 -- | Reexportamos el tipo de Fragmentos provenientes de TigerTrans.
 type TransFrag = Frag
@@ -246,19 +248,20 @@ instance (MemM w) => IrGen w where
              tmpOff <- newTemp
              case getOffset acc of
                Just k -> 
-                 return $ Ex $ Eseq $ (seq [(Move (Temp tmpDec) e), 
-                                            (Move (Temp tmpOff) (Binop Plus (Temp tmpDec) (Const k)))]) 
-                                      (Temp tmpOff)
-               _      -> derror $ pack "Revisar el compilador.simpleVar, o revisar codigo del programa.
-                                        La variable no escapa."
+                 return $ Ex $ Eseq (seq [(Move (Temp tmpDec) e), 
+                                          (Move (Temp tmpOff) (Temp tmpDec))]) 
+                                    (Temp tmpOff)
+               _      -> derror $ pack $ "Revisar el compilador.simpleVar, o revisar codigo del programa." ++ 
+                                         "La variable no escapa."
         _ -> derror $ pack "Revisar compilador.simpleVar, o revisar codigo del programa."  
-    | otherwise = derror $ pack "Revisar compilador.simpleVar, o revisar codigo del programa. La variable
-                                 se usa en un nivel inferior a su declaracion."   
+    | otherwise = derror $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
+                                  "se usa en un nivel inferior a su declaracion."   
   fieldVar be i =
     do ebe <- unEx be
        tbe <- newTemp
        return $ Ex $ Eseq (seq [Move (Temp tbe) ebe,
-                                Mem (Binop Plus Temp tbe (Binop Mul (Const i) (Const wSz)))])
+                                Mem (Binop Plus (Temp tbe) (Binop Mul (Const i) (Const wSz)))])
+                          (Temp tbe)
   subscriptVar var ind = 
     do evar <- unEx var
        eind <- unEx ind
@@ -298,22 +301,24 @@ instance (MemM w) => IrGen w where
                  IsFun  -> Move (Temp rv) <$> unEx bd
        procEntryExit lvl (Nx body)
        return $ Ex $ Const 0
-  varDec acc = do {i <- getActualLevel; simpleVar acc i}
+  varDec acc = simpleVar acc 0
   unitExp = return $ Ex (Const 0)
   nilExp = return $ Ex (Const 0)
   intExp i = return $ Ex (Const i)
   -- recordExp :: [(BExp,Int)]  -> w BExp
   -- ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
   recordExp flds =
-    do tmp   <- newTmp
+    do tmp   <- newTemp
        flds' <- mapM unEx $ sortOn snd flds
-       return $ Ex $ Eseq (Seq (externalCall "_allocRecord" (P.length flds : flds'))
+       return $ Ex $ Eseq (Seq (externalCall "_allocRecord" ((Const $ P.length flds) : flds'))
                                (Move (Temp tmp) (Temp rv)))  
                           (Temp tmp)
   -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp
   callExp name external isproc lvl args = 
     do lvlact <- getActualLevel
-       args'  <- mapM unEx args
+       args'  <- mapM (\x -> do x' <- unEx x
+                                t  <- newTemp
+                                Move (Temp t) x') args
        case isproc of
          True  -> return $ Nx $ ExpS $ Call (Name name) (auxexp (lvlact - lvl) : args')
          False -> return $ Ex $ Call (Name name) (auxexp (lvlact - lvl) : args')
@@ -332,7 +337,7 @@ instance (MemM w) => IrGen w where
   breakExp =
     do lastM <- topSalida
        case lastM of
-         Just l -> return $ Nx $ Jump (Name l) l
+         Just l  -> return $ Nx $ Jump (Name l) l
          Nothing -> derror $ pack "Break fuera de loop"
   -- seqExp :: [BExp] -> w BExp
   seqExp [] = return $ Nx $ ExpS $ Const 0
@@ -361,10 +366,11 @@ instance (MemM w) => IrGen w where
                               cbody,
                               Jump (Name test) test,
                               Label done]
-           _ -> internal $ pack "no label in salida"
+         _ -> internal $ pack "no label in salida"
   forExp lo hi var body =
     do elo    <- unEx lo
        ehi    <- unEx hi
+       thi    <- newTemp
        evar   <- unEx var
        cbody  <- unNx body
        tmp    <- newTemp
@@ -374,11 +380,12 @@ instance (MemM w) => IrGen w where
        lastM  <- topSalida
        case lastM of
          Just done ->
-           return $ Nx $ seq [Move evar elo,
-                              CJump LE evar ehi lbody done,
+           return $ Nx $ seq [Move (Temp thi) ehi,
+                              Move evar tlo,
+                              CJump LE evar (Temp thi) lbody done,
                               Label lbody,
                               cbody,
-                              CJump EQ evar ehi done lsigue,
+                              CJump EQ evar (Temp thi) done lsigue,
                               Label lsigue,
                               Move evar $ Binop Plus evar (Const 1),
                               Jump (Name lbody) lbody,
@@ -433,7 +440,7 @@ instance (MemM w) => IrGen w where
                             (Temp tmp)
   assignExp cvar cinit = 
     do cvara <- unEx cvar
-       cin <- unEx cinit
+       cin   <- unEx cinit
        case cvara of
          Mem v' -> do t <- newTemp
                       return $ Nx $ seq [Move (Temp t) cin, Move cvara (Temp t)]
