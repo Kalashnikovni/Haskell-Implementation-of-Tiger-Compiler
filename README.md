@@ -36,6 +36,7 @@ evalState (runSeman exp) 0
 - [X] Revisar qué pasa con merge.tig que no encuentra readint
 - [X] Opcional: ver lo de pretty-printing.
 - [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
+- [ ] Revisar que nunca usamos insertVRO ¿No tendríamos que hacerlo?
 - [X] simpleVar en TigerTrans
 - [ ] Codigo intermedio para la variable fresca de los for.
 - [ ] Revisar 2° etapa: separación de código; no podemos usar las expresiones directo!
@@ -92,11 +93,13 @@ evalState (runSeman exp) 0
       ejecutar nada para que se ejecuten las sentencias del programa. 
 - [X] ¿Qué es la parte de fragments? (Página 169 del libro).
       Rta: es para separar código ejecutable, de aquel que no lo es.
+- [X] ¿Tenemos que diferenciar al generar codigo intermedio para las operaciones binarias?
+      (Onda en TigerTrans tenemos binOpIntRelExp y binOpIntExp, calculamos que es para optimizar)
+      Rta: lo que pasa es que binOpIntRelExp va a devolver un Cx, mientras que binOpInExp
+      devuelve una Ex.
 - [ ] Las llamadas externas ¿Deberían tomar en la lista las expresiones directamente
       o antes deberíamos guardar las expresiones en temporarios?
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
-- [ ] ¿Tenemos que diferenciar al generar codigo intermedio para las operaciones binarias?
-      (Onda en TigerTrans tenemos binOpIntRelExp y binOpIntExp, calculamos que es para optimizar)
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).

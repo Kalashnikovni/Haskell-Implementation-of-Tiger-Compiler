@@ -32,7 +32,7 @@ class (Demon w, Monad w, UniqueGenerator w) => Manticore w where
   -- | Inserta una Función al entorno
     insertFunV :: Symbol -> FunEntry -> w a -> w a
   -- | Inserta una Variable de sólo lectura al entorno
-    insertVRO :: Symbol -> w a -> w a
+    insertVRO :: Symbol -> ValEntry -> w a -> w a
   -- | Inserta una variable de tipo al entorno
     insertTipoT :: Symbol -> Tipo -> w a -> w a
   -- | Busca una función en el entorno
@@ -68,10 +68,10 @@ instance Manticore Monada where
          a <- w
          put oldEst
          return a
-    -- insertVRO :: Symbol -> w a -> w a
-    insertVRO sym w =
+    -- insertVRO :: Symbol -> ValEntry -> w a -> w a
+    insertVRO sym ventry w =
       do oldEst <- get
-         put (oldEst{vEnv = M.insert sym (Var $ TInt RO) (vEnv oldEst)})
+         put (oldEst{vEnv = M.insert sym (Var ventry) (vEnv oldEst)})
          a <- w
          put oldEst
          return a

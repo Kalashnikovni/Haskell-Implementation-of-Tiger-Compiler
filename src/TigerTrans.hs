@@ -251,17 +251,18 @@ instance (MemM w) => IrGen w where
                  return $ Ex $ Eseq (seq [(Move (Temp tmpDec) e), 
                                           (Move (Temp tmpOff) (Temp tmpDec))]) 
                                     (Temp tmpOff)
-               _      -> derror $ pack $ "Revisar el compilador.simpleVar, o revisar codigo del programa." ++ 
-                                         "La variable no escapa."
-        _ -> derror $ pack "Revisar compilador.simpleVar, o revisar codigo del programa."  
-    | otherwise = derror $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
-                                  "se usa en un nivel inferior a su declaracion."   
+               _      -> internal $ pack $ "Revisar el compilador.simpleVar, o revisar codigo del programa." ++ 
+                                           "La variable no escapa."
+        _ -> internal $ pack "Revisar compilador.simpleVar, o revisar codigo del programa."  
+    | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
+                                    "se usa en un nivel inferior a su declaracion."   
   fieldVar be i =
-    do ebe <- unEx be
-       tbe <- newTemp
+    do ebe  <- unEx be
+       tbe  <- newTemp
+       tres <- newTemp 
        return $ Ex $ Eseq (seq [Move (Temp tbe) ebe,
-                                Mem (Binop Plus (Temp tbe) (Binop Mul (Const i) (Const wSz)))])
-                          (Temp tbe)
+                                Move (Temp tres) $ Mem (Binop Plus (Temp tbe) (Binop Mul (Const i) (Const wSz)))])
+                          (Temp tres)
   subscriptVar var ind = 
     do evar <- unEx var
        eind <- unEx ind
@@ -309,19 +310,23 @@ instance (MemM w) => IrGen w where
   -- ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
   recordExp flds =
     do tmp   <- newTemp
-       flds' <- mapM unEx $ sortOn snd flds
-       return $ Ex $ Eseq (Seq (externalCall "_allocRecord" ((Const $ P.length flds) : flds'))
+       flds' <- mapM unEx $ map fst $ List.sortOn snd flds
+       return $ Ex $ Eseq (Seq (ExpS (externalCall "_allocRecord" ((Const $ P.length flds) : flds')))
                                (Move (Temp tmp) (Temp rv)))  
                           (Temp tmp)
   -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp
-  callExp name external isproc lvl args = 
+  callExp nm external isproc lvl args = 
     do lvlact <- getActualLevel
        args'  <- mapM (\x -> do x' <- unEx x
                                 t  <- newTemp
-                                Move (Temp t) x') args
-       case isproc of
-         True  -> return $ Nx $ ExpS $ Call (Name name) (auxexp (lvlact - lvl) : args')
-         False -> return $ Ex $ Call (Name name) (auxexp (lvlact - lvl) : args')
+                                return $ Eseq (Move (Temp t) x') (Temp t)) args
+       case searchDefLvl lvl of
+         Just lvli ->
+           case isproc of
+             IsProc -> return $ Nx $ ExpS $ Call (Name nm) (auxexp (lvlact - getNlvl' lvli) : args')
+             IsFun  -> return $ Ex $ Call (Name nm) (auxexp (lvlact - getNlvl' lvli) : args')
+         _         -> internal $ pack "Corregir compilador, TigerTrans.callExp"
+    where searchDefLvl lv = find (\l -> name (getFrame' l) == nm) lv
   -- letExp :: [BExp] -> BExp -> w BExp
   letExp [] e = 
     do -- Des-empaquetar y empaquetar como un |Ex| puede generar
@@ -338,7 +343,7 @@ instance (MemM w) => IrGen w where
     do lastM <- topSalida
        case lastM of
          Just l  -> return $ Nx $ Jump (Name l) l
-         Nothing -> derror $ pack "Break fuera de loop"
+         Nothing -> internal $ pack "Break fuera de loop"
   -- seqExp :: [BExp] -> w BExp
   seqExp [] = return $ Nx $ ExpS $ Const 0
   seqExp bes = 
@@ -381,7 +386,7 @@ instance (MemM w) => IrGen w where
        case lastM of
          Just done ->
            return $ Nx $ seq [Move (Temp thi) ehi,
-                              Move evar tlo,
+                              Move evar elo,
                               CJump LE evar (Temp thi) lbody done,
                               Label lbody,
                               cbody,
@@ -395,7 +400,7 @@ instance (MemM w) => IrGen w where
        nbod  <- unNx bod
        t     <- newLabel
        f     <- newLabel
-       return $ Nx $ seq [ccond (t, f), Label t, nbody, Label f]
+       return $ Nx $ seq [ccond (t, f), Label t, nbod, Label f]
   ifThenElseExp cond (Cx bod) (Cx els) = 
     do ccond <- unCx cond
        t     <- newLabel
@@ -422,7 +427,7 @@ instance (MemM w) => IrGen w where
        f     <- newLabel
        fin   <- newLabel
        return $ Nx $ seq [ccond (t, f),
-                          Label t, bod, Jump (Name fin) (Label fin),
+                          Label t, nbod, Jump (Name fin) fin,
                           Label f, els (fin, fin),
                           Label fin]
   ifThenElseExp cond bod els =
@@ -433,11 +438,11 @@ instance (MemM w) => IrGen w where
        f     <- newLabel
        fin   <- newLabel
        tmp   <- newTemp
-       return $ Ex $ Eseq $ (seq [ccond (t, f),
-                                  Label t, Move (Temp tmp) ebod, Jump (Name fin) (Label fin),
-                                  Label f, Move (Temp tmp) eels,
-                                  Label fin])
-                            (Temp tmp)
+       return $ Ex $ Eseq (seq [ccond (t, f),
+                                Label t, Move (Temp tmp) ebod, Jump (Name fin) fin,
+                                Label f, Move (Temp tmp) eels,
+                                Label fin])
+                          (Temp tmp)
   assignExp cvar cinit = 
     do cvara <- unEx cvar
        cin   <- unEx cinit
@@ -449,36 +454,44 @@ instance (MemM w) => IrGen w where
     do leex <- unEx le
        reex <- unEx re
        op'  <- transformOp op
-       return $ Binop op' leex reex
+       return $ Ex $ Binop op' leex reex
     where transformOp PlusOp   = return Plus
           transformOp MinusOp  = return Minus
           transformOp TimesOp  = return Mul
           transformOp DivideOp = return Div
-          transformOp _        = derror $ pack $ "Revisar el compilador.binOpIntExp o el codigo. El operador " ++
-                                                 "no es aritmetico"
+          transformOp _        = internal $ pack $ "Revisar el compilador.binOpIntExp o el codigo. El operador " ++
+                                                   "no es aritmetico"
   binOpStrExp strl op strr =
     do esl   <- unEx strl
        esr   <- unEx strr
        tstrl <- newTemp
        tstrr <- newTemp
-       return $ Eseq $ (seq [Move (Temp tstrl) esl, 
-                             Move (Temp tstrr) esr, 
-                             externalCall "_stringCompare" [Temp tstrl, Temp tstrr],
-                             Move (Temp tstrl) (Temp rv)])
-                       (Temp tstrl)
+       let res = seq [Move (Temp tstrl) esl, 
+                      Move (Temp tstrr) esr, 
+                      ExpS $ externalCall "_stringCompare" [Temp tstrl, Temp tstrr],
+                      Move (Temp tstrl) (Temp rv)]
+           mkCx op = Cx (\(t, f) -> seq [res, CJump op (Temp tstrl) (Const 0) t f])
+       case op of
+         EqOp  -> return $ mkCx EQ
+         NeqOp -> return $ mkCx NE
+         LtOp  -> return $ mkCx LT 
+         GtOp  -> return $ mkCx GT
+         LeOp  -> return $ mkCx LE
+         GeOp  -> return $ mkCx GE
+         _     -> internal $ pack "Revisar el compilador TigerTrans.binOpStrExp"
   binOpIntRelExp le op re =
     do leex <- unEx le
        reex <- unEx re
        op'  <- transformOp op
-       return $ Binop op' leex reex
+       return $ Cx (\(t, f) -> CJump op' leex reex t f)
     where transformOp EqOp  = return EQ
           transformOp NeqOp = return NE
           transformOp LtOp  = return LT
           transformOp GtOp  = return GT
           transformOp LeOp  = return LE
           transformOp GeOp  = return GE
-          transformOp _     = derror $ pack $ "Revisar el compilador.binOpIntRelExp o el codigo. El operador " ++
-                                              "no es relacional"
+          transformOp _     = internal $ pack $ "Revisar el compilador.binOpIntRelExp o el codigo. El operador " ++
+                                                "no es relacional"
   arrayExp size init = 
     do sz <- unEx size
        ini <- unEx init

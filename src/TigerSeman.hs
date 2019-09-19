@@ -78,8 +78,8 @@ transVar (SimpleVar s)      =
      actLvl         <- getActualLevel
      bexp           <- simpleVar acc (actLvl - vLvl) 
      return (bexp, t)
-  where getVarLvl (Var t) = t 
-        getVarLvl _       = derror $ pack "Chequear el compilador.transVar, o el codigo"
+  --where getVarLvl (Var t) = returnt 
+  --      getVarLvl _       = derror $ pack "Chequear el compilador.transVar, o el codigo"
 transVar (FieldVar v s)     =
   do (bexp, t) <- transVar v
      case t of
@@ -127,7 +127,7 @@ transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], Tipo
 transDecs [] w                               = 
   do (_, t) <- w
      return ([], t)
-transDecs ((VarDec nm escap t init p): xs) w = 
+transDecs ((VarDec nm escap t init p) : xs) w = 
   do (bini, ti) <- transExp init
      case t of
        Just sv -> do tv <- getTipoT sv
@@ -135,13 +135,15 @@ transDecs ((VarDec nm escap t init p): xs) w =
                      acc   <- allocLocal escap
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
-                     (lbexp, bt) <- insertValV nm tv $ transDecs xs w
+                     lvl   <- getActualLevel
+                     (lbexp, bt) <- insertValV nm (tv, acc, lvl) $ transDecs xs w
                      return $ (res : lbexp, bt)
        Nothing -> do C.when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
                      acc   <- allocLocal escap
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
-                     (lbexp, bt) <- insertValV nm ti $ transDecs xs w
+                     lvl   <- getActualLevel
+                     (lbexp, bt) <- insertValV nm (ti, acc, lvl) $ transDecs xs w
                      return $ (res : lbexp, bt)
 transDecs ((FunctionDec fs) : xs)          w =
   do lvl <- newLevel
@@ -184,8 +186,8 @@ insertFFold ((nm, params, res, bd, p) : fs) w =
        False ->
          case res of
            Just t  -> do tt <- getTipoT t
-                         insertFunV nm (u, nm, ts, tt, Propia) $ insertFFold fs w
-           Nothing -> insertFunV nm (u, nm, ts, TUnit, Propia) $ insertFFold fs w
+                         insertFunV nm (u, nm, ts, tt, TigerSres.Propia) $ insertFFold fs w
+           Nothing -> insertFunV nm (u, nm, ts, TUnit, TigerSres.Propia) $ insertFFold fs w
        True -> addpos (derror $ pack "Hay dos funciones con el mismo nombre en un batch") p 
   where fst5 (a, _, _, _, _) = a
 
@@ -453,16 +455,16 @@ initConf :: Estado
 initConf = Est
            {tEnv = M.insert (pack "int") (TInt RW) (M.singleton (pack "string") TString)
             , vEnv = M.fromList
-                     [(pack "print", Func (1,pack "print",[TString], TUnit, Runtime)),
-                      (pack "flush", Func (1,pack "flush",[],TUnit, Runtime)),
-                      (pack "getchar",Func (1,pack "getchar",[],TString,Runtime)),
-                      (pack "ord",Func (1,pack "ord",[TString],TInt RW,Runtime)),
-                      (pack "chr",Func (1,pack "chr",[TInt RW],TString,Runtime)),
-                      (pack "size",Func (1,pack "size",[TString],TInt RW,Runtime)),
-                      (pack "substring",Func (1,pack "substring",[TString,TInt RW, TInt RW],TString,Runtime)),
-                      (pack "concat",Func (1,pack "concat",[TString,TString],TString,Runtime)),
-                      (pack "not",Func (1,pack "not",[TBool],TBool,Runtime)),
-                      (pack "exit",Func (1,pack "exit",[TInt RW],TUnit,Runtime))]}
+                     [(pack "print", Func (1,pack "print",[TString], TUnit, TigerSres.Runtime)),
+                      (pack "flush", Func (1,pack "flush",[],TUnit, TigerSres.Runtime)),
+                      (pack "getchar",Func (1,pack "getchar",[],TString, TigerSres.Runtime)),
+                      (pack "ord",Func (1,pack "ord",[TString],TInt RW, TigerSres.Runtime)),
+                      (pack "chr",Func (1,pack "chr",[TInt RW],TString, TigerSres.Runtime)),
+                      (pack "size",Func (1,pack "size",[TString],TInt RW, TigerSres.Runtime)),
+                      (pack "substring",Func (1,pack "substring",[TString,TInt RW, TInt RW],TString, TigerSres.Runtime)),
+                      (pack "concat",Func (1,pack "concat",[TString,TString],TString, TigerSres.Runtime)),
+                      (pack "not",Func (1,pack "not",[TBool],TBool, TigerSres.Runtime)),
+                      (pack "exit",Func (1,pack "exit",[TInt RW],TUnit, TigerSres.Runtime))]}
 
 runMonada :: Monada a -> StGen (Either Symbol a)
 runMonada =  flip evalStateT initConf . runExceptT
@@ -470,7 +472,7 @@ runMonada =  flip evalStateT initConf . runExceptT
 runSeman :: Exp -> StGen (Either Symbol (BExp, Tipo))
 runSeman = runMonada . transExp
 
-runTrans :: Exp -> StGen (Either Symbol [Frag])
+runTrans :: Exp -> StGen (Either Symbol [TransFrag])
 runTrans e = runMonada $
   do e'    <- transExp e
      frags <- getFrags
