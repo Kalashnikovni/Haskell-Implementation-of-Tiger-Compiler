@@ -123,10 +123,11 @@ fromTy _          = P.error "No deberia haber una definición de tipos en los ar
 -- Traduccion de declaraciones --------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
-transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], Tipo)
+--transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
+transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], BExp, Tipo)
 transDecs [] w                               = 
-  do (_, t) <- w
-     return ([], t)
+  do (b, t) <- w
+     return ([], b, t)
 transDecs ((VarDec nm escap t init p) : xs) w = 
   do (bini, ti) <- transExp init
      case t of
@@ -146,17 +147,19 @@ transDecs ((VarDec nm escap t init p) : xs) w =
                      (lbexp, bt) <- insertValV nm (ti, acc, lvl) $ transDecs xs w
                      return $ (res : lbexp, bt)
 transDecs ((FunctionDec fs) : xs)          w =
-  do lvl <- newLevel
-     mapM_ (\f@(_, params, tf, bd, p) -> 
-             do (bf, t) <- insertFFold fs $ insertFFFold params $ transExp bd
+  do mapM_ (\f@(nm, params, tf, bd, p) -> 
+             do actlvl <- topLevel
+                let lvl = newLevel actlvl nm (P.map (\x -> Escapa) params)
+                (bf, t) <- insertFFold fs $ insertFFFold params $ transExp bd
+                lvlargs <- topLevel
                 case tf of
                   Just td -> do tdd <- getTipoT td
                                 C.unless (equivTipo t tdd) $
                                    errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
-                                bd' <- functionDec bf lvl IsFun
+                                bd' <- envFunctionDec lvlargs $ functionDec bf lvl IsFun
                                 procEntryExit lvl bd'
                   Nothing -> do C.unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit 
-                                bd' <- functionDec bf lvl IsProc
+                                bd' <- envFunctionDec lvlargs $ functionDec bf lvl IsProc
                                 procEntryExit lvl bd') fs
      insertFFold fs $ transDecs xs w
 transDecs ((TypeDec xs) : xss)             w =
@@ -177,25 +180,27 @@ transDecs ((TypeDec xs) : xss)             w =
         selfRefs recordsTy xs' $ 
         transDecs xss w)
 
-insertFFold :: Manticore w => [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> w a -> w a
+insertFFold :: (MemM w, Manticore w) => [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> w a -> w a
 insertFFold [] w                              = w
 insertFFold ((nm, params, res, bd, p) : fs) w =
-  do u  <- ugen 
-     ts <- mapM (\(_, _, p) -> transTy p) params
+  do lvl <- topLevel 
+     ts  <- mapM (\(_, _, p) -> transTy p) params
      case elem nm $ P.map fst5 fs of
        False ->
          case res of
            Just t  -> do tt <- getTipoT t
-                         insertFunV nm (u, nm, ts, tt, TigerSres.Propia) $ insertFFold fs w
-           Nothing -> insertFunV nm (u, nm, ts, TUnit, TigerSres.Propia) $ insertFFold fs w
+                         insertFunV nm (lvl, nm, ts, tt, TigerSres.Propia) $ insertFFold fs w
+           Nothing -> insertFunV nm (lvl, nm, ts, TUnit, TigerSres.Propia) $ insertFFold fs w
        True -> addpos (derror $ pack "Hay dos funciones con el mismo nombre en un batch") p 
   where fst5 (a, _, _, _, _) = a
 
-insertFFFold :: Manticore w => [(Symbol, Escapa, Ty)] -> w a -> w a
+insertFFFold :: (MemM w, Manticore w) => [(Symbol, Escapa, Ty)] -> w a -> w a
 insertFFFold [] w                    = w
 insertFFFold ((nm, _, t) : params) w =
   do tt <- transTy t
-     insertValV nm tt $ insertFFFold params w
+     lv <- getActualLevel
+     acc <- allocArg Escapa
+     insertValV nm (tt, acc, lv) $ insertFFFold params w
 
 insertRecordsAsRef  :: Manticore w => [(Symbol, Ty)] -> w a -> w a
 insertRecordsAsRef [] m                 = m
@@ -261,14 +266,16 @@ transExp (CallExp nm args p) =
   do (lvl, lab, tfargs, tf, ext) <- getTipoFunV nm
      mapM_ checkBreaks args
      targs <- mapM transExp args
-     C.when (P.length tfargs /= P.length targs) $ addpos (derror $ pack ("La cantidad de argumentos pasados no coincide " ++
-                                                                       "con la cantidad de argumentos de la declaracion")) p
-     zipWithM_ (\ta tb -> do C.unless (equivTipo ta (snd tb)) $ 
-                                       errorTiposMsg p "No coincide el tipo de los argumentos" ta (snd tb)) tfargs targs 
-     res <- callExp lab ext (isproc tf) lvl (P.map fst targs) 
+     C.when (P.length tfargs /= P.length targs) (addpos (derror (pack msg)) p)
+     zipWithM_ (\ta tb -> do C.unless (equivTipo ta (snd tb)) 
+                                      (errorTiposMsg p "No coincide el tipo de los argumentos" ta (snd tb))) tfargs targs 
+     res <- callExp lab (aux ext) (isproc tf) lvl (P.map fst targs) 
      return (res, tf)
-  where isproc UnitExp = True
-        isproc _       = False
+  where isproc $ UnitExp _ = IsProc
+        isproc _           = IsFun
+        aux TigerSres.Runtime = TigerTrans.Runtime
+        aux TigerSres.Propia  = TigerTrans.Propia
+        msg = "La cantidad de argumentos pasados no coincide con la cantidad de argumentos en la declaracion"
 transExp (OpExp el' oper er' p) = 
   do (resl, el) <- transExp el'
      (resr, er) <- transExp er'
@@ -304,18 +311,22 @@ transExp (OpExp el' oper er' p) =
                             else errmsg "Error en el chequeo de una comparacion 2." l r
         eqOps TNil TNil = errmsg "Error en el chequeo de una comparacion 3." TNil TNil -- Redundant
         eqOps TNil r    = if equivTipo TNil r
-                          then return ((), TInt RO)
+                          then do resu <- unitExp
+                                  return (resu, TInt RO)
                           else errmsg "Error en el chequeo de una comparacion 4." TNil r 
         eqOps l TNil    = if equivTipo l TNil
-                          then return ((), TInt RO)
+                          then do resu <- unitExp
+                                  return (resu, TInt RO)
                           else errmsg "Error en el chequeo de una comparacion 5." l TNil 
         eqOps l r = if equivTipo l r &&
                        (equivTipo l (TInt RO) || equivTipo l TString)
-                    then return ((), TInt RO)
+                    then do resu <- unitExp 
+                            return (resu, TInt RO)
                     else do l' <- getUnique l
                             r' <- getUnique r 
                             if l' == r'
-                            then return ((), TInt RO)
+                            then do resu <- unitExp
+                                    return (resu, TInt RO)
                             else errmsg "No se pueden comparar los tipos 1:" l r
         ineqOps l rl r rr op = 
           case equivTipo l r of
@@ -337,7 +348,7 @@ transExp(RecordExp flds rt p) =
                                            return (nm, fst cod', snd cod')) flds 
          let ordered  = List.sortBy (Ord.comparing fst3) fldsTys
              ordered' = List.sortBy (Ord.comparing fst3) fldsTy
-         _ <- flip addpos p $ cmpZip ((\(s,(c,t)) -> (s,t)) <$> ordered) ordered' 
+         _ <- flip addpos p $ cmpZip ((\(s, c, t) -> (s,t)) <$> ordered) ordered' 
          res <- recordExp (zip (P.map snd3 ordered) [0..])
          return (res, trec) 
     t -> errorTiposMsg p "La variable no es de tipo record" t (TRecord [] 0)
@@ -346,7 +357,7 @@ transExp(RecordExp flds rt p) =
 transExp(SeqExp es p) = 
   do mapM_ checkBreaks es
      bes <- mapM transExp es
-     res <- mapM seqExp (P.map fst bes)
+     res <- seqExp (P.map fst bes)
      return (res, snd $ last bes)
 transExp(AssignExp var val p) =
   do checkBreaks val
@@ -395,15 +406,19 @@ transExp(ForExp nv mb lo hi bo p) =
      C.unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
      preWhileforExp
      -- TODO: codigo intermedio para nv
-     (bbody, tbo) <- insertValV nv (TInt RO) $ transExp (scanBreaks bo)
+     vacc <- allocLocal Escapa
+     bnv <- simpleVar vacc 0
+     nvlvl <- getActualLevel
+     (bbody, tbo) <- insertValV nv (TInt RO, vacc, nvlvl) $ transExp (scanBreaks bo)
      C.unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
-     res <- forExp blo bhi bbody
+     res <- forExp blo bhi bnv bbody
      posWhileforExp
      return (res, TUnit)
---TODO, caso LetExp
 transExp(LetExp dcs body p) = 
   do checkBreaks body
-     transDecs dcs $ transExp body
+     (bs, tb) <- transDecs dcs $ transExp body
+     res <- letExp bs ???
+     return (bs, tb)
 transExp(BreakExp p) = 
   do res <- breakExp
      return (res, TUnit)

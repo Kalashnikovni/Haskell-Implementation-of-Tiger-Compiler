@@ -127,7 +127,7 @@ newLevel []                  s bs = [MkLI (newFrame s bs) 0]
 newLevel ls@(MkLI _ lvl : _) s bs = MkLI (newFrame s bs) (lvl + 1) : ls
 
 getParent :: Level -> Level
-getParent []       = P.error "No fuimos del outermost level"
+getParent []       = P.error "Nos fuimos del outermost level"
 getParent (_ : xs) = xs
 
 outermost :: Level
@@ -300,7 +300,7 @@ instance (MemM w) => IrGen w where
     do body <- case proc of
                  IsProc -> unNx bd
                  IsFun  -> Move (Temp rv) <$> unEx bd
-       procEntryExit lvl (Nx body)
+       procEntryExit lvl (Nx $ procEntryExit1 (getFrame lvl) body)
        return $ Ex $ Const 0
   varDec acc = simpleVar acc 0
   unitExp = return $ Ex (Const 0)
@@ -314,7 +314,6 @@ instance (MemM w) => IrGen w where
        return $ Ex $ Eseq (Seq (ExpS (externalCall "_allocRecord" ((Const $ P.length flds) : flds')))
                                (Move (Temp tmp) (Temp rv)))  
                           (Temp tmp)
-  -- callExp :: Label -> Externa -> Bool -> Level -> [BExp] -> w BExp
   callExp nm external isproc lvl args = 
     do lvlact <- getActualLevel
        args'  <- mapM (\x -> do x' <- unEx x

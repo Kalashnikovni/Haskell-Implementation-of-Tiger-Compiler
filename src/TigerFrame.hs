@@ -137,7 +137,7 @@ prepFormals fs = reverse $ snd
   )
 
 newFrame :: Symbol -> [Escapa] -> Frame
-newFrame nm fs = defaultFrame { name = nm, formals = fs }
+newFrame nm fs = defaultFrame {name = nm, formals = fs}
 
 -- | Función auxiliar que hace una llamada externa.
 externalCall :: String -> [Exp] -> Exp
