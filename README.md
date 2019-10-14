@@ -41,6 +41,7 @@ evalState (runSeman exp) 0
 - [ ] Codigo intermedio para la variable fresca de los for.
 - [ ] Revisar 2° etapa: separación de código; no podemos usar las expresiones directo!
 - [X] Alloc de variables en declaracion de funciones.
+- [ ] Dar instancia de Monada para MemM, sino nos arma lio con transExp
 - [ ] Revisar transDec, que ahora toma otro argumento mas (segundo elemento de la tupla)
 - [ ] 2° etapa
 

@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+
 module Main (main) where
 import           Control.Monad
 import           Control.Monad.State   hiding (evalState)

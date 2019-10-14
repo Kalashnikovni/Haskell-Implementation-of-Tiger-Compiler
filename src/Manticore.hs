@@ -5,6 +5,7 @@ import TigerSres
 import TigerSymbol
 import TigerTips
 import TigerUnique
+import TigerTrans
 
 import Control.Monad.State
 import Control.Monad.Trans.Except

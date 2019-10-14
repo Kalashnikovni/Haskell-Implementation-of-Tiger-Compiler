@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -137,15 +138,15 @@ transDecs ((VarDec nm escap t init p) : xs) w =
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
                      lvl   <- getActualLevel
-                     (lbexp, bt) <- insertValV nm (tv, acc, lvl) $ transDecs xs w
-                     return $ (res : lbexp, bt)
+                     (lbexp, bb, bt) <- insertValV nm (tv, acc, lvl) $ transDecs xs w
+                     return $ (res : lbexp, bb, bt)
        Nothing -> do C.when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
                      acc   <- allocLocal escap
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
                      lvl   <- getActualLevel
-                     (lbexp, bt) <- insertValV nm (ti, acc, lvl) $ transDecs xs w
-                     return $ (res : lbexp, bt)
+                     (lbexp, bb, bt) <- insertValV nm (ti, acc, lvl) $ transDecs xs w
+                     return $ (res : lbexp, bb, bt)
 transDecs ((FunctionDec fs) : xs)          w =
   do mapM_ (\f@(nm, params, tf, bd, p) -> 
              do actlvl <- topLevel
@@ -251,7 +252,7 @@ updateRefs  s t s' m =
 -- Traduccion de expresiones ----------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
-transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
+transExp :: (MemM w, Manticore w) => Exp -> w (BExp, Tipo)
 transExp (VarExp v p) = 
   addpos (transVar v) p
 transExp UnitExp{} = 
@@ -414,11 +415,12 @@ transExp(ForExp nv mb lo hi bo p) =
      res <- forExp blo bhi bnv bbody
      posWhileforExp
      return (res, TUnit)
+--transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], BExp, Tipo)
 transExp(LetExp dcs body p) = 
   do checkBreaks body
-     (bs, tb) <- transDecs dcs $ transExp body
-     res <- letExp bs ???
-     return (bs, tb)
+     (bs, bb, tb) <- transDecs dcs $ transExp body
+     res <- letExp bs bb
+     return (res, tb)
 transExp(BreakExp p) = 
   do res <- breakExp
      return (res, TUnit)
@@ -470,25 +472,31 @@ initConf :: Estado
 initConf = Est
            {tEnv = M.insert (pack "int") (TInt RW) (M.singleton (pack "string") TString)
             , vEnv = M.fromList
-                     [(pack "print", Func (1,pack "print",[TString], TUnit, TigerSres.Runtime)),
-                      (pack "flush", Func (1,pack "flush",[],TUnit, TigerSres.Runtime)),
-                      (pack "getchar",Func (1,pack "getchar",[],TString, TigerSres.Runtime)),
-                      (pack "ord",Func (1,pack "ord",[TString],TInt RW, TigerSres.Runtime)),
-                      (pack "chr",Func (1,pack "chr",[TInt RW],TString, TigerSres.Runtime)),
-                      (pack "size",Func (1,pack "size",[TString],TInt RW, TigerSres.Runtime)),
-                      (pack "substring",Func (1,pack "substring",[TString,TInt RW, TInt RW],TString, TigerSres.Runtime)),
-                      (pack "concat",Func (1,pack "concat",[TString,TString],TString, TigerSres.Runtime)),
-                      (pack "not",Func (1,pack "not",[TBool],TBool, TigerSres.Runtime)),
-                      (pack "exit",Func (1,pack "exit",[TInt RW],TUnit, TigerSres.Runtime))]}
+                     [(pack "print", Func (outermost,pack "print",[TString], TUnit, TigerSres.Runtime)),
+                      (pack "flush", Func (outermost,pack "flush",[],TUnit, TigerSres.Runtime)),
+                      (pack "getchar",Func (outermost,pack "getchar",[],TString, TigerSres.Runtime)),
+                      (pack "ord",Func (outermost,pack "ord",[TString],TInt RW, TigerSres.Runtime)),
+                      (pack "chr",Func (outermost,pack "chr",[TInt RW],TString, TigerSres.Runtime)),
+                      (pack "size",Func (outermost,pack "size",[TString],TInt RW, TigerSres.Runtime)),
+                      (pack "substring",Func (outermost,pack "substring",[TString,TInt RW, TInt RW],TString, TigerSres.Runtime)),
+                      (pack "concat",Func (outermost,pack "concat",[TString,TString],TString, TigerSres.Runtime)),
+                      (pack "not",Func (outermost,pack "not",[TBool],TBool, TigerSres.Runtime)),
+                      (pack "exit",Func (outermost,pack "exit",[TInt RW],TUnit, TigerSres.Runtime))]}
 
-runMonada :: Monada a -> StGen (Either Symbol a)
+runMonada :: Monada (BExp, Tipo) -> StGen (Either Symbol (BExp, Tipo))
 runMonada =  flip evalStateT initConf . runExceptT
 
-runSeman :: Exp -> StGen (Either Symbol (BExp, Tipo))
-runSeman = runMonada . transExp
+--runIrGen :: IrGen a -> ???
 
-runTrans :: Exp -> StGen (Either Symbol [TransFrag])
-runTrans e = runMonada $
+--transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
+--runSeman :: Exp -> StGen (Either Symbol (BExp, Tipo))
+--runSeman e = evalStateT (runExceptT $ transExp e) initConf
+runSeman = undefined
+ 
+transProg :: (MemM w, Manticore w) => Exp -> w [TransFrag]
+transProg e = 
   do e'    <- transExp e
      frags <- getFrags
      return frags
+
+runAlgo e = evalStateT (runExceptT $ transProg e) initConf
