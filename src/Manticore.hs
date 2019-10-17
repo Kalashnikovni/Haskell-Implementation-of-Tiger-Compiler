@@ -1,16 +1,21 @@
 module Manticore where
 
 import TigerErrores as E
+import TigerFrame
 import TigerSres
 import TigerSymbol
 import TigerTips
 import TigerUnique
+import TigerTemp
 import TigerTrans
 
 import Control.Monad.State
 import Control.Monad.Trans.Except
 
+import Data.List
 import Data.Map as M
+import Data.Maybe
+import Data.Stack
 
 import Debug.Trace (trace)
 
@@ -20,7 +25,10 @@ import Debug.Trace (trace)
 
 type Monada = ExceptT Symbol (StateT Estado StGen)
 
-data Estado = Est {vEnv :: M.Map Symbol EnvEntry, tEnv :: M.Map Symbol Tipo}
+data Estado = Est {vEnv :: M.Map Symbol EnvEntry, 
+                   tEnv :: M.Map Symbol Tipo, 
+                   lvl :: Level, 
+                   exitLabs :: Stack (Maybe Label)}
     deriving Show
  
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
@@ -140,6 +148,39 @@ instance Manticore Monada where
     tiposIguales (RefRecord s) e = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales3" ++ (show e ++ show s)
     tiposIguales e (RefRecord s) = E.internal $ pack $ "No son tipos iguales - TigerSeman.tiposIguales4" ++ (show e ++ show s)
     tiposIguales a b = return (equivTipo a b)
+
+instance MemM Monada where
+  -- upLevel :: w ()
+  upLvl = 
+    ExceptT (do st <- get
+                put $ st{lvl = (init $ lvl st)}
+                return $ Right ()) 
+  -- downLvl :: w ()
+  downLvl =
+    ExceptT (do st <- get
+                let stlvl = lvl st
+                put $ st{lvl = stlvl ++ [MkLI{getFrame' = defaultFrame, getNlvl' = getNlvl' (last stlvl) + 1}]}
+                return $ Right ()) 
+  -- pushSalida :: Maybe Label -> w ()
+  pushSalida l = 
+    ExceptT (do st <- get
+                let stlabs = exitLabs st
+                put $ st{exitLabs = stackPush stlabs l}
+                return $ Right ())
+  -- topSalida :: w (Maybe Label)
+  topSalida = 
+    ExceptT (do st <- get
+                let stlabs = exitLabs st
+                return $ Right $ maybe Nothing id (stackPeek stlabs)) 
+  -- popSalida :: w ()
+  popSalida =
+    ExceptT (do st <- get
+                let stlabs = exitLabs st
+                case stackPop stlabs of
+                  Nothing -> do put $ st{exitLabs = stackNew}
+                                return $ Right ()
+                  Just l  -> do put $ st{exitLabs = fst l}
+                                return $ Right ())  
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Helpers ----------------------------------------------------------------------------------------------- --

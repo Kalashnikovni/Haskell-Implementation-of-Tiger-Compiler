@@ -481,7 +481,9 @@ initConf = Est
                       (pack "substring",Func (outermost,pack "substring",[TString,TInt RW, TInt RW],TString, TigerSres.Runtime)),
                       (pack "concat",Func (outermost,pack "concat",[TString,TString],TString, TigerSres.Runtime)),
                       (pack "not",Func (outermost,pack "not",[TBool],TBool, TigerSres.Runtime)),
-                      (pack "exit",Func (outermost,pack "exit",[TInt RW],TUnit, TigerSres.Runtime))]}
+                      (pack "exit",Func (outermost,pack "exit",[TInt RW],TUnit, TigerSres.Runtime))]
+            , lvl = outermost
+            , exitlabs = []}
 
 runMonada :: Monada (BExp, Tipo) -> StGen (Either Symbol (BExp, Tipo))
 runMonada =  flip evalStateT initConf . runExceptT

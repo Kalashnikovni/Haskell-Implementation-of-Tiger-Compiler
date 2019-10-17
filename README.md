@@ -107,3 +107,6 @@ evalState (runSeman exp) 0
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).
 - Por ahora todas las variables escapan.
+- El nivel mas exterior es 0, y va aumentando con las declaraciones.
+- Para el tipo Level de TigerTrans los niveles mas profundos los agregamos
+  al final de la lista.

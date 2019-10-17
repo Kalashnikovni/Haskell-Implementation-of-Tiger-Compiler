@@ -57,6 +57,7 @@ library
                        -- QuasiQuoting things
                        , syb
                        , template-haskell
+                       , Stack
   default-language:    Haskell2010
   default-extensions: FlexibleInstances
                     , TypeFamilies
