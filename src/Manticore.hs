@@ -27,8 +27,10 @@ type Monada = ExceptT Symbol (StateT Estado StGen)
 
 data Estado = Est {vEnv :: M.Map Symbol EnvEntry, 
                    tEnv :: M.Map Symbol Tipo, 
-                   lvl :: Level, 
-                   exitLabs :: Stack (Maybe Label)}
+                   lvl :: Level,
+                   lvlNum :: Int, 
+                   exitLabs :: Stack (Maybe Label),
+                   frags :: [Frag]}
     deriving Show
  
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
@@ -152,35 +154,58 @@ instance Manticore Monada where
 instance MemM Monada where
   -- upLevel :: w ()
   upLvl = 
-    ExceptT (do st <- get
-                put $ st{lvl = (init $ lvl st)}
-                return $ Right ()) 
+    do st <- get
+       put $ st{lvlNum = max (Data.List.length $ lvl st) (lvlNum st + 1)}
+       return () 
   -- downLvl :: w ()
   downLvl =
-    ExceptT (do st <- get
-                let stlvl = lvl st
-                put $ st{lvl = stlvl ++ [MkLI{getFrame' = defaultFrame, getNlvl' = getNlvl' (last stlvl) + 1}]}
-                return $ Right ()) 
+    do st <- get
+       let stlvl = lvl st
+       put $ st{lvlNum = min 0 $ lvlNum st - 1}
+       return () 
   -- pushSalida :: Maybe Label -> w ()
   pushSalida l = 
-    ExceptT (do st <- get
-                let stlabs = exitLabs st
-                put $ st{exitLabs = stackPush stlabs l}
-                return $ Right ())
+    do st <- get
+       let stlabs = exitLabs st
+       put $ st{exitLabs = stackPush stlabs l}
+       return ()
   -- topSalida :: w (Maybe Label)
   topSalida = 
-    ExceptT (do st <- get
-                let stlabs = exitLabs st
-                return $ Right $ maybe Nothing id (stackPeek stlabs)) 
+    do st <- get
+       let stlabs = exitLabs st
+       return $ maybe Nothing id (stackPeek stlabs)
   -- popSalida :: w ()
   popSalida =
-    ExceptT (do st <- get
-                let stlabs = exitLabs st
-                case stackPop stlabs of
-                  Nothing -> do put $ st{exitLabs = stackNew}
-                                return $ Right ()
-                  Just l  -> do put $ st{exitLabs = fst l}
-                                return $ Right ())  
+    do st <- get
+       let stlabs = exitLabs st
+       case stackPop stlabs of
+         Nothing -> do put $ st{exitLabs = stackNew}
+                       return ()
+         Just l  -> do put $ st{exitLabs = fst l}
+                       return ()  
+  -- pushLevel :: Level -> w ()
+  pushLevel l = 
+    do st <- get
+       put $ st{lvl = l, lvlNum = getNlvl l}
+       return ()
+  -- popLevel :: w ()
+  popLevel = 
+    do st <- get
+       put $ st{lvl = init $ lvl st}
+       return ()
+  -- topLevel :: w Level
+  topLevel = 
+    do st <- get
+       return $ lvl st
+  -- pushFrag :: Frag -> w()
+  pushFrag f =
+    do st <- get
+       put $ st{frags = f:(frags st)}
+       return ()
+  -- getFrags :: w [Frag]
+  getFrags =
+    do st <- get
+       return $ reverse $ frags st
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Helpers ----------------------------------------------------------------------------------------------- --

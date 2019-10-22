@@ -319,13 +319,10 @@ instance (MemM w) => IrGen w where
        args'  <- mapM (\x -> do x' <- unEx x
                                 t  <- newTemp
                                 return $ Eseq (Move (Temp t) x') (Temp t)) args
-       case searchDefLvl lvl of
-         Just lvli ->
-           case isproc of
-             IsProc -> return $ Nx $ ExpS $ Call (Name nm) (auxexp (lvlact - getNlvl' lvli) : args')
-             IsFun  -> return $ Ex $ Call (Name nm) (auxexp (lvlact - getNlvl' lvli) : args')
-         _         -> internal $ pack "Corregir compilador, TigerTrans.callExp"
-    where searchDefLvl lv = find (\l -> name (getFrame' l) == nm) lv
+       case isproc of
+         IsProc -> return $ Nx $ ExpS $ Call (Name nm) (auxexp (lvlact - defLvl) : args')
+         IsFun  -> return $ Ex $ Call (Name nm) (auxexp (lvlact - defLvl) : args')
+    where defLvl = getNlvl lvl 
   -- letExp :: [BExp] -> BExp -> w BExp
   letExp [] e = 
     do -- Des-empaquetar y empaquetar como un |Ex| puede generar
@@ -442,6 +439,18 @@ instance (MemM w) => IrGen w where
                                 Label f, Move (Temp tmp) eels,
                                 Label fin])
                           (Temp tmp)
+  --ifThenElseExpUnit :: BExp -> BExp -> BExp -> w BExp
+  ifThenElseExpUnit cond bod els = 
+    do ccond <- unCx cond
+       nbod  <- unNx bod
+       nels  <- unNx els
+       t     <- newLabel
+       f     <- newLabel
+       fin   <- newLabel
+       return $ Nx $ seq [ccond (t, f),
+                          Label t, nbod, Jump (Name fin) fin,
+                          Label f, nels,
+                          Label fin]      
   assignExp cvar cinit = 
     do cvara <- unEx cvar
        cin   <- unEx cinit

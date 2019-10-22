@@ -103,10 +103,11 @@ evalState (runSeman exp) 0
 - [ ] Las llamadas externas ¿Deberían tomar en la lista las expresiones directamente
       o antes deberíamos guardar las expresiones en temporarios?
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
+- [ ] ¿Por qué TigerTrans.seqExp tira error si el ultimo comando es condicional?
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).
 - Por ahora todas las variables escapan.
-- El nivel mas exterior es 0, y va aumentando con las declaraciones.
-- Para el tipo Level de TigerTrans los niveles mas profundos los agregamos
-  al final de la lista.
+- El nivel inicial es 0. La funcion "mas anidada" tiene el mayor numero.
+  Cuando subimos de nivel aumenta el contador, y disminuye cuando bajamos de nivel.
+- Para la lista de fragmentos, agregamos los nuevos fragmentos al principio.

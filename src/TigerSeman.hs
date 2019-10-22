@@ -28,6 +28,7 @@ import Data.List as List
 import Data.Map as M
 import Data.Maybe
 import Data.Ord as Ord
+import Data.Stack
 
 import Prelude as P
 
@@ -134,14 +135,14 @@ transDecs ((VarDec nm escap t init p) : xs) w =
      case t of
        Just sv -> do tv <- getTipoT sv
                      C.unless (equivTipo tv ti) $ errorTiposMsg p "El tipo del valor inicial es incorrecto" tv ti
-                     acc   <- allocLocal escap
+                     acc   <- allocLocal Escapa
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
                      lvl   <- getActualLevel
                      (lbexp, bb, bt) <- insertValV nm (tv, acc, lvl) $ transDecs xs w
                      return $ (res : lbexp, bb, bt)
        Nothing -> do C.when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
-                     acc   <- allocLocal escap
+                     acc   <- allocLocal Escapa
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
                      lvl   <- getActualLevel
@@ -386,8 +387,11 @@ transExp(IfExp co th (Just el) p) =
      (bth, ttType) <- transExp th
      (bel, ffType) <- transExp el
      C.unlessM (tiposIguales ttType ffType) $ errorTiposMsg p "Las branches devuelven resultados de distinto tipo" ttType ffType
-     res <- ifThenElseExp bco bth bel
-     return (res, ttType)
+     case ttType of
+       TUnit -> do res <- ifThenElseExpUnit bco bth bel
+                   return (res, ttType)
+       _     -> do res <- ifThenElseExp bco bth bel
+                   return (res, ttType)
 transExp(WhileExp co body p) = 
   do checkBreaks co
      (bco, coTy) <- transExp co
@@ -467,7 +471,6 @@ scanBreaks ex                        = ex
 -- Estado inicial y ejecucion ---------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
--- TODO: asegurarnos que devolvemos lista de fragmentos
 initConf :: Estado
 initConf = Est
            {tEnv = M.insert (pack "int") (TInt RW) (M.singleton (pack "string") TString)
@@ -483,22 +486,11 @@ initConf = Est
                       (pack "not",Func (outermost,pack "not",[TBool],TBool, TigerSres.Runtime)),
                       (pack "exit",Func (outermost,pack "exit",[TInt RW],TUnit, TigerSres.Runtime))]
             , lvl = outermost
-            , exitlabs = []}
+            , lvlNum = 0
+            , exitLabs = stackNew
+            , frags = []}
 
 runMonada :: Monada (BExp, Tipo) -> StGen (Either Symbol (BExp, Tipo))
 runMonada =  flip evalStateT initConf . runExceptT
 
---runIrGen :: IrGen a -> ???
-
---transExp :: (MemM w, Manticore w) => Exp -> w (BExp , Tipo)
---runSeman :: Exp -> StGen (Either Symbol (BExp, Tipo))
---runSeman e = evalStateT (runExceptT $ transExp e) initConf
-runSeman = undefined
- 
-transProg :: (MemM w, Manticore w) => Exp -> w [TransFrag]
-transProg e = 
-  do e'    <- transExp e
-     frags <- getFrags
-     return frags
-
-runAlgo e = evalStateT (runExceptT $ transProg e) initConf
+runSeman = runMonada . transExp  
