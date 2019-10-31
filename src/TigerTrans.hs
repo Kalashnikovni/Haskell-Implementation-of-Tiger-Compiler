@@ -98,7 +98,7 @@ unNx (Cx cf) =
 
 -- | Des-empaquetador de condiciones
 unCx :: (Monad w, TLGenerator w, Demon w) => BExp -> w ((Label, Label) -> Stm)
-unCx (Nx _)         = internal $ pack "unCx(Nx...)"
+unCx (Nx nx)        = internal $ pack $ "unCx(Nx ...): " ++ show nx
 unCx (Cx cf)        = return cf
 unCx (Ex (Const 0)) = return (\(_, f) -> Jump (Name f) f)
 unCx (Ex (Const _)) = return (\(t, _) -> Jump (Name t) t)
@@ -344,11 +344,15 @@ instance (MemM w) => IrGen w where
   seqExp [] = return $ Nx $ ExpS $ Const 0
   seqExp bes = 
     case last bes of
-      Nx _ -> Nx . seq <$> mapM unNx bes
+      Nx _  -> Nx . seq <$> mapM unNx bes
       Ex e' -> do let bfront = init bes
                   ess <- mapM unNx bfront
                   return $ Ex $ Eseq (seq ess) e'
-      _ -> internal $ pack "WAT!123"
+      Cx c -> do c' <- unEx $ Cx c 
+                 let bfront = init bes
+                 ess <- mapM unNx bfront
+                 return $ Ex $ Eseq (seq ess) c'  
+      _    -> internal $ pack "WAT!123"
   -- preWhileforExp :: w ()
   preWhileforExp = newLabel >>= pushSalida . Just
   -- posWhileforExp :: w ()
@@ -397,6 +401,7 @@ instance (MemM w) => IrGen w where
        t     <- newLabel
        f     <- newLabel
        return $ Nx $ seq [ccond (t, f), Label t, nbod, Label f]
+{-
   ifThenElseExp cond (Cx bod) (Cx els) = 
     do ccond <- unCx cond
        t     <- newLabel
@@ -425,7 +430,7 @@ instance (MemM w) => IrGen w where
        return $ Nx $ seq [ccond (t, f),
                           Label t, nbod, Jump (Name fin) fin,
                           Label f, els (fin, fin),
-                          Label fin]
+                          Label fin]-}
   ifThenElseExp cond bod els =
     do ccond <- unCx cond
        ebod  <- unEx bod

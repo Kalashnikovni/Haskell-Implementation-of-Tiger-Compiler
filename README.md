@@ -41,8 +41,9 @@ evalState (runSeman exp) 0
 - [ ] Codigo intermedio para la variable fresca de los for.
 - [ ] Revisar 2° etapa: separación de código; no podemos usar las expresiones directo!
 - [X] Alloc de variables en declaracion de funciones.
-- [ ] Dar instancia de Monada para MemM, sino nos arma lio con transExp
+- [X] Dar instancia de Monada para MemM, sino nos arma lio con transExp
 - [ ] Revisar transDec, que ahora toma otro argumento mas (segundo elemento de la tupla)
+- [ ] Revisar TigerTrans.ifThenElseExp optimizaciones. 
 - [ ] 2° etapa
 
 # Dudas
@@ -104,6 +105,7 @@ evalState (runSeman exp) 0
       o antes deberíamos guardar las expresiones en temporarios?
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
 - [ ] ¿Por qué TigerTrans.seqExp tira error si el ultimo comando es condicional?
+- [ ] ¿Por qué en TigerTrans.seqExp Tincho no nos dio el caso de Cx?
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).

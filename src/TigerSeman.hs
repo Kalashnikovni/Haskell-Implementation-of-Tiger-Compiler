@@ -266,7 +266,6 @@ transExp (StringExp s _) =
   fmap (,TString) (stringExp (pack s))
 transExp (CallExp nm args p) =
   do (lvl, lab, tfargs, tf, ext) <- getTipoFunV nm
-     mapM_ checkBreaks args
      targs <- mapM transExp args
      C.when (P.length tfargs /= P.length targs) (addpos (derror (pack msg)) p)
      zipWithM_ (\ta tb -> do C.unless (equivTipo ta (snd tb)) 
@@ -281,18 +280,16 @@ transExp (CallExp nm args p) =
 transExp (OpExp el' oper er' p) = 
   do (resl, el) <- transExp el'
      (resr, er) <- transExp er'
-     checkBreaks el'
-     checkBreaks er'
      case oper of
        EqOp  -> if tiposComparables el er EqOp 
                 then do (_, t) <- eqOps el er
                         res <- binOpIntRelExp resl EqOp resr
-                        return (res, t)
+                        return (res, TInt RO)
                 else errmsg "Error de tipos. Tipos no comparables 1:" el er
        NeqOp -> if tiposComparables el er EqOp 
                 then do (_, t) <- eqOps el er
                         res <- binOpIntRelExp resl NeqOp resr
-                        return (res, t)
+                        return (res, TInt RO)
                 else errmsg "Error de tipos. Tipos no comparables 2:" el er
        PlusOp -> oOps el resl er resr PlusOp
        MinusOp -> oOps el resl er resr MinusOp
@@ -303,14 +300,6 @@ transExp (OpExp el' oper er' p) =
        GtOp -> ineqOps el resl er resr GtOp
        GeOp -> ineqOps el resl er resr GeOp
   where errmsg msg t1 t2 = addpos (derror $ pack $ msg ++ " " ++ show t1 ++ " " ++ show t2) p
-        getUnique (TArray _ u)  = return u
-        getUnique (TRecord _ u) = return u
-        getUnique _             = addpos (derror $ pack "Error en el chequeo de una comparacion 1.") p
-        oOps l rl r rr op = if equivTipo l r 
-                               && equivTipo l (TInt RO) 
-                            then do res <- binOpIntExp rl op rr
-                                    return (res, TInt RO)
-                            else errmsg "Error en el chequeo de una comparacion 2." l r
         eqOps TNil TNil = errmsg "Error en el chequeo de una comparacion 3." TNil TNil -- Redundant
         eqOps TNil r    = if equivTipo TNil r
                           then do resu <- unitExp
@@ -320,16 +309,22 @@ transExp (OpExp el' oper er' p) =
                           then do resu <- unitExp
                                   return (resu, TInt RO)
                           else errmsg "Error en el chequeo de una comparacion 5." l TNil 
-        eqOps l r = if equivTipo l r &&
-                       (equivTipo l (TInt RO) || equivTipo l TString)
-                    then do resu <- unitExp 
-                            return (resu, TInt RO)
-                    else do l' <- getUnique l
-                            r' <- getUnique r 
-                            if l' == r'
-                            then do resu <- unitExp
-                                    return (resu, TInt RO)
-                            else errmsg "No se pueden comparar los tipos 1:" l r
+        eqOps l r = 
+          case (equivTipo l r, equivTipo l (TInt RO), equivTipo l TString) of
+            (True, True, _) -> do resu <- unitExp
+                                  return (resu, TInt RO)
+            (True, _, True) -> do resu <- unitExp
+                                  return (resu, TString)
+            (True, _, _)    -> if equivTipo l r
+                               then do resu <- unitExp
+                                       return (resu, TInt RO)
+                               else errmsg "Error en el chequeo de una comparacion 1." l r
+            _               -> errmsg "Error en el chequeo de una comparacion 6." l r
+        oOps l rl r rr op = if equivTipo l r 
+                               && equivTipo l (TInt RO) 
+                            then do res <- binOpIntExp rl op rr
+                                    return (res, TInt RO)
+                            else errmsg "Error en el chequeo de una comparacion 2." l r
         ineqOps l rl r rr op = 
           case equivTipo l r of
             True ->
@@ -345,8 +340,7 @@ transExp (OpExp el' oper er' p) =
 transExp(RecordExp flds rt p) =
   addpos (getTipoT rt) p >>= \x -> case x of 
     trec@(TRecord fldsTy _) -> 
-      do mapM_ checkBreaks (P.map snd flds)
-         fldsTys <- mapM (\(nm, cod) -> do cod' <- transExp cod
+      do fldsTys <- mapM (\(nm, cod) -> do cod' <- transExp cod
                                            return (nm, fst cod', snd cod')) flds 
          let ordered  = List.sortBy (Ord.comparing fst3) fldsTys
              ordered' = List.sortBy (Ord.comparing fst3) fldsTy
@@ -357,32 +351,25 @@ transExp(RecordExp flds rt p) =
   where fst3 (a, _, _) = a
         snd3 (_, b, _) = b
 transExp(SeqExp es p) = 
-  do mapM_ checkBreaks es
-     bes <- mapM transExp es
+  do bes <- mapM transExp es
      res <- seqExp (P.map fst bes)
      return (res, snd $ last bes)
 transExp(AssignExp var val p) =
-  do checkBreaks val
-     (bvar, tvar) <- transVar var
+  do (bvar, tvar) <- transVar var
      (bval, tval) <- transExp val
      case equivTipo tvar tval of
        True -> do res <- assignExp bvar bval
                   return (res, TUnit) 
        _    -> errorTiposMsg p "El tipo de la variable y del valor no son iguales" tvar tval  
 transExp(IfExp co th Nothing p) =
-  do checkBreaks co
-     checkBreaks th
-     (bco, co') <- transExp co
+  do (bco, co') <- transExp co
      C.unless (equivTipo co' TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" co' TBool 
      (bth, th') <- transExp th
      C.unless (equivTipo th' TUnit) $ errorTiposMsg p "La branch esta devolviendo un resultado" th' TUnit
      res <- ifThenExp bco bth
      return (res , TUnit)
 transExp(IfExp co th (Just el) p) = 
-  do checkBreaks co
-     checkBreaks th
-     checkBreaks el
-     (bco, condType) <- transExp co
+  do (bco, condType) <- transExp co
      C.unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
      (bth, ttType) <- transExp th
      (bel, ffType) <- transExp el
@@ -393,19 +380,16 @@ transExp(IfExp co th (Just el) p) =
        _     -> do res <- ifThenElseExp bco bth bel
                    return (res, ttType)
 transExp(WhileExp co body p) = 
-  do checkBreaks co
-     (bco, coTy) <- transExp co
+  do (bco, coTy) <- transExp co
      C.unless (equivTipo coTy TBool) $ errorTiposMsg p "La condicion del While no es booleana" coTy TBool
      preWhileforExp
-     (bbody, boTy) <- transExp $ scanBreaks body
+     (bbody, boTy) <- transExp body
      C.unless (equivTipo boTy TUnit) $ errorTiposMsg p "El cuerpo del While devuelve un resultado" boTy TBool
      res <- whileExp bco bbody
      posWhileforExp
      return (res, TUnit)
 transExp(ForExp nv mb lo hi bo p) =
-  do checkBreaks lo
-     checkBreaks hi
-     (blo, tlo) <- transExp  lo
+  do (blo, tlo) <- transExp  lo
      C.unless (equivTipo tlo (TInt RW)) $ errorTiposMsg p "La cota inferior del for no es un entero modificable" tlo (TInt RW)
      (bhi, thi) <- transExp  hi
      C.unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
@@ -414,24 +398,21 @@ transExp(ForExp nv mb lo hi bo p) =
      vacc <- allocLocal Escapa
      bnv <- simpleVar vacc 0
      nvlvl <- getActualLevel
-     (bbody, tbo) <- insertValV nv (TInt RO, vacc, nvlvl) $ transExp (scanBreaks bo)
+     (bbody, tbo) <- insertValV nv (TInt RO, vacc, nvlvl) $ transExp bo
      C.unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
      res <- forExp blo bhi bnv bbody
      posWhileforExp
      return (res, TUnit)
 --transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], BExp, Tipo)
 transExp(LetExp dcs body p) = 
-  do checkBreaks body
-     (bs, bb, tb) <- transDecs dcs $ transExp body
+  do (bs, bb, tb) <- transDecs dcs $ transExp body
      res <- letExp bs bb
      return (res, tb)
 transExp(BreakExp p) = 
   do res <- breakExp
      return (res, TUnit)
 transExp(ArrayExp sn cant init p) =
-  do checkBreaks cant
-     checkBreaks init
-     tsn <- getTipoT sn 
+  do tsn <- getTipoT sn 
      case tsn of
        TArray ta _ -> do (bca, tca) <- transExp cant
                          C.unless (equivTipo tca (TInt RO)) $ errorTiposMsg p "El indice no es un entero" tca (TInt RO)
@@ -440,32 +421,6 @@ transExp(ArrayExp sn cant init p) =
                          res <- arrayExp bca bin
                          return (res, tsn)
        _           -> errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
-
--- checkBreaks se llamará en todos los casos de transExp,
--- excepto en WhileExp y ForExp
-checkBreaks :: Manticore w => Exp -> w ((), Tipo)
-checkBreaks (BreakExp p) = addpos (derror $ pack "Break fuera de loop") p 
-checkBreaks _            = return ((), TUnit) 
-
--- scanBreaks reemplazará todas las ocurrencias de BreakExp por
--- UnitExp. scanBreaks se llamará en transExp para los casos de
--- WhileExp, y ForExp, de manera que el reemplazo se haga dentro
--- de los bucles.
-scanBreaks :: Exp -> Exp
-scanBreaks (CallExp s le p)          = CallExp s (P.map scanBreaks le) p
-scanBreaks (OpExp el o er p)         = OpExp (scanBreaks el) o (scanBreaks er) p
-scanBreaks (RecordExp es s p)        = RecordExp (P.map (\(sym, exp) -> (sym, scanBreaks exp)) es) s p
-scanBreaks (SeqExp le p)             = SeqExp (P.map scanBreaks le) p
-scanBreaks (AssignExp v e p)         = AssignExp v (scanBreaks e) p
-scanBreaks (IfExp co th el p)  
-  | isNothing el = IfExp (scanBreaks co) (scanBreaks th) Nothing p
-  | otherwise    = IfExp (scanBreaks co) (scanBreaks th) (Just $ scanBreaks (fromJust el)) p
-scanBreaks (WhileExp co bd p)        = WhileExp (scanBreaks co) (scanBreaks bd) p
-scanBreaks (ForExp s esc lo hi bd p) = ForExp s esc (scanBreaks lo) (scanBreaks hi) (scanBreaks bd) p
-scanBreaks (LetExp dcs e p)          = LetExp dcs (scanBreaks e) p
-scanBreaks (ArrayExp s ct i p)       = ArrayExp s (scanBreaks ct) (scanBreaks i) p 
-scanBreaks (BreakExp p)              = UnitExp p
-scanBreaks ex                        = ex
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Estado inicial y ejecucion ---------------------------------------------------------------------------- --
@@ -494,3 +449,8 @@ runMonada :: Monada (BExp, Tipo) -> StGen (Either Symbol (BExp, Tipo))
 runMonada =  flip evalStateT initConf . runExceptT
 
 runSeman = runMonada . transExp  
+
+transProg :: (MemM w, Manticore w) => Exp -> w [TransFrag]
+transProg e = 
+  do _ <- transExp e
+     getFrags
