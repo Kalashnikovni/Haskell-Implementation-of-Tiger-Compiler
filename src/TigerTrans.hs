@@ -1,4 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
 module TigerTrans where
 
 import qualified Control.Monad.State as ST
@@ -297,9 +296,9 @@ instance (MemM w) => IrGen w where
        return fun
   -- functionDec :: BExp -> Level -> Bool -> w BExp
   functionDec bd lvl proc = 
-    do body <- case proc of
-                 IsProc -> unNx bd
-                 IsFun  -> Move (Temp rv) <$> unEx bd
+    do body <- (case proc of
+                  IsProc -> unNx bd
+                  IsFun  -> Move (Temp rv) <$> unEx bd)
        procEntryExit lvl (Nx $ procEntryExit1 (getFrame lvl) body)
        return $ Ex $ Const 0
   varDec acc = simpleVar acc 0
@@ -352,7 +351,6 @@ instance (MemM w) => IrGen w where
                  let bfront = init bes
                  ess <- mapM unNx bfront
                  return $ Ex $ Eseq (seq ess) c'  
-      _    -> internal $ pack "WAT!123"
   -- preWhileforExp :: w ()
   preWhileforExp = newLabel >>= pushSalida . Just
   -- posWhileforExp :: w ()

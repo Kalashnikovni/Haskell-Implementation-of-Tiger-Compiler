@@ -1,11 +1,6 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-
 module TigerSeman where
 
-import Manticore
+import MonadsInstances
 import TigerAbs
 import TigerErrores as E
 import TigerSres
@@ -32,19 +27,9 @@ import Data.Stack
 
 import Prelude as P
 
-
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
--- Helpers ----------------------------------------------------------------------------------------------- --
+-- Helpers --------------- ------------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
-
--- addpos :: (Demon w, Show b) => w a -> b -> w a
--- errorTiposMsg :: (Demon w, Show p) => p -> String -> Tipo -> Tipo -> w a
--- cmpZip :: (Demon m, Monad m) => [(Symbol, Tipo)] -> [(Symbol, Tipo, Int)] -> m () --Bool
-
-depend :: Ty -> [Symbol]
-depend (NameTy s)    = [s]
-depend (ArrayTy s)   = [s]
-depend (RecordTy ts) = concatMap (depend . snd) ts
 
 tiposComparables :: Tipo -> Tipo -> Oper -> Bool
 tiposComparables TNil TNil EqOp  = False
@@ -70,6 +55,15 @@ buscarM s ((s', t, p):xs)
   | s == s'   = Just (t, p)
   | otherwise = buscarM s xs
 
+cmpZip :: (Demon m, Monad m) => [(Symbol, Tipo)] -> [(Symbol, Tipo, Int)] -> m () --Bool
+cmpZip [] [] = return ()
+cmpZip [] _  = derrorAux "Tienen distintos campos - TigerSeman.cmpZip1\n"
+cmpZip _ []  = derrorAux "Tienen distintos campos - TigerSeman.cmpZip2\n"
+cmpZip ((sl,tl):xs) ((sr,tr,p):ys) =
+        if (equivTipo tl tr && sl == sr)
+        then cmpZip xs ys
+        else errorTipos tl tr
+
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Traduccion de variables ------------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
@@ -80,16 +74,14 @@ transVar (SimpleVar s)      =
      actLvl         <- getActualLevel
      bexp           <- simpleVar acc (actLvl - vLvl) 
      return (bexp, t)
-  --where getVarLvl (Var t) = returnt 
-  --      getVarLvl _       = derror $ pack "Chequear el compilador.transVar, o el codigo"
 transVar (FieldVar v s)     =
   do (bexp, t) <- transVar v
      case t of
-       TRecord l _ -> maybe (derror $ pack "Se intenta acceder a un campo que no pertenece al record") 
+       TRecord l _ -> maybe (derrorAux "Se intenta acceder a un campo que no pertenece al record") 
                             (\(tx, px) -> do bexp' <- fieldVar bexp px  
                                              return (bexp', tx))
                             (buscarM s l) 
-       _           -> derror $ pack "Se intenta acceder al campo de una variable que no es un record"
+       _           -> derrorAux "Se intenta acceder al campo de una variable que no es un record"
 transVar (SubscriptVar v e) =
   do (bexpe, te) <- transExp e 
      case te of
@@ -97,8 +89,8 @@ transVar (SubscriptVar v e) =
                     case tv of
                       TArray ta _ -> do bexp <- subscriptVar bexpv bexpe
                                         return (bexp, ta)
-                      _           -> derror $ pack "Se intenta indexar algo que no es un arreglo"
-       _      -> derror $ pack "El indice del arreglo no es un número"
+                      _           -> derrorAux "Se intenta indexar algo que no es un arreglo"
+       _      -> derrorAux "El indice del arreglo no es un número"
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Traduccion de tipos ----------------------------------------------------------------------------------- --
@@ -116,10 +108,6 @@ transTy (ArrayTy s)     =
   do ts <- getTipoT s
      u <- ugen
      return $ TArray ts u
-
-fromTy :: (Manticore w) => Ty -> w Tipo
-fromTy (NameTy s) = getTipoT s
-fromTy _          = P.error "No deberia haber una definición de tipos en los args..."
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Traduccion de declaraciones --------------------------------------------------------------------------- --
@@ -158,11 +146,9 @@ transDecs ((FunctionDec fs) : xs)          w =
                   Just td -> do tdd <- getTipoT td
                                 C.unless (equivTipo t tdd) $
                                    errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
-                                bd' <- envFunctionDec lvlargs $ functionDec bf lvl IsFun
-                                procEntryExit lvl bd'
+                                envFunctionDec lvlargs $ functionDec bf lvl IsFun
                   Nothing -> do C.unless (equivTipo t TUnit) $ errorTiposMsg p "La funcion devuelve un valor" t TUnit 
-                                bd' <- envFunctionDec lvlargs $ functionDec bf lvl IsProc
-                                procEntryExit lvl bd') fs
+                                envFunctionDec lvlargs $ functionDec bf lvl IsProc) fs
      insertFFold fs $ transDecs xs w
 transDecs ((TypeDec xs) : xss)             w =
   let 
@@ -170,7 +156,7 @@ transDecs ((TypeDec xs) : xss)             w =
     checkNames (z:zs) w' = 
       case elem (fst z) (P.map fst zs) of
         False -> checkNames zs w'
-        True  -> addpos (derror $ pack "Hay dos tipos con el mismo nombre en un batch") (snd z) 
+        True  -> addpos (derrorAux "Hay dos tipos con el mismo nombre en un batch") (snd z) 
     xs'     = fmap (\(x,y,_) -> (x,y)) xs
     tyNames =  fst $ unzip xs'
     (recordsTy, nrTy) = splitWith (\(s , t) -> either (Left . (s,)) (Right . (s,)) (splitRecordTy t)) xs'
@@ -193,7 +179,7 @@ insertFFold ((nm, params, res, bd, p) : fs) w =
            Just t  -> do tt <- getTipoT t
                          insertFunV nm (lvl, nm, ts, tt, TigerSres.Propia) $ insertFFold fs w
            Nothing -> insertFunV nm (lvl, nm, ts, TUnit, TigerSres.Propia) $ insertFFold fs w
-       True -> addpos (derror $ pack "Hay dos funciones con el mismo nombre en un batch") p 
+       True -> addpos (derrorAux "Hay dos funciones con el mismo nombre en un batch") p 
   where fst5 (a, _, _, _, _) = a
 
 insertFFFold :: (MemM w, Manticore w) => [(Symbol, Escapa, Ty)] -> w a -> w a
@@ -224,7 +210,7 @@ selfRefs ((sr, tr):rs) ls w =
      case tr' of 
        TRecord rs' u -> insertTipoT sr tt $ updateRest (sr, tt) ls $ selfRefs rs ls w  
          where tt = TRecord (P.map (\(s, ti, p) -> (s, autoRef sr tt ti, p)) rs') u 
-       _             -> E.internal $ pack "Error de Haskell, recordTy no tiene tipo TRecord"
+       _             -> internalAux "Error de Haskell, recordTy no tiene tipo TRecord"
 
 updateRest :: Manticore w => (Symbol, Tipo) -> [(Symbol, Ty)] -> w a -> w a
 updateRest _ [] w                  = w
@@ -267,7 +253,7 @@ transExp (StringExp s _) =
 transExp (CallExp nm args p) =
   do (lvl, lab, tfargs, tf, ext) <- getTipoFunV nm
      targs <- mapM transExp args
-     C.when (P.length tfargs /= P.length targs) (addpos (derror (pack msg)) p)
+     C.when (P.length tfargs /= P.length targs) (addpos (derrorAux msg) p)
      zipWithM_ (\ta tb -> do C.unless (equivTipo ta (snd tb)) 
                                       (errorTiposMsg p "No coincide el tipo de los argumentos" ta (snd tb))) tfargs targs 
      res <- callExp lab (aux ext) (isproc tf) lvl (P.map fst targs) 
@@ -300,15 +286,15 @@ transExp (OpExp el' oper er' p) =
        GtOp -> ineqOps el resl er resr GtOp
        GeOp -> ineqOps el resl er resr GeOp
   where errmsg msg t1 t2 = addpos (derror $ pack $ msg ++ " " ++ show t1 ++ " " ++ show t2) p
-        eqOps TNil TNil = errmsg "Error en el chequeo de una comparacion 3." TNil TNil -- Redundant
+        eqOps TNil TNil = errmsg "Error de tipos. Tipos no comparables 3:" TNil TNil -- Redundant
         eqOps TNil r    = if equivTipo TNil r
                           then do resu <- unitExp
                                   return (resu, TInt RO)
-                          else errmsg "Error en el chequeo de una comparacion 4." TNil r 
+                          else errmsg "Error de tipos. Tipos no comparables 4:" TNil r 
         eqOps l TNil    = if equivTipo l TNil
                           then do resu <- unitExp
                                   return (resu, TInt RO)
-                          else errmsg "Error en el chequeo de una comparacion 5." l TNil 
+                          else errmsg "Error de tipos. Tipos no comparables 5:" l TNil 
         eqOps l r = 
           case (equivTipo l r, equivTipo l (TInt RO), equivTipo l TString) of
             (True, True, _) -> do resu <- unitExp
@@ -318,13 +304,13 @@ transExp (OpExp el' oper er' p) =
             (True, _, _)    -> if equivTipo l r
                                then do resu <- unitExp
                                        return (resu, TInt RO)
-                               else errmsg "Error en el chequeo de una comparacion 1." l r
-            _               -> errmsg "Error en el chequeo de una comparacion 6." l r
+                               else errmsg "Error de tipos. Tipos no comparables 6:" l r
+            _               -> errmsg "Error de tipos. Tipos no comparables 7: " l r
         oOps l rl r rr op = if equivTipo l r 
                                && equivTipo l (TInt RO) 
                             then do res <- binOpIntExp rl op rr
                                     return (res, TInt RO)
-                            else errmsg "Error en el chequeo de una comparacion 2." l r
+                            else errmsg "Error de tipos. Tipos no comparables 8:" l r
         ineqOps l rl r rr op = 
           case equivTipo l r of
             True ->
@@ -335,7 +321,7 @@ transExp (OpExp el' oper er' p) =
                   case equivTipo l TString of
                     True  -> do res <- binOpStrExp rl op rr
                                 return (res, TInt RO) 
-                    False -> errmsg "No se pueden comparar los tipos 2: " l r
+                    False -> errmsg "Error de tipos. Tipos no comparables 9:" l r
             False -> errmsg "No se pueden comparar los tipos 2: " l r
 transExp(RecordExp flds rt p) =
   addpos (getTipoT rt) p >>= \x -> case x of 
@@ -403,7 +389,6 @@ transExp(ForExp nv mb lo hi bo p) =
      res <- forExp blo bhi bnv bbody
      posWhileforExp
      return (res, TUnit)
---transDecs :: (MemM w, Manticore w) => [Dec] -> w (BExp, Tipo) -> w ([BExp], BExp, Tipo)
 transExp(LetExp dcs body p) = 
   do (bs, bb, tb) <- transDecs dcs $ transExp body
      res <- letExp bs bb
@@ -445,12 +430,19 @@ initConf = Est
             , exitLabs = stackNew
             , frags = []}
 
-runMonada :: Monada (BExp, Tipo) -> StGen (Either Symbol (BExp, Tipo))
-runMonada =  flip evalStateT initConf . runExceptT
+runMonada1 :: Monada (BExp, Tipo) -> StGen (Either Symbol (BExp, Tipo))
+runMonada1 =  flip evalStateT initConf . runExceptT
 
-runSeman = runMonada . transExp  
+runSeman = runMonada1 . transExp  
 
 transProg :: (MemM w, Manticore w) => Exp -> w [TransFrag]
 transProg e = 
-  do _ <- transExp e
+  do (be, _) <- transExp e
+     l <- topLevel
+     res <- functionDec be l IsProc
      getFrags
+
+runMonada2 :: Monada [TransFrag] -> StGen (Either Symbol [TransFrag])
+runMonada2 = flip evalStateT initConf . runExceptT
+
+runTransProg = runMonada2 . transProg

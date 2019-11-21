@@ -1,8 +1,6 @@
-{-# Language OverloadedStrings #-}
-
 module TigerTopSort (kahnSort) where
 
-import Manticore
+import MonadsInstances
 import TigerAbs
 import TigerErrores
 import TigerSymbol (Symbol)

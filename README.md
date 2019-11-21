@@ -106,6 +106,7 @@ evalState (runSeman exp) 0
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
 - [ ] ¿Por qué TigerTrans.seqExp tira error si el ultimo comando es condicional?
 - [ ] ¿Por qué en TigerTrans.seqExp Tincho no nos dio el caso de Cx?
+- [ ] ¿El nivel más externo de un programa debería tener su fragmento?
 
 # Decisiones
 - No hacemos chequeos en las cotas de los loops (si lo < hi).

@@ -1,7 +1,3 @@
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-
 module TigerCanon
   ( linearize     -- | Stm -> [Stm]
   , basicBlocks   -- | [Stm] -> ([[Stm]] , Label)

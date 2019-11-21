@@ -1,4 +1,4 @@
-module Manticore where
+module MonadsInstances where
 
 import TigerErrores as E
 import TigerFrame
@@ -206,27 +206,3 @@ instance MemM Monada where
   getFrags =
     do st <- get
        return $ reverse $ frags st
-
--- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
--- Helpers ----------------------------------------------------------------------------------------------- --
--- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
-
--- | Definimos algunos helpers
-addpos :: (Demon w, Show b) => w a -> b -> w a
-addpos t p = E.adder t (pack $ show p ++ "\n")
-
--- | Patrón de errores...
-errorTiposMsg :: (Demon w, Show p)
-              => p -> String -> Tipo -> Tipo -> w a
-errorTiposMsg p msg t1 t2 = flip addpos p
-    $ flip adder (pack $ msg ++ "\n")
-    $ errorTipos t1 t2
-
-cmpZip :: (Demon m, Monad m) => [(Symbol, Tipo)] -> [(Symbol, Tipo, Int)] -> m () --Bool
-cmpZip [] [] = return ()
-cmpZip [] _  = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip1\n"
-cmpZip _ []  = derror $ pack "Tienen distintos campos - TigerSeman.cmpZip2\n"
-cmpZip ((sl,tl):xs) ((sr,tr,p):ys) =
-        if (equivTipo tl tr && sl == sr)
-        then cmpZip xs ys
-        else errorTipos tl tr

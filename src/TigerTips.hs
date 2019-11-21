@@ -1,8 +1,5 @@
-{-# LANGUAGE PatternSynonyms #-}
-
 module TigerTips where
 
-import TigerErrores
 import TigerSymbol
 import TigerUnique
 
@@ -61,11 +58,3 @@ equivTipo (TRecord _ u1) (TRecord _ u2) = u1 == u2
 equivTipo (TArray _ u1) (TArray _ u2)   = u1 == u2
 equivTipo (TInt _) (TInt _)             = True
 equivTipo a b                           = a == b -- Eq
-
--- | Función /linda/ para mostrar un error de tipos.
-errorTipos :: Demon w => Tipo -> Tipo -> w a
-errorTipos t1 t2 = derror $ pack $ "Error de tipos."
-                   -- Notar que acá se van a mostrar de forma re crota.
-                   ++ " Tipo *" ++ show t1
-                   ++ "* es distinto a *"
-                   ++ show t2 ++ "*."
