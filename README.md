@@ -5,22 +5,40 @@ Proyecto final de la materia "Compiladores" del IV año de LCC - FCEIA, Rosario,
 # Testing
 
 Para testear usamos la herramienta *stack* que buildea proyectos pasándole un archivito
-de configuración. Para empezar a probar como está el código:
+de configuración. Si queremos cargar los módulos en ghci:
 
 ```
 stack ghci
 ```
+Después fuimos implementando algunas test suite para ir chequeando lo que pudimos
+avanzar en las distintas etapas. Para correr todas ellas:
+
+```
+stack test
+```
+
+En caso de querer centrarnos en una única test suite escribimos:
+
+```
+stack test :NameTestSuite
+```
+
+donde NameTestSuite es el nombre de la test suite que queremos usar.
 
 Pd: stack funcionó solo instalando usando el siguiente comando:
 
 ```
 curl -sSL https://get.haskellstack.org/ | sh
 ```
-Para chequear tipos podemos hacer:
+A continuación listamos algunas decisiones de diseño del compilador, que deben ser
+tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
 
-```
-evalState (runSeman exp) 0
-```
+# Decisiones
+- No hacemos chequeos en las cotas de los loops (si lo < hi).
+- Por ahora todas las variables escapan.
+- El nivel inicial es 0. La funcion "mas anidada" tiene el mayor numero.
+  Cuando subimos de nivel aumenta el contador, y disminuye cuando bajamos de nivel.
+- Para la lista de fragmentos, agregamos los nuevos fragmentos al principio.
 
 # TODO
 
@@ -35,16 +53,19 @@ evalState (runSeman exp) 0
       no se corte el testeo.
 - [X] Revisar qué pasa con merge.tig que no encuentra readint
 - [X] Opcional: ver lo de pretty-printing.
-- [ ] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
-- [ ] Revisar que nunca usamos insertVRO ¿No tendríamos que hacerlo?
+- [X] Ver si los tipos de errores (internal, etc.) de TigerSeman están bien usados.
+- [X] Revisar que nunca usamos insertVRO ¿No tendríamos que hacerlo?
 - [X] simpleVar en TigerTrans
-- [ ] Codigo intermedio para la variable fresca de los for.
-- [ ] Revisar 2° etapa: separación de código; no podemos usar las expresiones directo!
+- [X] Codigo intermedio para la variable fresca de los for.
 - [X] Alloc de variables en declaracion de funciones.
 - [X] Dar instancia de Monada para MemM, sino nos arma lio con transExp
-- [ ] Revisar transDec, que ahora toma otro argumento mas (segundo elemento de la tupla)
+- [X] Revisar transDec, que ahora toma otro argumento mas (segundo elemento de la tupla).
+      Cambió el tipado de transExp, así que tuvimos que acomodar transDecs.
 - [ ] Revisar TigerTrans.ifThenElseExp optimizaciones. 
-- [ ] 2° etapa
+- [ ] Revisar 2° etapa: separación de código; no podemos usar las expresiones directo!
+- [ ] Revisar 2° etapa, para recursive-lets.tig nos queda loopeando forever.
+- [X] 2° etapa. Creemos que funciona, peeeero, siempre puede haber macana por ahí, y faltaría
+      ocuparse de las optimizaciones.
 
 # Dudas
 
@@ -101,16 +122,17 @@ evalState (runSeman exp) 0
       (Onda en TigerTrans tenemos binOpIntRelExp y binOpIntExp, calculamos que es para optimizar)
       Rta: lo que pasa es que binOpIntRelExp va a devolver un Cx, mientras que binOpInExp
       devuelve una Ex.
+- [X] ¿El nivel más externo de un programa debería tener su fragmento?
+      Rta: sí, por eso wrappeamos nuestro código fuente en una LetExp que llamamos
+      _tigermain, así se genera el fragmento para el nivel más externo. Onda como
+      en C, todo arranca desde el main.
+- [X] ¿Por qué TigerTrans.seqExp tira error si el ultimo comando es condicional?
+      Rta: porque estaba mal en el template, ya corregido.
+- [X] ¿Por qué en TigerTrans.seqExp Tincho no nos dio el caso de Cx?
+      Rta: contestado arriba.
 - [ ] Las llamadas externas ¿Deberían tomar en la lista las expresiones directamente
       o antes deberíamos guardar las expresiones en temporarios?
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
-- [ ] ¿Por qué TigerTrans.seqExp tira error si el ultimo comando es condicional?
-- [ ] ¿Por qué en TigerTrans.seqExp Tincho no nos dio el caso de Cx?
-- [ ] ¿El nivel más externo de un programa debería tener su fragmento?
+- [ ] Cuando usamos canonM ¿Los "statemencitos" resultantes deben usar el mismo
+      frame que antes de canonizar?
 
-# Decisiones
-- No hacemos chequeos en las cotas de los loops (si lo < hi).
-- Por ahora todas las variables escapan.
-- El nivel inicial es 0. La funcion "mas anidada" tiene el mayor numero.
-  Cuando subimos de nivel aumenta el contador, y disminuye cuando bajamos de nivel.
-- Para la lista de fragmentos, agregamos los nuevos fragmentos al principio.
