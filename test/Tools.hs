@@ -49,7 +49,7 @@ test loc bad good f s = readFile (loc ++ '/' : s) >>=
 -- mensaje en azul.
 testGood :: (Show a, Show b) => String -> (String -> Either a b) -> String -> IO ()
 testGood loc = test loc (badRes . show)
-                        (\res -> print res >> const bluenice res)
+                        (\res -> const bluenice res)
 
 -- | Acá asumimos que los test deben fallar, y por ende detectar la falla es
 -- algo positivo y lo mostramos en azul.

@@ -4,8 +4,10 @@ import TigerSeman
 import TigerSymbol
 import Tools
 
---main :: IO ()
---main = putStrLn "\n====== Test suite DEFAULT ======"
+-- *** Test suite pensada para evaluar la primera etapa del compilador.
+-- *** Es decir, principalmente el chequeo de tipos de expresiones.
+-- *** En la segunda etapa metemos mano de lo que hicimos en la primera
+-- *** etapa, así que esta test suite pierde un poco el sentido.
 
 main :: IO ()
 main = 
