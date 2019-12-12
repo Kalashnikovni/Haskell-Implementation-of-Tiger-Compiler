@@ -25,6 +25,17 @@ stack test :NameTestSuite
 
 donde NameTestSuite es el nombre de la test suite que queremos usar.
 
+Ahora, para compilar todo el proyecto en sí, tenemos app/TigerMain.hs. Para construir
+el proyecto se debe ejecutar:
+
+```
+stack setup
+stack build
+stack exec HaskTiger hasktigerinput
+```
+
+donde hasktigerinput son los argumentos que requiere el main detallado en app/Tigermain.hs.
+
 Pd: stack funcionó solo instalando usando el siguiente comando:
 
 ```
