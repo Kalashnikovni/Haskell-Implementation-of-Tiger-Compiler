@@ -1,8 +1,9 @@
 module TigerCanon
-  ( linearize     -- | Stm -> [Stm]
+  {-( linearize     -- | Stm -> [Stm]
   , basicBlocks   -- | [Stm] -> ([[Stm]] , Label)
   , traceSchedule -- | ( [[Stm]] , Label) -> [Stm]
-  )
+  , canonM
+  )-}
 where
 
 import           TigerTemp
@@ -216,7 +217,7 @@ traceSchedule (blocks, done) = do
   return $ ls ++ [Label done]
 
 canonM :: (Trackable w, TLGenerator w) => Stm -> w [Stm]
-canonM st = do
-  lin <- linearize st
-  lss <- basicBlocks lin
-  traceSchedule lss
+canonM st = 
+  do lin <- linearize st
+     lss <- basicBlocks lin
+     traceSchedule lss

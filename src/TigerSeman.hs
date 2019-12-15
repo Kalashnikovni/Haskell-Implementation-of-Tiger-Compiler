@@ -1,21 +1,22 @@
 module TigerSeman where
 
 import MonadsInstances
+import State
 import TigerAbs
+import TigerCanon
 import TigerErrores as E
 import TigerSres
 import TigerSymbol
 import TigerTips
 import TigerTopSort
 import TigerUnique
-
 import TigerTemp
 import TigerTrans
 
 -- Monads
 import qualified Control.Conditional as C
 import Control.Monad (foldM, zipWithM_)
-import Control.Monad.State (evalStateT)
+import Control.Monad.State (evalStateT, runStateT)
 import Control.Monad.Trans.Except
 
 -- Data

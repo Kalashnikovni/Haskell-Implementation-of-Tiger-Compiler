@@ -31,10 +31,11 @@ el proyecto se debe ejecutar:
 ```
 stack setup
 stack build
-stack exec HaskTiger hasktigerinput
+stack exec -- HaskTiger filenamewithpath -opt
 ```
 
-donde hasktigerinput son los argumentos que requiere el main detallado en app/Tigermain.hs.
+donde filenamewithpath es el nombre del archivo, desde la ruta actual; y opt es una
+de las opciones listadas en TigerMain, por ejemplo: -a (muestra el AST).
 
 Pd: stack funcionó solo instalando usando el siguiente comando:
 
@@ -77,6 +78,8 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
 - [ ] Revisar 2° etapa, para recursive-lets.tig nos queda loopeando forever.
 - [X] 2° etapa. Creemos que funciona, peeeero, siempre puede haber macana por ahí, y faltaría
       ocuparse de las optimizaciones.
+- [ ] Mejorar TigerMain, TigerInterp (que no vimos nah de nah), y test suites (que más o menos
+      estan, pero revisar por las dudas).
 
 # Dudas
 

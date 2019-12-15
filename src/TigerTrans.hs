@@ -11,6 +11,7 @@ import qualified Prelude as P (error, length)
 
 import TigerAbs (Escapa(..), Oper(..))
 import qualified TigerAbs as Abs
+import TigerCanon
 import TigerErrores
 import TigerFrame as F
 --import TigerSres (Externa(..))
@@ -510,3 +511,10 @@ instance (MemM w) => IrGen w where
        return $ Ex $ Eseq (seq [ExpS $ externalCall "_allocArray" [sz, ini],
                                 Move (Temp t) (Temp rv)]) 
                           (Temp t)
+
+canonize :: [TransFrag] -> Tank [Either ([Stm], Frame) TransFrag]
+canonize f = 
+  mapM (\ff -> case ff of
+                 Proc stm fr -> do res <- canonM stm
+                                   return $ Left (res, fr)
+                 astring -> return $ Right astring) f
