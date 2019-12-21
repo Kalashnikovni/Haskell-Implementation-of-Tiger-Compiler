@@ -100,8 +100,8 @@ unNx (Cx cf) =
 unCx :: (Monad w, TLGenerator w, Demon w) => BExp -> w ((Label, Label) -> Stm)
 unCx (Nx nx)        = internal $ pack $ "unCx(Nx ...): " ++ show nx
 unCx (Cx cf)        = return cf
-unCx (Ex (Const 0)) = return (\(_, f) -> Jump (Name f) f)
-unCx (Ex (Const _)) = return (\(t, _) -> Jump (Name t) t)
+unCx (Ex (Const 0)) = return (\(_, f) -> Jump (Name f) (Just f))
+unCx (Ex (Const _)) = return (\(t, _) -> Jump (Name t) (Just t))
 unCx (Ex e)         = return (uncurry (CJump NE e (Const 0)))
 
 -- | Los niveles son un stack de (Frame, Int)
@@ -338,7 +338,7 @@ instance (MemM w) => IrGen w where
   breakExp =
     do lastM <- topSalida
        case lastM of
-         Just l  -> return $ Nx $ Jump (Name l) l
+         Just l  -> return $ Nx $ Jump (Name l) (Just l)
          Nothing -> internal $ pack "Break fuera de loop"
   -- seqExp :: [BExp] -> w BExp
   seqExp [] = return $ Nx $ ExpS $ Const 0
@@ -368,7 +368,7 @@ instance (MemM w) => IrGen w where
                               ccond (lbody, done),
                               Label lbody,
                               cbody,
-                              Jump (Name test) test,
+                              Jump (Name test) (Just test),
                               Label done]
          _ -> internal $ pack "no label in salida"
   forExp lo hi var body =
@@ -392,7 +392,7 @@ instance (MemM w) => IrGen w where
                               CJump EQ evar (Temp thi) done lsigue,
                               Label lsigue,
                               Move evar $ Binop Plus evar (Const 1),
-                              Jump (Name lbody) lbody,
+                              Jump (Name lbody) (Just lbody),
                               Label done]  
   ifThenExp cond bod =
     do ccond <- unCx cond
@@ -439,7 +439,7 @@ instance (MemM w) => IrGen w where
        fin   <- newLabel
        tmp   <- newTemp
        return $ Ex $ Eseq (seq [ccond (t, f),
-                                Label t, Move (Temp tmp) ebod, Jump (Name fin) fin,
+                                Label t, Move (Temp tmp) ebod, Jump (Name fin) (Just fin),
                                 Label f, Move (Temp tmp) eels,
                                 Label fin])
                           (Temp tmp)
@@ -452,7 +452,7 @@ instance (MemM w) => IrGen w where
        f     <- newLabel
        fin   <- newLabel
        return $ Nx $ seq [ccond (t, f),
-                          Label t, nbod, Jump (Name fin) fin,
+                          Label t, nbod, Jump (Name fin) (Just fin),
                           Label f, nels,
                           Label fin]      
   assignExp cvar cinit = 

@@ -123,9 +123,9 @@ next
   -> w [[Stm]]
 next _    eb (   l@Jump{}  : ls) rs = eb ls (l : rs)
 next _    eb (   l@CJump{} : ls) rs = eb ls (l : rs)
-next done eb ls@(Label l   : _ ) rs = next done eb (Jump (Name l) l : ls) rs
+next done eb ls@(Label l   : _ ) rs = next done eb (Jump (Name l) (Just l) : ls) rs
 next done eb (   l         : ls) rs = next done eb ls (l : rs)
-next done eb []                  rs = next done eb [Jump (Name done) done] rs
+next done eb []                  rs = next done eb [Jump (Name done) (Just done)] rs
 
 blocks :: (TLGenerator w, Monad w) => Label -> [Stm] -> [[Stm]] -> w [[Stm]]
 blocks done (h@(Label _) : ls) bl = next done (endblock done bl) ls [h]
@@ -193,7 +193,7 @@ traceR b@(Label lab : _) rs = do
           rest' <- getnext rs
           return
             $  most
-            ++ [CJump p x y t l', Label l', Jump (Name f) f]
+            ++ [CJump p x y t l', Label l', Jump (Name f) (Just f)]
             ++ rest'
     (_, Jump _ _) -> do
       t <- getnext rs

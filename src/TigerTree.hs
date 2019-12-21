@@ -19,7 +19,7 @@ data Exp
 data Stm
     = Move Exp Exp
     | ExpS Exp
-    | Jump Exp Temp.Label
+    | Jump Exp (Maybe Temp.Label)
     | CJump Relop Exp Exp Temp.Label Temp.Label
     | Seq Stm Stm
     | Label Temp.Label
