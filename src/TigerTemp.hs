@@ -1,9 +1,9 @@
 module TigerTemp where
 
-import           Control.Monad.State
+import Control.Monad.State
 
-import           TigerSymbol
-import           TigerUnique
+import TigerSymbol
+import TigerUnique
 
 type Label = Symbol
 type Temp  = Symbol
@@ -22,8 +22,8 @@ detgenLabel i = pack ("L" ++ show i)
 
 -- | Clase generadora de temps, y labels
 class TLGenerator w where
-    newTemp :: w Temp
-    newLabel :: w Label
+  newTemp :: w Temp
+  newLabel :: w Label
 
 instance {-# OVERLAPS #-} (Monad p , UniqueGenerator p) => TLGenerator p where
   newTemp = detgenTemp <$> mkUnique
