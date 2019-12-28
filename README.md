@@ -149,4 +149,8 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
 - [ ] Cuando usamos canonM ¿Los "statemencitos" resultantes deben usar el mismo
       frame que antes de canonizar?
+- [ ] ¿Qué representan los TigerTree.Name? ¿Que diferencia tiene con TigerTree.Label?
+      ¿Qué código deberíamos emitir?
+- [ ] ¿Está bien lo que hicimos para TigerAssem.munchExp(Binop And (Const i) e2)?
+- [ ] ¿Memoria vs stack? Aparece en TigerFrame.
 

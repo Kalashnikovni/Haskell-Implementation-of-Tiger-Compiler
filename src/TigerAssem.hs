@@ -24,8 +24,159 @@ data Instr = Oper {assem :: String,
 
 --codeGen :: Frame -> Stm -> w [Instr]
 
--- munchExp :: (Assembler w) => Exp -> w ATemp
+munchArgs :: Int -> [Exp] -> w [ATemp]
+munchArgs _ []       = return []
+munchArgs i (a:args) =
+  | i == argsRegCount =
+    do a' <- munchExp a
+       emit Oper{assem = "sub $sp, $sp, 4 \n sw $s0, 0($sp)\n",
+                 dst = [], src = [a'], jump = []}
+       munchArgs (i + 1) args
+  | otherwise = 
+    do a' <- munchExp a
+       let reg = argregs !! i
+       emit Oper{assem = "move $" ++ unpack reg ++ " , $s0\n",
+                 dst = [reg], src = [a'], jump = []}
+       args' <- munchArgs (i + 1) args
+       return $ a':args'
 
+result :: (Assembler w) => (ATemp -> w ()) -> w ATemp
+result gen = 
+  do t <- newTemp
+     gen t
+     return t 
+
+munchExp :: (Assembler w) => Exp -> ATemp
+munchExp (Const i) = 
+  result (\r -> emit Oper{assem = "addi $d0, $zero, " ++ show i ++ "\n",
+                          dst = [r], src = [], jump = []})
+--munchExp (Name n) = result  
+munchExp (ATemp t) = t
+munchExp (Binop Plus (Const i) e2) = 
+  do e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "addi $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e2'], jump = []})
+munchExp (Binop Plus e1 (Const i)) = 
+  do e1' <- munchExp e1
+     result (\r -> emit Oper{assem = "addi $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e1'], jump = []})
+munchExp (Binop Plus e1 e2) = 
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "add $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop Minus e1 e2) = 
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "sub $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop Mul e1 e2) = 
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "mult $s0, $s1\n",
+                             dst = [lo, hi], src = [e1', e2'], jump = []})
+munchExp (Binop Div e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "div $s0, $s1\n",
+                             dst = [lo, hi], src = [e1', e2'], jump = []})
+munchExp (Binop And (Const i) e2) 
+  | i == 0    = result (\r -> emit Move{assem = "move $d0, $zero\n",
+                                        dst = [r], src = [], jump = []}) 
+  | otherwise = 
+    do e2' <- munchExp e2
+       result (\r -> emit Move{assem = "move $d0, $s0\n",
+                               dst = [r], src = [e2'], jump = []}) 
+munchExp (Binop And e1 (Const i)) 
+  | i == 0    = result (\r -> emit Move{assem = "move $d0, $zero\n",
+                                        dst = [r], src = [], jump = []}) 
+  | otherwise = 
+    do e1' <- munchExp e1
+       result (\r -> emit Move{assem = "move $d0, $s0\n",
+                               dst = [r], src = [e1'], jump = []}) 
+munchExp (Binop And e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "and $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop Or (Const i) e2) 
+  | i /= 0    = result (\r -> emit Move{assem = "move $d0, 1\n",
+                                        dst = [r], src = [], jump = []}) 
+  | otherwise = 
+    do e2' <- munchExp e2
+       result (\r -> emit Move{assem = "move $d0, $s0\n",
+                               dst = [r], src = [e2'], jump = []}) 
+munchExp (Binop Or e1 (Const i)) 
+  | i /= 0    = result (\r -> emit Move{assem = "move $d0, 1\n",
+                                        dst = [r], src = [], jump = []}) 
+  | otherwise = 
+    do e1' <- munchExp e1
+       result (\r -> emit Move{assem = "move $d0, $s0\n",
+                               dst = [r], src = [e1'], jump = []}) 
+munchExp (Binop Or e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "or $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop XOr (Const i) e2) =
+  do e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "xori $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e2'], jump = []})
+munchExp (Binop XOr e1 (Const i)) =
+  do e1' <- munchExp e1
+     result (\r -> emit Oper{assem = "xori $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e1'], jump = []})
+munchExp (Binop XOr e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "xor $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop LShift e1 (Const i)) =
+  do e1' <- munchExp e1
+     result (\r -> emit Oper{assem = "sll $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e1'], jump = []})
+munchExp (Binop LShift e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "sllv $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop RShift e1 (Const i)) =
+  do e1' <- munchExp e1
+     result (\r -> emit Oper{assem = "srl $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e1'], jump = []})
+munchExp (Binop RShift e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "srlv $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Binop ARShift e1 (Const i)) =
+  do e1' <- munchExp e1
+     result (\r -> emit Oper{assem = "sra $d0, $s0, " ++ show i ++ "\n",
+                             dst = [r], src = [e1'], jump = []})
+munchExp (Binop ARShift e1 e2) =
+  do e1' <- munchExp e1
+     e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "srav $d0, $s0, $s1\n",
+                             dst = [r], src = [e1', e2'], jump = []})
+munchExp (Mem (Binop Plus (Const i) e2)) =
+  do e2' <- munchExp e2
+     result (\r -> emit Oper{assem = "lw $d0, " ++ show i ++ "($s0)\n",
+                             dst = [r], src = [e2'], jump = []})
+munchExp (Mem (Binop Plus e1 (Const i))) =
+  do e1' <- munchExp e1
+     result (\r -> emit Oper{assem = "lw $d0, " ++ show i ++ "($s0)\n",
+                             dst = [r], src = [e1'], jump = []})
+munchExp (Mem (Const i)) =
+  result (\r -> emit Oper{assem = "lw $d0, " ++ show i ++ "($zero)\n",
+                          dst = [r], src = [], jump = []})
+munchExp (Mem e) =
+  do e' <- munchExp e
+     result (\r -> emit Oper{assem = "lw $d0, 0($s0)\n",
+                            dst = [r], src = [e'], jump = []})
+munchExp (Eseq stm e) = 
+  do munchStm stm
+     munchExp e
+  
 munchStm :: (Assembler w) => Stm -> w ()
 munchStm (Move (Temp t) e2) =
   do e2' <- munchExp e2  
@@ -109,6 +260,13 @@ munchStm (Seq s1 s2) =
      return ()
 munchStm (Label l) =
   emit ILabel{assem = unpack l ++ ":\n", lab = l}
+munchStm (ExpS $ CallExp e@(Name l) args) =
+  do args' <- munchArgs args
+     e' <- munchExp e
+     emit Oper{assem = "jr $ra\n",
+               dst = [], src = [], jump = []}
+     result (\r -> emit Oper {assem = "jal $s0\n",
+                              dst = calldefs, src = e' : args', jump = []})
   
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --

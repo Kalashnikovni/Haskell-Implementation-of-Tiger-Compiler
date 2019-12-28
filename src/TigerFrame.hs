@@ -1,28 +1,54 @@
 module TigerFrame where
 
+import TigerAbs (Escapa(..))
+import TigerSymbol
 import TigerTemp
 import TigerTree
 
-import TigerAbs (Escapa(..))
+import Prelude hiding (exp)
 
-import TigerSymbol
+-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
+-- Registros y convenciones de la arquitectura ----------------------------------------------------------- --
+-- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
-import Prelude hiding ( exp )
-
---
-
--- | Registros muy usados.
-fp, sp, rv :: Temp
+-- | Registros especiales
+fp, sp, rv, lo, hi, zero, ra, v0, v1 :: Temp
 -- | Frame pointer
-fp = pack "FP"
+fp = pack "fp"
 -- | Stack pointer
-sp = pack "SP"
+sp = pack "sp"
 -- | Return value
-rv = pack "RV"
+rv = pack "rv"
+-- | To store results
+hi = pack "high"
+-- | To store results
+lo = pack "low"
+-- | Register representing zero value
+zero = pack "zero"
+-- | Return address
+ra = pack "ra"
+-- | To store results
+v0 = pack "v0"
+-- | To store results
+v1 = pack "v1"
+a0 = pack "a0"
+a1 = pack "a1"
+a2 = pack "a2"
+a3 = pack "a3"
+
+-- | Listas de registros que define la llamada y registros especiales
+calldefs, specialregs, argregs, callersaved :: [Temp]
+argregs = [a0, a1, a2, a3]
+callersaved = []
+calldefs = [rv, ra] : callersaved
+specialregs = [rv, fp, sp, hi, lo, zero, ra, v0, v1]
+
+argsRegsCount = 4
 
 -- | Word size in bytes
 wSz :: Int
 wSz = 4
+
 -- | Base two logarithm of word size in bytes
 log2WSz :: Int
 log2WSz = 2
@@ -49,10 +75,6 @@ argsInicial = 0
 regInicial = 1
 localsInicial = 0
 
--- | Listas de regustros que define la llamada y registros especiales
-calldefs, specialregs :: [Temp]
-calldefs = [rv]
-specialregs = [rv, fp, sp]
 
 -- | Tipo de dato que define el acceso a variables.
 data Access =
@@ -65,10 +87,6 @@ data Access =
 getOffset :: Access -> Maybe Int
 getOffset (InFrame k) = Just k
 getOffset _           = Nothing
-
-getTemp :: Access -> Maybe Symbol
-getTemp (InReg t) = Just t
-getTemp _         = Nothing
 
 -- | Definición de fragmento usado en en la traducción.
 -- Son los bloques que van al assembler de formal individual.
@@ -150,7 +168,7 @@ allocArg :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocArg fr Escapa =
   let actual = actualArg fr
       acc    = InFrame $ actual * wSz + argsGap
-  in  return (fr { actualArg = actual + 1 }, acc)
+  in  return (fr{actualArg = actual + 1}, acc)
 allocArg fr NoEscapa = do
   s <- newTemp
   return (fr, InReg s)
