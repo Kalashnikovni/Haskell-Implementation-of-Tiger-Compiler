@@ -157,10 +157,10 @@ firstTank = M.empty
 type Tank = StateT TAM StGen
 
 instance Trackable Tank where
-    enterBlock' l b = do
-        st <- get
-        put $ insert l b st
-    getBlock l = gets $ lookup l
+  enterBlock' l b = do
+    st <- get
+    put $ insert l b st
+  getBlock l = gets $ lookup l
 
 splitlast :: [a] -> ([a], a)
 splitlast ls = (init ls, last ls)

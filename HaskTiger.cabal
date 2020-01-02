@@ -17,11 +17,13 @@ library
   exposed-modules:
       -- Primer entrega
           MonadsInstances
+        , TigerAssem
         , TigerAbs
         , State
         , TigerErrores
         , TigerEscap
         , TigerLexer
+        , TigerMunch
         , TigerParser
         , TigerPretty
         , TigerSeman
@@ -30,10 +32,7 @@ library
         , TigerTips
         , TigerUnique
         , TigerTopSort
-      -- Segunda entrega
-        -- Edited
         , TigerTemp
-        -- Ir Gen new files
         , TigerTree
         , TigerTrans
         , TigerFrame

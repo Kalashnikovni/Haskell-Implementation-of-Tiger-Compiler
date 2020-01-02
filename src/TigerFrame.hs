@@ -1,9 +1,12 @@
 module TigerFrame where
 
 import TigerAbs (Escapa(..))
+import TigerAssem(Instr(..))
 import TigerSymbol
 import TigerTemp
 import TigerTree
+
+import Data.Map
 
 import Prelude hiding (exp)
 
@@ -12,37 +15,55 @@ import Prelude hiding (exp)
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- | Registros especiales
-fp, sp, rv, lo, hi, zero, ra, v0, v1 :: Temp
--- | Frame pointer
+fp, sp, rv, lo, hi, zero, ra, v0, v1, gp :: Temp 
+gp = pack "gp"
 fp = pack "fp"
--- | Stack pointer
 sp = pack "sp"
--- | Return value
 rv = pack "rv"
--- | To store results
 hi = pack "high"
--- | To store results
 lo = pack "low"
--- | Register representing zero value
 zero = pack "zero"
--- | Return address
 ra = pack "ra"
--- | To store results
 v0 = pack "v0"
--- | To store results
 v1 = pack "v1"
+
+a0, a1, a2, a3 :: Temp
 a0 = pack "a0"
 a1 = pack "a1"
 a2 = pack "a2"
 a3 = pack "a3"
 
+t0, t1, t2, t3, t4, t5, t6, t7, t8, t9 :: Temp 
+t0 = pack "t0"
+t1 = pack "t1"
+t2 = pack "t2"
+t3 = pack "t3"
+t4 = pack "t4"
+t5 = pack "t5"
+t6 = pack "t6"
+t7 = pack "t7"
+t8 = pack "t8"
+t9 = pack "t9"
+
+s0, s1, s2, s3, s4, s5, s6, s7 :: Temp
+s0 = pack "s0"
+s1 = pack "s1"
+s2 = pack "s2"
+s3 = pack "s3"
+s4 = pack "s4"
+s5 = pack "s5"
+s6 = pack "s6"
+s7 = pack "s7"
+
 -- | Listas de registros que define la llamada y registros especiales
 calldefs, specialregs, argregs, callersaved :: [Temp]
 argregs = [a0, a1, a2, a3]
-callersaved = []
-calldefs = [rv, ra] : callersaved
-specialregs = [rv, fp, sp, hi, lo, zero, ra, v0, v1]
+calleesaved = [s0, s1, s2, s3, s4, s5, s6, s7]
+callersaved = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
+calldefs = [rv, ra] ++ callersaved
+specialregs = [rv, fp, sp, hi, lo, zero, ra, v0, v1, gp]
 
+argsRegsCount :: Int
 argsRegsCount = 4
 
 -- | Word size in bytes
@@ -134,13 +155,12 @@ data Frame = Frame {
 
 defaultFrame :: Frame
 defaultFrame = Frame
-  { name        = empty
-  , formals     = []
-  , locals      = []
-  , actualArg   = argsInicial
-  , actualLocal = localsInicial
-  , actualReg   = regInicial
-  }
+  {name        = empty,
+   formals     = [],
+   locals      = [],
+   actualArg   = argsInicial,
+   actualLocal = localsInicial,
+   actualReg   = regInicial}
 
 --------------------------------------------------------------------------------
 --
@@ -197,3 +217,17 @@ exp (InReg l) c
 
 procEntryExit1 :: Frame -> Stm -> Stm
 procEntryExit1 fr body = body 
+
+procEntryExit2 :: Frame -> [Instr] -> [Instr]
+procEntryExit2 fr instrs =
+  instrs ++ [Oper{assem = "", src = [zero, ra, sp, gp] ++ calleesaved, 
+             dst = [], jump = Just []}] 
+
+data FrameFunc = FF {prolog :: String, body :: [Instr], epilogue :: String}
+  deriving Show
+
+procEntryExit3 :: Frame -> [Instr] -> FrameFunc
+procEntryExit3 fr bd = 
+  FF{prolog =  "PROCEDURE" ++ unpack (name fr) ++ "\n",
+     body = bd,
+     epilogue = "END" ++ unpack (name fr) ++ "\n"}
