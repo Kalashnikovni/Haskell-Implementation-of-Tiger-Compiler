@@ -8,7 +8,7 @@ import TigerTree
 
 import Data.Map
 
-import Prelude hiding (exp)
+import Prelude as P hiding (exp)
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Registros y convenciones de la arquitectura ----------------------------------------------------------- --
@@ -62,6 +62,7 @@ calleesaved = [s0, s1, s2, s3, s4, s5, s6, s7]
 callersaved = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
 calldefs = [rv, ra] ++ callersaved
 specialregs = [rv, fp, sp, hi, lo, zero, ra, v0, v1, gp]
+allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int
 argsRegsCount = 4
@@ -122,7 +123,7 @@ data Frag =
 sepFrag :: [Frag] -> ([Frag], [(Stm, Frame)])
 sepFrag xs = (reverse ass, reverse stmss)
  where
-  (ass, stmss) = foldl
+  (ass, stmss) = P.foldl
     (\(lbls, stms) x -> case x of
       Proc st fr -> (lbls, (st, fr) : stms)
       AString{}  -> (x : lbls, stms)
@@ -132,7 +133,7 @@ sepFrag xs = (reverse ass, reverse stmss)
 
 instance Show Frag where
     show (Proc s f) = "Frame:" ++ show f ++ '\n': show s
-    show (AString l ts) = show l ++ ":\n" ++ (foldr (\t ts -> ("\n\t" ++ unpack t) ++ ts) "" ts)
+    show (AString l ts) = show l ++ ":\n" ++ (P.foldr (\t ts -> ("\n\t" ++ unpack t) ++ ts) "" ts)
 
 -- | |Frame| es lo que representa el marco de activación dinámico, es la
 -- información que vamos a utilizar eventualmente para construir el marco de
@@ -155,7 +156,7 @@ data Frame = Frame {
 
 defaultFrame :: Frame
 defaultFrame = Frame
-  {name        = empty,
+  {name        = TigerSymbol.empty,
    formals     = [],
    locals      = [],
    actualArg   = argsInicial,
@@ -169,7 +170,7 @@ defaultFrame = Frame
 -- TODOS A stack por i386
 prepFormals :: Frame -> [Access]
 prepFormals fs = reverse $ snd
-  (foldl (\(n, rs) _ -> (n + argsGap, InFrame n : rs))
+  (P.foldl (\(n, rs) _ -> (n + argsGap, InFrame n : rs))
          (argsInicial, [])
          (formals fs)
   )

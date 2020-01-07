@@ -1,9 +1,10 @@
-import State
-import System.Directory
-import TigerParser (parse)
 import TigerSeman
 import TigerSymbol
 import Tools
+
+import State
+import System.Directory
+import TigerParser (parse)
 
 main :: IO ()
 main = 
