@@ -142,29 +142,31 @@ transDecs ((VarDec nm escap t init p) : xs) w =
 transDecs ((FunctionDec fs) : xs)          w =
   do res1 <- mapM (\f@(nm, params, tf, bd, p) -> 
                do actLvl <- topLevel
-                  let lvlFun = newLevel actLvl nm (P.map (\x -> Escapa) params) -- TODOS ESCAPAN
+                  l <- newLabel
+                  let flabel = pack $ unpack l ++ "-" ++ unpack nm 
+                  let lvlFun = newLevel actLvl flabel (P.map (\x -> Escapa) params) -- TODOS ESCAPAN
                   tfun <- maybe (return TUnit) (\t -> getTipoT t) tf
                   targs <- mapM (\(_, _, c) -> transTy c) params
-                  flabel <- newLabel
-                  return (lvlFun, pack $ unpack flabel ++ "-" ++ unpack nm, targs, tfun, TigerSres.Propia)) fs
-     res2 <- mapM_ (\((nm, params, tf, bd, p), (lvlFun, _, _, _, _))->
-               envFunctionDec lvlFun $ 
-                 insertFFold fs res1 (do lvlArgs <- getActualLevel
-                                         allocArg Escapa
-                                         insertFFFold params lvlArgs $ 
-                                           do lvlArgs' <- topLevel
-                                              (bf, t) <- transExp bd
-                                              case tf of
-                                                Just td -> 
-                                                  do tdd <- getTipoT td
-                                                     C.unless (equivTipo t tdd) $
-                                                       errorTiposMsg p "El valor retornado no es del tipo declarado" t tdd
-                                                     functionDec bf lvlArgs' IsFun
-                                                Nothing -> 
-                                                  do C.unless (equivTipo t TUnit) $
-                                                       errorTiposMsg p "La funcion devuelve un valor" t TUnit
-                                                     functionDec bf lvlArgs' IsFun)) (zip fs res1)
+                  return (lvlFun, flabel, targs, tfun, TigerSres.Propia)) fs
+     mapM_ (\((nm, params, tf, bd, p), (lvlFun, _, _, _, _))->
+            envFunctionDec lvlFun $ 
+              insertFFold fs res1 (do lvlArgs <- getActualLevel
+                                      allocArg Escapa
+                                      insertFFFold params lvlArgs $ 
+                                        do lvlArgs' <- topLevel
+                                           (bf, t) <- transExp bd
+                                           case tf of
+                                             Just td -> 
+                                               do tdd <- getTipoT td
+                                                  C.unless (equivTipo t tdd) $
+                                                    errorTiposMsg p auxstring t tdd
+                                                  functionDec bf lvlArgs' IsFun
+                                             Nothing -> 
+                                               do C.unless (equivTipo t TUnit) $
+                                                    errorTiposMsg p "La funcion devuelve un valor" t TUnit
+                                                  functionDec bf lvlArgs' IsProc)) (zip fs res1)
      insertFFold fs res1 $ transDecs xs w
+  where auxstring = "El valor retornado no es del tipo declarado"
 transDecs ((TypeDec xs) : xss)             w =
   let 
     checkNames [] w'     = w' 
@@ -453,7 +455,8 @@ transProg e =
                                                 e, 
                                                 startPos)]] (IntExp 0 startPos) startPos)
      l <- topLevel
-     getFrags
+     f <- getFrags
+     return $ reverse f
   where startPos = Simple{line = 0, col = 0}
 
 runMonada2 :: Monada [TransFrag] -> StGen (Either Symbol [TransFrag])

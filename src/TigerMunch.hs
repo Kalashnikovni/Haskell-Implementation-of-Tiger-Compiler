@@ -40,19 +40,22 @@ formatAux f (r:rest) dst src jmp = r : (formatAux f rest dst src jmp)
 opmakestring :: ATemp -> String
 opmakestring t = '$' : unpack t
 
-codeGen :: (Assembler w) => Frame -> Stm -> w [Instr]
-codeGen fr stm = 
+codeGen :: (Assembler w) => Stm -> w [Instr]
+codeGen stm = 
   do stms <- canonM stm
      mapM_ munchStm stms
      instrs <- getInstrs
      return $ reverse instrs
+
+canonTest :: (Assembler w) => Stm -> w [Stm]
+canonTest stm = canonM stm
 
 munchArgs :: (Assembler w) => Int -> [Exp] -> w [ATemp]
 munchArgs _ []       = return []
 munchArgs i (a:args) 
   | i == argsRegsCount =
     do a' <- munchExp a
-       emit Oper{assem = "sub `d0, `s0, 4 \n sw `s1, 0(`s0)\n",
+       emit Oper{assem = "sub `d0, `s0, 4\n sw `s1, 0(`s0)\n",
                  dst = [sp], src = [sp, a'], jump = Nothing}
        munchArgs (i + 1) args
   | otherwise = 
@@ -69,11 +72,19 @@ result gen =
      gen t
      return t 
 
+-- Auxiliary to write less
+moving :: (Assembler w) => ATemp -> ATemp -> w ()
+moving t1 t2
+  | t1 == t2  = return ()
+  | otherwise = emit TigerAssem.Move{assem = "move `d0, `s0\n", dst = [t1], src = [t2]}
+
 munchExp :: (Assembler w) => Exp -> w ATemp
 munchExp (Const i) = 
   result (\r -> emit Oper{assem = "addi `d0, `s0, " ++ show i ++ "\n",
                           dst = [r], src = [zero], jump = Nothing})
---munchExp (Name n) = result  
+munchExp (Name n) = 
+  result (\r -> emit Oper{assem = "la `d0, " ++ unpack n ++ "\n",
+                          dst = [r], src = [], jump = Nothing})  
 munchExp (Temp t) = return t
 munchExp (Binop Plus (Const i) e2) = 
   do e2' <- munchExp e2
@@ -104,19 +115,15 @@ munchExp (Binop Div e1 e2) =
      result (\r -> emit Oper{assem = "div `s0, `s1\n",
                              dst = [lo, hi], src = [e1', e2'], jump = Nothing})
 munchExp (Binop And (Const i) e2) 
-  | i == 0    = result (\r -> emit TigerAssem.Move{assem = "move `d0, `s0\n",
-                                                   dst = [r], src = [zero]}) 
+  | i == 0    = result (\r -> moving r zero) 
   | otherwise = 
     do e2' <- munchExp e2
-       result (\r -> emit TigerAssem.Move{assem = "move `d0, `s0\n",
-                                          dst = [r], src = [e2']}) 
+       result (\r -> moving r e2') 
 munchExp (Binop And e1 (Const i)) 
-  | i == 0    = result (\r -> emit TigerAssem.Move{assem = "move `d0, `s0\n",
-                                                   dst = [r], src = [zero]}) 
+  | i == 0    = result (\r -> moving r zero) 
   | otherwise = 
     do e1' <- munchExp e1
-       result (\r -> emit TigerAssem.Move{assem = "move `d0, `s0\n",
-                                          dst = [r], src = [e1']}) 
+       result (\r -> moving r e1') 
 munchExp (Binop And e1 e2) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
@@ -127,15 +134,13 @@ munchExp (Binop Or (Const i) e2)
                                                    dst = [r], src = []}) 
   | otherwise = 
     do e2' <- munchExp e2
-       result (\r -> emit TigerAssem.Move{assem = "move `d0, `s0\n",
-                                          dst = [r], src = [e2']}) 
+       result (\r -> moving r e2') 
 munchExp (Binop Or e1 (Const i)) 
   | i /= 0    = result (\r -> emit TigerAssem.Move{assem = "move `d0, 1\n",
                                                    dst = [r], src = []}) 
   | otherwise = 
     do e1' <- munchExp e1
-       result (\r -> emit TigerAssem.Move{assem = "move `d0, `s0\n",
-                                          dst = [r], src = [e1']}) 
+       result (\r -> moving r e1') 
 munchExp (Binop Or e1 e2) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
@@ -197,21 +202,25 @@ munchExp (Mem e) =
      result (\r -> emit Oper{assem = "lw `d0, 0(`s0)\n",
                             dst = [r], src = [e'], jump = Nothing})
 munchExp (Eseq stm e) = 
-  do munchStm stm
-     munchExp e
+  internalAux $ "Revisar etapas, hasta selección de instrucciones." ++ 
+                "La secuenciacion con resultado debería estar canonizada -- TigerMunch"
 munchExp (Call e@(Name l) args) =
-  do args' <- munchArgs 0 args
-     emit Oper{assem = "jr `s0\n",
-               dst = [], src = [ra], jump = Nothing}
-     e' <- munchExp e
-     emit Oper {assem = "jal `j0\n",
-                dst = calldefs, src = e' : args', jump = Nothing}
-munchExp _ = internalAux "Revisar etapas, hasta selección de instrucciones -- TigerMunch 1"
+  internalAux $ "Revisar etapas, hasta selección de instrucciones." ++ unpack l ++ 
+                " debería estar canonizado -- TigerMunch"
+munchExp e = internalAux $ "Revisar etapas, hasta selección de instrucciones -- TigerMunch 1"
   
 munchStm :: (Assembler w) => Stm -> w ()
+munchStm (Tree.Move (Temp t) (Call e@(Name l) args)) =
+  do args' <- munchArgs 0 args
+     emit Oper{assem = "jal " ++ unpack l ++ "\n",
+               dst = calldefs, src = args', jump = Just [l]}
+     moving t v0 
+munchStm (Tree.Move (Temp t) (Const i)) =
+  emit Oper{assem = "addi `d0, `s0, " ++ show i ++ "\n",
+            dst = [t], src = [zero], jump = Nothing}
 munchStm (Tree.Move (Temp t) e2) =
   do e2' <- munchExp e2  
-     emit TigerAssem.Move{assem = "move `d0, `s0\n", dst = [t], src = [e2']}
+     moving t e2'
 munchStm (Tree.Move (Mem (Binop Plus (Const i) e1)) e2) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
@@ -285,20 +294,20 @@ munchStm (CJump UGE e1 e2 lt lf) =
      e2' <- munchExp e2
      emit Oper{assem = "bgeu `s0, `s1, " ++ unpack lt ++ "\nj `j0\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
-munchStm (Seq s1 s2) =
-  do munchStm s1
-     munchStm s2
-     return ()
 munchStm (Label l) =
   emit ILabel{assem = unpack l ++ ":\n", lab = l}
 munchStm (ExpS (Call e@(Name l) args)) =
   do args' <- munchArgs 0 args
-     emit Oper{assem = "jr `s0\n",
-               dst = [], src = [ra], jump = Nothing}
-     e' <- munchExp e
-     emit Oper {assem = "jal `j0\n",
-                dst = calldefs, src = e' : args', jump = Nothing}
-munchStm _ = internalAux "Revisar etapas, hasta selección de instrucciones -- TigerMunch 4"
+     emit Oper{assem = "jal " ++ unpack l ++ "\n",
+               dst = calldefs, src = args', jump = Nothing}
+     return ()
+munchStm (ExpS e) =
+  do munchExp e
+     return ()
+munchStm (Seq s1 s2) =
+  internalAux $ "Revisar etapas, hasta selección de instrucciones." ++ 
+                "La secuenciacion debería estar canonizada -- TigerMunch"
+munchStm s = internalAux $ "Revisar etapas, hasta selección de instrucciones -- TigerMunch 4"
   
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
@@ -309,8 +318,11 @@ data AssemEstado = AEst {instrs :: [Instr], tam :: TAM}
 initAEstado = AEst {instrs = [], tam = firstTank}
 type AssemMonada = ExceptT Symbol (StateT AssemEstado StGen)
 
-runMonada3 :: AssemMonada [[Instr]] -> StGen (Either Symbol [[Instr]])
+runMonada3 :: AssemMonada ([Instr], Frame) -> StGen (Either Symbol ([Instr], Frame))
 runMonada3 = flip evalStateT initAEstado . runExceptT
+
+runMonada4 :: AssemMonada [([Stm], Frame)] -> StGen (Either Symbol [([Stm], Frame)])
+runMonada4 = flip evalStateT initAEstado . runExceptT
 
 class (Demon w, Monad w, TLGenerator w, Trackable w) => Assembler w where
   emit :: Instr -> w ()

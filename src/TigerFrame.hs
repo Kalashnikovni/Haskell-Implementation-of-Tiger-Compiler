@@ -15,11 +15,10 @@ import Prelude as P hiding (exp)
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- | Registros especiales
-fp, sp, rv, lo, hi, zero, ra, v0, v1, gp :: Temp 
+fp, sp, lo, hi, zero, ra, v0, v1, gp :: Temp 
 gp = pack "gp"
 fp = pack "fp"
 sp = pack "sp"
-rv = pack "rv"
 hi = pack "high"
 lo = pack "low"
 zero = pack "zero"
@@ -60,8 +59,8 @@ calldefs, specialregs, argregs, callersaved :: [Temp]
 argregs = [a0, a1, a2, a3]
 calleesaved = [s0, s1, s2, s3, s4, s5, s6, s7]
 callersaved = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
-calldefs = [rv, ra] ++ callersaved
-specialregs = [rv, fp, sp, hi, lo, zero, ra, v0, v1, gp]
+calldefs = [v0, ra] ++ callersaved
+specialregs = [fp, sp, hi, lo, zero, ra, v0, v1, gp]
 allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int
@@ -229,6 +228,6 @@ data FrameFunc = FF {prolog :: String, body :: [Instr], epilogue :: String}
 
 procEntryExit3 :: Frame -> [Instr] -> FrameFunc
 procEntryExit3 fr bd = 
-  FF{prolog =  "PROCEDURE" ++ unpack (name fr) ++ "\n",
+  FF{prolog =  "PROCEDURE " ++ unpack (name fr) ++ "\n",
      body = bd,
-     epilogue = "END" ++ unpack (name fr) ++ "\n"}
+     epilogue = "END " ++ unpack (name fr) ++ "\n"}

@@ -6,16 +6,15 @@ module TigerCanon
   )-}
 where
 
-import           TigerTemp
-import           TigerTree
+import TigerSymbol
+import TigerTemp
+import TigerTree
+import TigerUnique
 
-import           TigerSymbol
-import           TigerUnique
+import Control.Monad.State
+import Data.Map.Strict as M
 
-import           Control.Monad.State
-import           Data.Map.Strict               as M
-
-import           Prelude                 hiding ( lookup )
+import Prelude hiding (lookup)
 
 
 (%) :: Stm -> Stm -> Stm
@@ -57,9 +56,9 @@ reorder (e : rest) = do
       return (sts % Move (Temp t) e % sts', Temp t : el)
 
 reorderExp :: (TLGenerator w, Monad w) => ([Exp], [Exp] -> Exp) -> w (Stm, Exp)
-reorderExp (el, build) = do
-  (sts, el') <- reorder el
-  return (sts, build el')
+reorderExp (el, build) = 
+  do (sts, el') <- reorder el
+     return (sts, build el')
 
 reorderStm :: (TLGenerator w, Monad w) => ([Exp], [Exp] -> Stm) -> w Stm
 reorderStm (el, build) = do
@@ -67,10 +66,10 @@ reorderStm (el, build) = do
   return $ sts % build el'
 
 doStm :: (TLGenerator w, Monad w) => Stm -> w Stm
-doStm (Seq a b) = do
-  a' <- doStm a
-  b' <- doStm b
-  return $ a' % b'
+doStm (Seq a b) = 
+  do a' <- doStm a
+     b' <- doStm b
+     return $ a' % b'
 doStm (Jump e lb) = reorderStm ([e], \l -> Jump (prim l) lb)
 doStm (CJump p a b t f) =
   reorderStm ([a, b], \l -> CJump p (prim l) (seg l) t f)
@@ -105,9 +104,9 @@ linear (Seq a b, l) = linear (a, linear (b, l))
 linear (s      , l) = s : l
 
 linearize :: (TLGenerator w, Monad w) => Stm -> w [Stm]
-linearize st = do
-  s' <- doStm st
-  return $ linear (s', [])
+linearize st = 
+  do s' <- doStm st
+     return $ linear (s', [])
 
 endblock
   :: (TLGenerator w, Monad w) => Label -> [[Stm]] -> [Stm] -> [Stm] -> w [[Stm]]
@@ -130,15 +129,15 @@ next done eb []                  rs = next done eb [Jump (Name done) (Just done)
 blocks :: (TLGenerator w, Monad w) => Label -> [Stm] -> [[Stm]] -> w [[Stm]]
 blocks done (h@(Label _) : ls) bl = next done (endblock done bl) ls [h]
 blocks _    []                 ls = return $ reverse ls
-blocks done ls                 bl = do
-  l <- newLabel
-  blocks done (Label l : ls) bl
+blocks done ls                 bl = 
+  do l <- newLabel
+     blocks done (Label l : ls) bl
 
 basicBlocks :: (TLGenerator w, Monad w) => [Stm] -> w ([[Stm]], Label)
-basicBlocks stm = do
-  done <- newLabel
-  stm' <- blocks done stm []
-  return (stm', done)
+basicBlocks stm = 
+  do done <- newLabel
+     stm' <- blocks done stm []
+     return (stm', done)
 
 class Monad w => Trackable w where
     enterBlock' :: Label -> [Stm] -> w ()

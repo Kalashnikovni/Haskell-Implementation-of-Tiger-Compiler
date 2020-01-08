@@ -240,29 +240,25 @@ instance (MemM w) => IrGen w where
        let res = Proc bd' (getFrame lvl)
        pushFrag res
   -- lvl es nivel donde se usa la variable menos nivel donde se declaro
-  simpleVar acc lvl  
+  simpleVar v@(InFrame k) lvl  
     | lvl >= 0  =
-      case exp acc lvl of
-        Just e  -> 
-          do tmpDec <- newTemp
-             tmpOff <- newTemp
-             case getOffset acc of
-               Just k -> 
-                 return $ Ex $ Eseq (seq [(Move (Temp tmpDec) e), 
-                                          (Move (Temp tmpOff) (Temp tmpDec))]) 
-                                    (Temp tmpOff)
-               _      -> internal $ pack $ "Revisar el compilador.simpleVar, o revisar codigo del programa." ++ 
-                                           "La variable no escapa."
-        _ -> internal $ pack "Revisar compilador.simpleVar, o revisar codigo del programa."  
+      case exp v lvl of
+        Just e  -> return $ Ex e
+        _ -> internal $ pack "Revisar compilador.simpleVar"
+    | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
+                                    "se usa en un nivel inferior a su declaracion."   
+  simpleVar v@(InReg k) lvl  
+    | lvl >= 0  =
+      case exp v lvl of
+        Just e  -> return $ Ex e
+        _ -> internal $ pack "Revisar compilador.simpleVar"
     | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
                                     "se usa en un nivel inferior a su declaracion."   
   fieldVar be i =
     do ebe  <- unEx be
        tbe  <- newTemp
-       tres <- newTemp 
-       return $ Ex $ Eseq (seq [Move (Temp tbe) ebe,
-                                Move (Temp tres) $ Mem (Binop Plus (Temp tbe) (Binop Mul (Const i) (Const wSz)))])
-                          (Temp tres)
+       return $ Ex $ Eseq (Move (Temp tbe) ebe)
+                          (Mem (Binop Plus (Temp tbe) (Binop Mul (Const i) (Const wSz))))
   subscriptVar var ind = 
     do evar <- unEx var
        eind <- unEx ind
@@ -299,8 +295,9 @@ instance (MemM w) => IrGen w where
   functionDec bd lvl proc = 
     do body <- (case proc of
                   IsProc -> unNx bd
-                  IsFun  -> Move (Temp rv) <$> unEx bd)
-       procEntryExit lvl (Nx $ procEntryExit1 (getFrame lvl) body)
+                  IsFun  -> Move (Temp v0) <$> unEx bd)
+       let fr = getFrame lvl
+       procEntryExit lvl (Nx $ Seq (Label $ name fr) $ procEntryExit1 fr body)
        return $ Ex $ Const 0
   varDec acc = simpleVar acc 0
   unitExp = return $ Ex (Const 0)
@@ -309,20 +306,22 @@ instance (MemM w) => IrGen w where
   -- recordExp :: [(BExp,Int)]  -> w BExp
   -- ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
   recordExp flds =
-    do tmp   <- newTemp
-       flds' <- mapM unEx $ map fst $ List.sortOn snd flds
-       return $ Ex $ Eseq (Seq (ExpS (externalCall "_allocRecord" ((Const $ P.length flds) : flds')))
-                               (Move (Temp tmp) (Temp rv)))  
-                          (Temp tmp)
+    do flds' <- mapM unEx $ map fst $ List.sortOn snd flds
+       return $ Ex $ externalCall "_allocRecord" ((Const $ P.length flds) : flds')
   callExp nm external isproc lvl args = 
     do lvlact <- getActualLevel
-       args'  <- mapM (\x -> do x' <- unEx x
-                                t  <- newTemp
-                                return $ Eseq (Move (Temp t) x') (Temp t)) args
+       args'  <- mapM unEx args
+       let acc = auxexp (lvlact - defLvl)
+       let fargs = if isRT external then args' else acc : args'
        case isproc of
-         IsProc -> return $ Nx $ ExpS $ Call (Name nm) (auxexp (lvlact - defLvl) : args')
-         IsFun  -> return $ Ex $ Call (Name nm) (auxexp (lvlact - defLvl) : args')
+         IsProc -> return $ Nx $ ExpS $ Call (Name nm) fargs
+         IsFun  -> do tres <- newTemp
+                      return $ Ex $ Eseq (seq [ExpS $ Call (Name nm) fargs,
+                                               Move (Temp tres) (Temp v0)]) 
+                                         (Temp tres)
     where defLvl = getNlvl lvl 
+          isRT (Runtime) = True
+          isRT _         = False
   -- letExp :: [BExp] -> BExp -> w BExp
   letExp [] e = 
     do -- Des-empaquetar y empaquetar como un |Ex| puede generar
@@ -458,10 +457,7 @@ instance (MemM w) => IrGen w where
   assignExp cvar cinit = 
     do cvara <- unEx cvar
        cin   <- unEx cinit
-       case cvara of
-         Mem v' -> do t <- newTemp
-                      return $ Nx $ seq [Move (Temp t) cin, Move cvara (Temp t)]
-         _ -> return $ Nx $ Move cvara cin
+       return $ Nx $ Move cvara cin
   binOpIntExp le op re =
     do leex <- unEx le
        reex <- unEx re
@@ -476,13 +472,8 @@ instance (MemM w) => IrGen w where
   binOpStrExp strl op strr =
     do esl   <- unEx strl
        esr   <- unEx strr
-       tstrl <- newTemp
-       tstrr <- newTemp
-       let res = seq [Move (Temp tstrl) esl, 
-                      Move (Temp tstrr) esr, 
-                      ExpS $ externalCall "_stringCompare" [Temp tstrl, Temp tstrr],
-                      Move (Temp tstrl) (Temp rv)]
-           mkCx op = Cx (\(t, f) -> seq [res, CJump op (Temp tstrl) (Const 0) t f])
+       let res = externalCall "_stringCompare" [esl, esr]
+       let mkCx op = Cx (\(t, f) -> CJump op res (Const 0) t f)
        case op of
          EqOp  -> return $ mkCx EQ
          NeqOp -> return $ mkCx NE
@@ -508,9 +499,7 @@ instance (MemM w) => IrGen w where
     do sz <- unEx size
        ini <- unEx init
        t <- newTemp
-       return $ Ex $ Eseq (seq [ExpS $ externalCall "_allocArray" [sz, ini],
-                                Move (Temp t) (Temp rv)]) 
-                          (Temp t)
+       return $ Ex $ externalCall "_allocArray" [sz, ini]
 
 canonize :: [TransFrag] -> Tank [Either ([Stm], Frame) TransFrag]
 canonize f = 

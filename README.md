@@ -80,6 +80,7 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
       ocuparse de las optimizaciones.
 - [ ] Mejorar TigerMain, TigerInterp (que no vimos nah de nah), y test suites (que más o menos
       estan, pero revisar por las dudas).
+- [ ] Canonización me deja un par de Eseqs dando vuelta ¿Qué hicimos mal?
 
 # Dudas
 
