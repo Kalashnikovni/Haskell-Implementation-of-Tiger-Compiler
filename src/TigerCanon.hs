@@ -22,6 +22,7 @@ import Prelude hiding (lookup)
 x                % (ExpS (Const _)) = x
 x                % y                = Seq x y
 
+-- Esto no esta
 inmut :: Exp -> Bool
 inmut (Name  _    ) = True
 inmut (Const _    ) = True
@@ -53,7 +54,8 @@ reorder (e : rest) = do
     then return (sts % sts', e' : el)
     else do
       t <- newTemp
-      return (sts % Move (Temp t) e % sts', Temp t : el)
+      return (sts % Move (Temp t) e' % sts', Temp t : el)
+      --return (sts % Move (Temp t) e % sts', Temp t : el)
 
 reorderExp :: (TLGenerator w, Monad w) => ([Exp], [Exp] -> Exp) -> w (Stm, Exp)
 reorderExp (el, build) = 

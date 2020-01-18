@@ -80,6 +80,7 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
       ocuparse de las optimizaciones.
 - [ ] Mejorar TigerMain, TigerInterp (que no vimos nah de nah), y test suites (que más o menos
       estan, pero revisar por las dudas).
+- [ ] Selección de instrucciones usa el mismo label varias veces.
 - [ ] Canonización me deja un par de Eseqs dando vuelta ¿Qué hicimos mal?
 
 # Dudas
@@ -145,11 +146,14 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
       Rta: porque estaba mal en el template, ya corregido.
 - [X] ¿Por qué en TigerTrans.seqExp Tincho no nos dio el caso de Cx?
       Rta: contestado arriba.
+- [X] Cuando usamos canonM ¿Los "statemencitos" resultantes deben usar el mismo
+      frame que antes de canonizar?
+      Rta: sí, porque canonizamos un statement, que pasa a ser varios stamencitos
+      especiales, pero representan el mismo proceso, entonces hay que usar el mismo
+      frame.
 - [ ] Las llamadas externas ¿Deberían tomar en la lista las expresiones directamente
       o antes deberíamos guardar las expresiones en temporarios?
 - [ ] ¿Por que en el codigo de la carpeta para simpleVar devuelve el temp1?
-- [ ] Cuando usamos canonM ¿Los "statemencitos" resultantes deben usar el mismo
-      frame que antes de canonizar?
 - [ ] ¿Qué representan los TigerTree.Name? ¿Que diferencia tiene con TigerTree.Label?
       ¿Qué código deberíamos emitir?
 - [ ] ¿Está bien lo que hicimos para TigerAssem.munchExp(Binop And (Const i) e2)?

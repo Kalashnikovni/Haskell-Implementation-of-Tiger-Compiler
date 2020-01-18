@@ -103,8 +103,9 @@ transTy :: (Manticore w) => Ty -> w Tipo
 transTy (NameTy s)      = getTipoT s
 transTy (RecordTy flds) =
   do u   <- ugen
-     res <- foldM (\((TRecord lf u'), p) (s, t) -> do t' <- transTy t
-                                                      return (TRecord ((s, t', p):lf) u', p + 1)) ((TRecord [] u), 0) flds'
+     res <- foldM (\((TRecord lf u'), p) (s, t) -> 
+                    do t' <- transTy t
+                       return (TRecord ((s, t', p):lf) u', p + 1)) ((TRecord [] u), 0) flds'
      return $ fst res
   where flds' = List.sortBy (Ord.comparing fst) flds
 transTy (ArrayTy s)     =
@@ -126,14 +127,14 @@ transDecs ((VarDec nm escap t init p) : xs) w =
      case t of
        Just sv -> do tv <- getTipoT sv
                      C.unless (equivTipo tv ti) $ errorTiposMsg p "El tipo del valor inicial es incorrecto" tv ti
-                     acc   <- allocLocal Escapa
+                     acc   <- allocLocal escap
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
                      lvl   <- getActualLevel
                      (lbexp, bb, bt) <- insertValV nm (tv, acc, lvl) $ transDecs xs w
                      return $ (res : lbexp, bb, bt)
        Nothing -> do C.when (ti == TNil) $ errorTiposMsg p "Debe usar la forma extendida" ti TNil
-                     acc   <- allocLocal Escapa
+                     acc   <- allocLocal escap
                      bvar  <- varDec acc
                      res   <- assignExp bvar bini
                      lvl   <- getActualLevel
@@ -144,14 +145,14 @@ transDecs ((FunctionDec fs) : xs)          w =
                do actLvl <- topLevel
                   l <- newLabel
                   let flabel = pack $ unpack l ++ "-" ++ unpack nm 
-                  let lvlFun = newLevel actLvl flabel (P.map (\x -> Escapa) params) -- TODOS ESCAPAN
+                  let lvlFun = newLevel actLvl flabel (P.map (\(_, x, _) -> x) params) 
                   tfun <- maybe (return TUnit) (\t -> getTipoT t) tf
                   targs <- mapM (\(_, _, c) -> transTy c) params
                   return (lvlFun, flabel, targs, tfun, TigerSres.Propia)) fs
      mapM_ (\((nm, params, tf, bd, p), (lvlFun, _, _, _, _))->
             envFunctionDec lvlFun $ 
               insertFFold fs res1 (do lvlArgs <- getActualLevel
-                                      allocArg Escapa
+                                      allocArg Escapa -- TODO: ver si escapa
                                       insertFFFold params lvlArgs $ 
                                         do lvlArgs' <- topLevel
                                            (bf, t) <- transExp bd
@@ -198,9 +199,9 @@ insertFFold ((nm, params, res, bd, p) : fs) (a : aux) w =
 
 insertFFFold :: (MemM w, Manticore w) => [(Symbol, Escapa, Ty)] -> Int -> w a -> w a
 insertFFFold [] l w                    = w
-insertFFFold ((nm, _, t) : params) l w =
+insertFFFold ((nm, e, t) : params) l w =
   do tt <- transTy t
-     acc <- allocArg Escapa
+     acc <- allocArg e
      insertValV nm (tt, acc, l) $ insertFFFold params l w
 
 insertRecordsAsRef  :: Manticore w => [(Symbol, Ty)] -> w a -> w a

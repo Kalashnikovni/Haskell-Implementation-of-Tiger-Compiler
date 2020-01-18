@@ -4,6 +4,7 @@ import           TigerParser (parse)
 import           TigerQQ
 import           TigerSymbol
 
+import System.Directory
 import           Tools
 
 -- Ejemplo de cómo testear...
@@ -26,7 +27,8 @@ import           Tools
 main :: IO ()
 main =
   putStrLn "\n======= Test ESCAPES in progress =======" >>
-  either (const rednice)  (const bluefail) (calcularEEsc ejemplo1) >>
+  testerPrintDir "./test/test_code/good" >>
+  {-either (const rednice)  (const bluefail) (calcularEEsc ejemplo1) >>
   either (const redfail) (const bluenice) (calcularEEsc ejemplo2) >>
   putStrLn "\n======= Test Ejemplo1 =======" >>
   print (calcularEEsc ejemplo1) >>
@@ -39,12 +41,23 @@ main =
   testDir good_loc (testSTDGood tester) >>
   putStrLn "\n==== Type Loc ====" >>
   testDir type_loc (testGood type_loc tester) >>
+-}
   putStrLn "\n======= Test ESCAPES FIN ======="
 
 tester :: String -> Either Symbol Exp
 tester = either (fail $ "Testing Escapes: Parser error")
                 calcularEEsc
          . parse
+
+testerPrint loc f =
+  do str <- readFile $ loc ++ '/' : f
+     either (putStrLn . show) 
+            (\exp -> putStrLn $ show $ either (fail "Revisar calculo de escapes")
+                                              id (calcularEEsc exp)) (parse str)
+
+testerPrintDir loc = 
+  do fs <- listDirectory loc
+     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> testerPrint loc f >> putStrLn "***************") fs
 
 ejemplo1 :: Exp -- La variable a escapa.
 ejemplo1 = [expr|
