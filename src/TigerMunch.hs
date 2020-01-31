@@ -59,18 +59,18 @@ canonTest stm = canonM stm
 munchArgs :: (Assembler w) => Int -> [Exp] -> w [ATemp]
 munchArgs _ []       = return []
 munchArgs i (a:args) 
-  | i == argsRegsCount =
-    do a' <- munchExp a
-       emit Oper{assem = "sub `d0, `s0, 4\n sw `s1, 0(`s0)\n",
-                 dst = [sp], src = [sp, a'], jump = Nothing}
-       munchArgs (i + 1) args
-  | otherwise = 
+  | i < argsRegsCount = 
     do a' <- munchExp a
        let reg = argregs !! i
        emit Oper{assem = "move `d0, `s0\n",
                  dst = [reg], src = [a'], jump = Nothing}
        args' <- munchArgs (i + 1) args
        return $ a':args'
+  | otherwise =
+    do a' <- munchExp a
+       emit Oper{assem = "sub `d0, `s0, 4\nsw `s1, 0(`s0)\n",
+                 dst = [sp], src = [sp, a'], jump = Nothing}
+       munchArgs (i + 1) args
 
 result :: (Assembler w) => (ATemp -> w ()) -> w ATemp
 result gen = 
@@ -264,59 +264,59 @@ munchStm (Jump _ _) = internalAux "Revisar etapas, hasta selección de instrucci
 munchStm (CJump Tree.EQ e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "beq `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "beq `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump Tree.NE e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "beq `s0, `s1, " ++ unpack lf ++ "\n",
+     emit Oper{assem = "beq `s0, `s1, `j1\nj `j0\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump Tree.LT e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "blt `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "blt `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump Tree.GT e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "bgt `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "bgt `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump LE e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "ble `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "ble `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump GE e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "bge `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "bge `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump ULT e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "bltu `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "bltu `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump UGT e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "bgtu `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "bgtu `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump ULE e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "bleu `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "bleu `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump UGE e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "bgeu `s0, `s1, " ++ unpack lt ++ "\n",
+     emit Oper{assem = "bgeu `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (Label l) =
   emit ILabel{assem = unpack l ++ ":\n", lab = l}
 munchStm (ExpS (Call e@(Name l) args)) =
   do args' <- munchArgs 0 args
      emit Oper{assem = "jal " ++ unpack l ++ "\n",
-               dst = calldefs, src = args', jump = Nothing}
+               dst = calldefs, src = args', jump = Just [l]}
      return ()
 munchStm (ExpS e) =
   do munchExp e

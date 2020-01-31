@@ -17,16 +17,20 @@ library
   exposed-modules:
       -- Primer entrega
           MonadsInstances
+        , State
         , TigerAssem
         , TigerAbs
-        , State
+        , TigerCanon
         , TigerErrores
         , TigerEscap
+        , TigerFrame
         , TigerLexer
+        , TigerLiveness
         , TigerMakeGraph
         , TigerMunch
         , TigerParser
         , TigerPretty
+        , TigerPrettyIr
         , TigerSeman
         , TigerSres
         , TigerSymbol
@@ -36,9 +40,6 @@ library
         , TigerTemp
         , TigerTree
         , TigerTrans
-        , TigerFrame
-        , TigerPrettyIr
-        , TigerCanon
         -- Experimental
         -- , TigerInterpPP
         -- , TigerInteractive
@@ -129,6 +130,19 @@ test-suite InstrSelect
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             InstrSelect.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+test-suite Liveness
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Liveness.hs
   build-depends:       base
                      , parsec
                      , directory

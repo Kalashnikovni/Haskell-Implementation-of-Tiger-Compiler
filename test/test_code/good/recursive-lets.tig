@@ -1,0 +1,15 @@
+let
+  function f (a:int):int =
+    let 
+      function g (b:int):int =
+        let function h (c:int):int =
+          a + b + c
+        in
+          h(3)
+        end
+    in
+      g(10)
+  end
+in
+  f(5)
+end
