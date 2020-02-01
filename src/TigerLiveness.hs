@@ -22,12 +22,12 @@ import Prelude as P
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 type TableNode = Map ATemp Vertex
-type TableITemp = Map Vertex Temp
+type TableITemp = Map Vertex ATemp
 
 data IGraph = IG {graph :: Graph,
                   tnode :: TableNode,
                   gtemp :: TableITemp,
-                  moves :: [(Vertex, Vertex)]}
+                  moves :: [(Vertex, Vertex)]} -- El primer elemento de la tupla es el destino, y el segundo el fuente
   deriving Show
 
 type LiveSet = (Map Temp (), [Temp])
@@ -44,10 +44,13 @@ interferenceGraph fg =
         verts = [0..naux]
         gtemps = Map.fromList $ zip verts nodes 
         tnodes = Map.fromList $ zip nodes verts
+        movesFG = Map.elems $ restrictKeys (info fg) $ Set.fromList $ keys $ Map.filter (== True) $ ismove fg
+        movesSrc = P.map (\t -> lookInGraph 5 id $ Map.lookup t tnodes) $ concat $ P.map src movesFG
+        movesDst = P.map (\t -> lookInGraph 6 id $ Map.lookup t tnodes) $ concat $ P.map dst movesFG
         initIGraph = IG{graph = buildG (0, naux) [],
                         tnode = tnodes,
                         gtemp = gtemps,
-                        moves = []}
+                        moves = zip movesDst movesSrc}
 
 lookInGraph :: Int -> (a -> b) -> Maybe a -> b  
 lookInGraph i f v = maybe (error $ "Revisar hasta Liveness -- TigerLiveness " ++ show i) f v

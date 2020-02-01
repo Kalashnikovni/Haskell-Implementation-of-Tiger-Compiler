@@ -40,7 +40,9 @@ testerLiveness loc f =
                                res) 
             (parse str)
   where pError = putStrLn . show
-        pGraph instrs = putStrLn $ show $ fst $ i2gWithJumps instrs $ instrs2graph instrs
+        pGraph instrs = let (fg, vs) = i2gWithJumps instrs $ instrs2graph instrs
+                        in do putStrLn $ show fg
+                              putStrLn $ show $ interferenceGraph fg
         escapTest e = either (fail "Revisar calculo de escapes")
                              id (calcularEEsc e)
 

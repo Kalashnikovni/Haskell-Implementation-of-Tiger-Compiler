@@ -87,8 +87,10 @@ instrs2graph (lb@(ILabel a l) : instrs) =
   (fres{control = if L.null vres then newNode $ control fres
                     else mkEdge (newNode $ control fres) (node, vres !! 0),
         info = Map.insert node lb $ info fres, 
+        def = Map.insert node [] $ def fres,
         labmap = if L.null vres then labmap fres
                    else Map.insert l node $ labmap fres,
+        use = Map.insert node [] $ use fres,
         ismove = Map.insert node False $ ismove fres}, node : vres)
   where (fres, vres) = instrs2graph instrs
         node = L.length vres
@@ -112,14 +114,17 @@ addJEdges (Just j) v tl g =
 
 setEquationAlgorithm :: FlowGraph -> [Vertex] -> LiveMonada ()
 setEquationAlgorithm fg vs =
-  mapM_ (seaAux fg) vs
+  do mapM_ (seaAux fg) vs
+     st <- get
+     let same = Map.foldl (\neu elem -> neu && elem) True $ isSame st
+     case same of
+       True  -> return ()
+       False -> setEquationAlgorithm fg vs
 
 seaAux :: FlowGraph -> Vertex -> LiveMonada ()
 seaAux fg v = 
   do st <- get
      let io = inout st
-     --let oldin = maybe (errSeaAux v io) fst $ Map.lookup v io
-     --let oldout = maybe (errSeaAux v io) snd $ Map.lookup v io
      let oldin = maybe Set.empty fst $ Map.lookup v io
      let oldout = maybe Set.empty snd $ Map.lookup v io
      let usev = maybe Set.empty Set.fromList $ Map.lookup v $ use fg 
@@ -127,11 +132,15 @@ seaAux fg v =
      let newin = Set.union usev (oldout Set.\\ defv)
      let newout = Map.foldl Set.union Set.empty (Map.map fst $ restrictKeys io (Set.fromList $ gsucc (control fg) v)) 
      case (newin == oldin, newout == oldout) of
-       (True, True) -> return ()
-       _            -> put st{inout = Map.insert v (newin, newout) io}
+       (True, True) -> do put st{inout = Map.insert v (newin, newout) io,
+                                 isSame = Map.insert v True $ isSame st}
+                          return ()
+       _            -> put st{inout = Map.insert v (newin, newout) io,
+                              isSame = Map.insert v False $ isSame st}
   where errSeaAux ver tab = error $ "El vertice " ++ show ver ++ " tendria que estar en el mapeo " ++ 
                                     show tab ++ "-- TigerLiveness" 
 
-data LiveEstado = LEst {inout :: Map Vertex (Set ATemp, Set ATemp)} deriving Show
-initLEstado = LEst {inout = Map.empty}
+data LiveEstado = LEst {inout :: Map Vertex (Set ATemp, Set ATemp), 
+                        isSame :: Map Vertex Bool} deriving Show
+initLEstado = LEst {inout = Map.empty, isSame = Map.empty}
 type LiveMonada = State LiveEstado
