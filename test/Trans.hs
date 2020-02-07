@@ -27,7 +27,10 @@ tester = either (fail $ "Revisar etapas previas al análisis semántico, y códi
 
 testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
-     either (putStrLn . show) (\exp -> putStrLn $ show $ fst $ runSt (runTransProg exp) 0) (parse str)
+     either (putStrLn . show) 
+            (\exp -> putStrLn $ show $ fst $ runSt 
+                       (runTransProg (either (fail "Revisar calculo de escapes") 
+                                             id (calcularEEsc exp))) 0) (parse str)
 
 testerPrintDir loc = 
   do fs <- listDirectory loc

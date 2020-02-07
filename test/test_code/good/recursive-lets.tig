@@ -1,9 +1,11 @@
 let
+  var z:int := 3
   function f (a:int):int =
     let 
+      var x:int := a
       function g (b:int):int =
         let function h (c:int):int =
-          a + b + c
+          a + b + c + x
         in
           h(3)
         end
@@ -11,5 +13,5 @@ let
       g(10)
   end
 in
-  f(5)
+  f(5) + z
 end

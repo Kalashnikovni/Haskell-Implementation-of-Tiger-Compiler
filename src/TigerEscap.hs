@@ -32,7 +32,7 @@ class (Demon m, Monad m) => Escapator m where
     -- donde se aumento un nivel la profundidad.
 
     -- *****DEBUGGING!! ********
-    printEnv :: m () --
+    printEnv :: String -> m () --
     -- errores
     raise :: Symbol -> m a
     raise = derror
@@ -68,7 +68,7 @@ travVar (SubscriptVar v e) = do
 
 travExp :: (Escapator m) => Exp -> m Exp
 travExp (VarExp v p) = do
-    v' <- adder (travVar v) (pack $ printPos p )
+    v' <- adder (travVar v) (pack $ printPos p)
     return (VarExp v' p)
 travExp (CallExp s args p) = do
     args' <- mapM travExp args
@@ -113,8 +113,9 @@ travExp (LetExp ds e p) = do
                                                 (VarDec name _ typ exp p) -> do
                                                   chk <- lookup name
                                                   maybe (internal $ pack $ "Error en TigerEscap.115 -- Linea:" ++ show p)
-                                                        (\(_,esc) -> return (VarDec name esc typ exp p)
-                                                           ) chk
+                                                        (\(_,esc) -> return (VarDec name esc typ exp p)) chk
+                                                (FunctionDec ls) -> do ls' <- up (mapM travF ls)
+                                                                       return $ FunctionDec ls'
                                                 l -> return l) ds
                                 return (ds', e')
                             )
@@ -203,10 +204,10 @@ instance Escapator Mini where
     m' <- m
     new <- get
     if (M.member name (env old))
-      then put (new{env = M.insert name ((env old) M.! name) (env new)})
+      then put (new{env = M.insert name ((env new) M.! name) (env old)})
       else put (new{env = M.delete name (env new)})
     return m'
-  printEnv = get >>=  \env -> traceM $ "PrintEnv " ++ (show env)
+  printEnv s = get >>=  \env -> traceM $ "PrintEnv " ++ s ++ (show env)
 
 initSt :: Estado
 initSt = S 1 M.empty

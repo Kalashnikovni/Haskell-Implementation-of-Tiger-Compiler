@@ -1,5 +1,5 @@
 let
-	function g (a : int, b:int, c:int, d:int, e:int) : int = a 
+	function g (a : int, b:int, c:int, d:int, e:int) : int = a + b + c + d + e 
 in
  g (2,1,1,1, 1)
 end

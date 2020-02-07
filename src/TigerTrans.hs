@@ -244,14 +244,14 @@ instance (MemM w) => IrGen w where
     | lvl >= 0  =
       case exp v lvl of
         Just e  -> return $ Ex e
-        _ -> internal $ pack "Revisar compilador.simpleVar"
+        _ -> internal $ pack $ "Revisar compilador.simpleVar " ++ show v
     | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
                                     "se usa en un nivel inferior a su declaracion."   
   simpleVar v@(InReg k) lvl  
     | lvl >= 0  =
       case exp v lvl of
         Just e  -> return $ Ex e
-        _ -> internal $ pack "Revisar compilador.simpleVar"
+        _ -> internal $ pack $ "Revisar compilador.simpleVar " ++ show v ++ " " ++ show lvl
     | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
                                     "se usa en un nivel inferior a su declaracion."   
   fieldVar be i =

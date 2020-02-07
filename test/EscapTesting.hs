@@ -27,7 +27,8 @@ import           Tools
 main :: IO ()
 main =
   putStrLn "\n======= Test ESCAPES in progress =======" >>
-  testerPrintDir "./test/test_code/good" >>
+  testerPrint "./test/test_code/good" "recursive-lets.tig" >>
+  --testerPrintDir "./test/test_code/good" >>
   {-either (const rednice)  (const bluefail) (calcularEEsc ejemplo1) >>
   either (const redfail) (const bluenice) (calcularEEsc ejemplo2) >>
   putStrLn "\n======= Test Ejemplo1 =======" >>
