@@ -51,6 +51,9 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
 - El nivel inicial es 0. La funcion "mas anidada" tiene el mayor numero.
   Cuando subimos de nivel aumenta el contador, y disminuye cuando bajamos de nivel.
 - Para la lista de fragmentos, agregamos los nuevos fragmentos al principio.
+- Para la etapa de Liveness, y lo que sigue, los nodos de los grafos van a tener
+  solo un entero como dato, y aparte tenemos el mapeo que nos dice con qué dato
+  se corresponde cada entero.
 
 # TODO
 

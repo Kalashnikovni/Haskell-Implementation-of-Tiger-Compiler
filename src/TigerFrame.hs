@@ -15,7 +15,7 @@ import Prelude as P hiding (exp)
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- | Registros especiales
-fp, sp, lo, hi, zero, ra, v0, v1, gp :: Temp 
+fp, sp, lo, hi, zero, ra, rv0, rv1, gp :: Temp 
 gp = pack "gp"
 fp = pack "fp"
 sp = pack "sp"
@@ -23,8 +23,8 @@ hi = pack "high"
 lo = pack "low"
 zero = pack "zero"
 ra = pack "ra"
-v0 = pack "v0"
-v1 = pack "v1"
+rv0 = pack "v0"
+rv1 = pack "v1"
 
 a0, a1, a2, a3 :: Temp
 a0 = pack "a0"
@@ -59,8 +59,8 @@ calldefs, specialregs, argregs, callersaved :: [Temp]
 argregs = [a0, a1, a2, a3]
 calleesaved = [s0, s1, s2, s3, s4, s5, s6, s7]
 callersaved = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
-calldefs = [v0, ra] ++ callersaved
-specialregs = [fp, sp, hi, lo, zero, ra, v0, v1, gp]
+calldefs = [rv0, ra] ++ callersaved
+specialregs = [fp, sp, hi, lo, zero, ra, rv0, rv1, gp]
 allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int

@@ -295,7 +295,7 @@ instance (MemM w) => IrGen w where
   functionDec bd lvl proc = 
     do body <- (case proc of
                   IsProc -> unNx bd
-                  IsFun  -> Move (Temp v0) <$> unEx bd)
+                  IsFun  -> Move (Temp rv0) <$> unEx bd)
        let fr = getFrame lvl
        procEntryExit lvl (Nx $ Seq (Label $ name fr) $ procEntryExit1 fr body)
        return $ Ex $ Const 0
@@ -317,7 +317,7 @@ instance (MemM w) => IrGen w where
          IsProc -> return $ Nx $ ExpS $ Call (Name nm) fargs
          IsFun  -> do tres <- newTemp
                       return $ Ex $ Eseq (seq [ExpS $ Call (Name nm) fargs,
-                                               Move (Temp tres) (Temp v0)]) 
+                                               Move (Temp tres) (Temp rv0)]) 
                                          (Temp tres)
     where defLvl = getNlvl lvl 
           isRT (Runtime) = True

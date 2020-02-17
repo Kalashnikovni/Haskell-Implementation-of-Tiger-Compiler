@@ -231,7 +231,7 @@ munchStm (Tree.Move (Temp t) (Call e@(Name l) args)) =
   do args' <- munchArgs 0 args
      emit Oper{assem = "jal " ++ unpack l ++ "\n",
                dst = calldefs, src = args', jump = Just [l]}
-     moving t v0 
+     moving t rv0 
 munchStm (Tree.Move (Temp t) (Const i)) =
   emit Oper{assem = "addi `d0, `s0, " ++ show i ++ "\n",
             dst = [t], src = [zero], jump = Nothing}
