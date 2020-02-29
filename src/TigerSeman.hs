@@ -12,6 +12,7 @@ import TigerTopSort
 import TigerUnique
 import TigerTemp
 import TigerTrans
+import qualified TigerTree as T
 
 -- Monads
 import qualified Control.Conditional as C
@@ -75,7 +76,7 @@ transVar :: (MemM w, Manticore w) => Var -> w (BExp, Tipo)
 transVar (SimpleVar s)      = 
   do (t, acc, vLvl) <- getTipoValV s
      actLvl         <- getActualLevel
-     bexp           <- simpleVar acc (actLvl - vLvl) 
+     bexp           <- simpleVar acc actLvl vLvl 
      return (bexp, t)
 transVar (FieldVar v s)     =
   do (bexp, t) <- transVar v
@@ -145,27 +146,29 @@ transDecs ((FunctionDec fs) : xs)          w =
                do actLvl <- topLevel
                   l <- newLabel
                   let flabel = pack $ unpack l ++ "-" ++ unpack nm 
-                  let lvlFun = newLevel actLvl flabel (P.map (\(_, x, _) -> x) params) 
+                  let varEscaps = P.map (\(_, x, _) -> x) params
+                  let lvlFun = newLevel actLvl nm varEscaps
                   tfun <- maybe (return TUnit) (\t -> getTipoT t) tf
                   targs <- mapM (\(_, _, c) -> transTy c) params
                   return (lvlFun, flabel, targs, tfun, TigerSres.Propia)) fs
-     mapM_ (\((nm, params, tf, bd, p), (lvlFun, _, _, _, _))->
+     res2 <- mapM_ (\((nm, params, tf, bd, p), (lvlFun, _, _, _, _))->
             envFunctionDec lvlFun $ 
-              insertFFold fs res1 (do lvlArgs <- getActualLevel
-                                      allocArg Escapa -- TODO: ver si escapa
-                                      insertFFFold params lvlArgs $ 
-                                        do lvlArgs' <- topLevel
-                                           (bf, t) <- transExp bd
-                                           case tf of
-                                             Just td -> 
-                                               do tdd <- getTipoT td
-                                                  C.unless (equivTipo t tdd) $
-                                                    errorTiposMsg p auxstring t tdd
-                                                  functionDec bf lvlArgs' IsFun
-                                             Nothing -> 
-                                               do C.unless (equivTipo t TUnit) $
-                                                    errorTiposMsg p "La funcion devuelve un valor" t TUnit
-                                                  functionDec bf lvlArgs' IsProc)) (zip fs res1)
+              insertFFold fs res1
+                (do lvlArgs <- topLevel
+                    allocArg Escapa -- TODO: ver si escapa
+                    insertFFFold params lvlArgs $ 
+                      do (bf, t) <- transExp bd
+                         lvlArgs' <- topLevel
+                         case tf of
+                           Just td -> 
+                             do tdd <- getTipoT td
+                                C.unless (equivTipo t tdd) $
+                                  errorTiposMsg p auxstring t tdd
+                                functionDec bf lvlArgs' IsFun
+                           Nothing -> 
+                             do C.unless (equivTipo t TUnit) $
+                                  errorTiposMsg p "La funcion devuelve un valor" t TUnit
+                                functionDec bf lvlArgs' IsProc)) (zip fs res1)
      insertFFold fs res1 $ transDecs xs w
   where auxstring = "El valor retornado no es del tipo declarado"
 transDecs ((TypeDec xs) : xss)             w =
@@ -188,21 +191,21 @@ transDecs ((TypeDec xs) : xss)             w =
 
 insertFFold :: (MemM w, Manticore w) => 
                [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> 
-               [FunEntry] ->
+               [FunEntry] -> 
                w a -> w a
 insertFFold [] _ w                                      = w
 insertFFold ((nm, params, res, bd, p) : fs) (a : aux) w =
   do case elem nm $ P.map fst5 fs of
        False -> insertFunV nm a $ insertFFold fs aux w
        True -> addpos (derrorAux "Hay dos funciones con el mismo nombre en un batch") p 
-  where fst5 (a, _, _, _, _) = a
+  where fst5 (aa, _, _, _, _) = aa
 
-insertFFFold :: (MemM w, Manticore w) => [(Symbol, Escapa, Ty)] -> Int -> w a -> w a
+insertFFFold :: (MemM w, Manticore w) => [(Symbol, Escapa, Ty)] -> Level -> w a -> w a
 insertFFFold [] l w                    = w
 insertFFFold ((nm, e, t) : params) l w =
   do tt <- transTy t
      acc <- allocArg e
-     insertValV nm (tt, acc, l) $ insertFFFold params l w
+     insertValV nm (tt, acc, getNlvl l) $ insertFFFold params l w
 
 insertRecordsAsRef  :: Manticore w => [(Symbol, Ty)] -> w a -> w a
 insertRecordsAsRef [] m                 = m
@@ -395,7 +398,7 @@ transExp(ForExp nv mb lo hi bo p) =
      C.unless (equivTipo thi (TInt RW)) $ errorTiposMsg p "La cota superior del for no es un entero modificable" thi (TInt RW)
      preWhileforExp
      vacc <- allocLocal Escapa
-     bnv <- simpleVar vacc 0
+     bnv <- simpleVar vacc 0 0
      nvlvl <- getActualLevel
      (bbody, tbo) <- insertVRO nv (TInt RO, vacc, nvlvl) $ transExp bo
      C.unless (equivTipo tbo TUnit) $ errorTiposMsg p "El cuerpo del for está devolviendo un valor" tbo TUnit
@@ -455,7 +458,6 @@ transProg e =
                                                 Just $ pack "int", 
                                                 e, 
                                                 startPos)]] (IntExp 0 startPos) startPos)
-     l <- topLevel
      f <- getFrags
      return $ reverse f
   where startPos = Simple{line = 0, col = 0}

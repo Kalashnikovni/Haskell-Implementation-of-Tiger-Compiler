@@ -30,7 +30,7 @@ tester s = runParser expression () s s
 -- ...
 testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
-     either (putStrLn . show) (\exp -> putStrLn $ renderExp exp) $ runParser expression () str str
+     either (putStrLn . show) (\exp -> putStrLn $ show exp) $ runParser expression () str str
 
 -- Ahora para testear printeando un directorio entero
 testerPrintDir loc = 

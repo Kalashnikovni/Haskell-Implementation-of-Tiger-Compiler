@@ -7,7 +7,7 @@ import Prelude hiding (EQ,
                        error,
                        exp,
                        seq)
-import qualified Prelude as P (error, length)
+import qualified Prelude as P (error, length, filter)
 
 import TigerAbs (Escapa(..), Oper(..))
 import qualified TigerAbs as Abs
@@ -20,8 +20,10 @@ import TigerTemp
 import TigerTree
 
 import Control.Monad
+
 import qualified Data.Foldable as Fold
 import Data.List as List
+--import Data.Map as M
 import Data.Ord hiding (EQ,
                         GT,
                         LT)
@@ -122,6 +124,13 @@ setFrame :: Frame -> Level -> Level
 setFrame f (MkLI _ l : xs) = MkLI f l : xs
 setFrame _ _               = P.error "setFrame"
 
+updateFunLevel :: Level -> Level
+updateFunLevel l = 
+  let frameFun = getFrame l
+      formalsFun = formals frameFun
+  in setFrame frameFun{actualArg = Prelude.length formalsFun,
+                       actualReg = Prelude.length (Prelude.filter (== NoEscapa) formalsFun)} l
+
 newLevel :: Level -> Symbol -> [Escapa] -> Level
 newLevel []                  s bs = [MkLI (newFrame s bs) 0]
 newLevel ls@(MkLI _ lvl : _) s bs = MkLI (newFrame s bs) (lvl + 1) : ls
@@ -202,7 +211,7 @@ class IrGen w where
     -- básicamente es la que va a agregar el Fragmento que es generado por la
     -- función y ponerlo como el efecto secundario mencionado más arriba
     procEntryExit :: Level -> BExp -> w ()
-    simpleVar :: Access -> Int -> w BExp
+    simpleVar :: Access -> Int -> Int -> w BExp
     fieldVar :: BExp -> Int -> w BExp
     subscriptVar :: BExp -> BExp -> w BExp
     unitExp :: w BExp
@@ -240,18 +249,18 @@ instance (MemM w) => IrGen w where
        let res = Proc bd' (getFrame lvl)
        pushFrag res
   -- lvl es nivel donde se usa la variable menos nivel donde se declaro
-  simpleVar v@(InFrame k) lvl  
-    | lvl >= 0  =
-      case exp v lvl of
+  simpleVar v@(InFrame k) actlvl vlvl  
+    | actlvl - vlvl >= 0  =
+      case exp v (actlvl - vlvl) of
         Just e  -> return $ Ex e
         _ -> internal $ pack $ "Revisar compilador.simpleVar " ++ show v
     | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
                                     "se usa en un nivel inferior a su declaracion."   
-  simpleVar v@(InReg k) lvl  
-    | lvl >= 0  =
-      case exp v lvl of
+  simpleVar v@(InReg k) actlvl vlvl  
+    | actlvl - vlvl >= 0  =
+      case exp v (actlvl - vlvl) of
         Just e  -> return $ Ex e
-        _ -> internal $ pack $ "Revisar compilador.simpleVar " ++ show v ++ " " ++ show lvl
+        _ -> internal $ pack $ "Revisar compilador.simpleVar " ++ show v ++ " " ++ show actlvl ++ " " ++ show vlvl
     | otherwise = internal $ pack $ "Revisar compilador.simpleVar, o revisar codigo del programa. La variable" ++
                                     "se usa en un nivel inferior a su declaracion."   
   fieldVar be i =
@@ -287,6 +296,8 @@ instance (MemM w) => IrGen w where
        fun <- funDec
        -- posFunctionDec
        -- | Cuando salimos de la función sacamos el 'Nothing' que agregamos en 'preFunctionDec'.
+       popLevel
+       t <- topLevel
        popSalida
        downLvl
        -- devolvemos el código en el entorno donde fue computada.
@@ -299,7 +310,7 @@ instance (MemM w) => IrGen w where
        let fr = getFrame lvl
        procEntryExit lvl (Nx $ Seq (Label $ name fr) $ procEntryExit1 fr body)
        return $ Ex $ Const 0
-  varDec acc = simpleVar acc 0
+  varDec acc = simpleVar acc 0 0
   unitExp = return $ Ex (Const 0)
   nilExp = return $ Ex (Const 0)
   intExp i = return $ Ex (Const i)
@@ -311,15 +322,15 @@ instance (MemM w) => IrGen w where
   callExp nm external isproc lvl args = 
     do lvlact <- getActualLevel
        args'  <- mapM unEx args
-       let acc = auxexp (lvlact - defLvl)
-       let fargs = if isRT external then args' else acc : args'
+       let staticLink = if (lvlact > defLvl) then Temp fp else auxexp 1
+       let fargs = if isRT external then args' else staticLink : args'
        case isproc of
          IsProc -> return $ Nx $ ExpS $ Call (Name nm) fargs
          IsFun  -> do tres <- newTemp
                       return $ Ex $ Eseq (seq [ExpS $ Call (Name nm) fargs,
                                                Move (Temp tres) (Temp rv0)]) 
                                          (Temp tres)
-    where defLvl = getNlvl lvl 
+    where defLvl = getNlvl lvl
           isRT (Runtime) = True
           isRT _         = False
   -- letExp :: [BExp] -> BExp -> w BExp

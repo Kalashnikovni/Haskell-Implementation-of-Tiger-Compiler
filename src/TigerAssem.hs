@@ -15,4 +15,4 @@ data Instr = Oper {assem :: String,
              | Move {assem :: String,
                      dst :: [ATemp],
                      src :: [ATemp]}
-          deriving Show
+          deriving (Show, Eq, Ord)

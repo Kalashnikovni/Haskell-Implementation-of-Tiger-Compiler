@@ -11,9 +11,10 @@ main :: IO ()
 main = 
   putStrLn "\n======= Test suite Translate [for TigerTrans testing] in progress =======" >>
   putStrLn "Show results good:" >>
-  testerPrintDir "./test/test_code/good" >>
+  --testerPrintDir "./test/test_code/good" >>
+  testerPrint "./test/test_code/good" "recursive-lets.tig" >>
   putStrLn "Good:" >>
-  testDir good_loc (testGood good_loc tester) >>
+  --testDir good_loc (testGood good_loc tester) >>
   {-putStrLn "Type:" >>
   testDir type_loc (testGood type_loc tester) >>
   putStrLn "Bad:" >>

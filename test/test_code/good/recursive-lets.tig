@@ -1,17 +1,22 @@
-let
-  var z:int := 3
-  function f (a:int):int =
-    let 
-      var x:int := a
-      function g (b:int):int =
-        let function h (c:int):int =
-          a + b + c + x
-        in
-          h(3)
-        end
-    in
-      g(10)
-  end
-in
-  f(5) + z
-end
+   let
+     var z:int := 3
+     var denu1:int := 10
+     var denu2:int := 11
+     function f (a:int):int =
+       let 
+         var x:int := a
+         function g (b:int):int =
+           let function h (c:int):int =
+             a + b + c + x  
+             var denu3:int := 15
+           in
+            h(3)
+           end
+       in
+         g(10)
+       end
+   in
+     f(z) + z
+   end
+
+

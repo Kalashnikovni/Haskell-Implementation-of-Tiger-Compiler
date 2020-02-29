@@ -47,7 +47,8 @@ library
         -- , TigerInterpTypes
         -- , TigerInterpFrame
         , TigerQQ
-  build-depends:       base
+  build-depends:       algebraic-graphs
+                       , base
                        , containers
                        , text
                        , matrix

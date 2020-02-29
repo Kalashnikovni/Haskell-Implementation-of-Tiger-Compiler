@@ -20,7 +20,7 @@ import System.Directory
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite Liveness [] in progress =======" >>
-  testerPrintDir "./test/test_code/good" testerLiveness >>
+  --testerPrintDir "./test/test_code/good" testerLiveness >>
   putStrLn "\n======= Test suite FIN ======="  
 
 applyCodeGen :: (Assembler w) => (Stm, Frame) -> w ([Instr], Frame)
@@ -28,7 +28,7 @@ applyCodeGen (s, f) = do res <- codeGen s
                          return (res, f)
 
 runInstrSelect = runMonada3 . applyCodeGen
-
+{-
 testerLiveness loc f =
   do str <- readFile $ loc ++ '/' : f
      either (putStrLn . show)
@@ -49,3 +49,4 @@ testerLiveness loc f =
 testerPrintDir loc tp = 
   do fs <- listDirectory loc
      mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> tp loc f >> putStrLn "***************") fs
+-}

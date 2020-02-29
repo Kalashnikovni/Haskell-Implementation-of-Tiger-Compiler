@@ -166,17 +166,16 @@ instance Manticore Monada where
   tiposIguales a b = return (equivTipo a b)
 
 instance MemM Monada where
-  -- upLevel :: w ()
+  -- upLvl :: w ()
   upLvl = 
     do st <- get
        put st{lvlNum = max (Data.List.length $ lvl st) (lvlNum st + 1)}
-       return () 
   -- downLvl :: w ()
   downLvl =
     do st <- get
-       let stlvl = lvl st
-       put st{lvlNum = min 0 $ lvlNum st - 1}
-       return () 
+       let lvlN = lvlNum st - 1
+       put st{lvlNum = max 0 lvlN}
+       return ()
   -- pushSalida :: Maybe Label -> w ()
   pushSalida l = 
     do st <- get

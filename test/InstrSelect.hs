@@ -52,14 +52,25 @@ testerPrintInstr loc f =
                      in either pError 
                                (\tfs -> either pError
                                                (\l -> mapM_ (\(instrs, fr) -> pInstrs instrs fr) l) 
-                                               (mapM (\tf -> fst $ runSt (runInstrSelect tf) st) (snd $ sepFrag tfs)))
-                               res) 
+                                               (runWithResState (snd $ sepFrag tfs) st))
+                               res)  
             (parse str)
   where pError = putStrLn . show
         pInstrs ins fram = let ff = procEntryExit3 fram $ procEntryExit2 fram ins
                            in putStrLn $ prolog ff ++ concat (map (format opmakestring) (body ff)) ++ epilogue ff
         escapTest e = either (fail "Revisar calculo de escapes")
                              id (calcularEEsc e)
+
+runWithResState :: [(Stm, Frame)] -> Integer -> Either Symbol [([Instr], Frame)]
+runWithResState [] st       = Right []
+runWithResState (tf:tfs) st = 
+  let (val, newst) = runSt (runInstrSelect tf) st
+      res = runWithResState tfs newst
+  in either (\err -> Left err)
+            (\v -> either (\err' -> Left err')
+                          (\v' -> Right $ v : v')
+                          res)
+            val
 
 testerPrintDir loc tp = 
   do fs <- listDirectory loc

@@ -1,3 +1,4 @@
+
 module TigerFrame where
 
 import TigerAbs (Escapa(..))
@@ -5,6 +6,8 @@ import TigerAssem(Instr(..))
 import TigerSymbol
 import TigerTemp
 import TigerTree
+
+import Debug.Trace
 
 import Data.Map
 
@@ -191,16 +194,16 @@ allocArg fr Escapa =
   in  return (fr{actualArg = actual + 1}, acc)
 allocArg fr NoEscapa = do
   s <- newTemp
-  return (fr, InReg s)
+  return (fr{actualReg = actualReg fr + 1}, InReg s)
 
 allocLocal :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocLocal fr Escapa =
   let actual = actualLocal fr
       acc    = InFrame $ actual * wSz + localsGap
-  in  return (fr { actualLocal = actual + 1 }, acc)
+  in  return (fr {actualLocal = actual + 1}, acc)
 allocLocal fr NoEscapa = do
   s <- newTemp
-  return (fr, InReg s)
+  return (fr{actualLocal = actualLocal fr + 1}, InReg s)
 
 -- Función auxiliar para el calculo de acceso a una variable, siguiendo el Static Link.
 -- Revisar bien antes de usarla, pero ajustando correctamente la variable |fpPrevLev|
