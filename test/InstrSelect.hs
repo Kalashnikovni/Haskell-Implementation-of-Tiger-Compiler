@@ -1,4 +1,5 @@
 import State
+import TigerAbs as TA
 import TigerAssem
 import TigerCanon
 import TigerEscap
@@ -13,65 +14,62 @@ import TigerTree
 import TigerUnique
 import Tools
 
+import Control.Monad.Trans.State.Lazy
+
 import System.Directory 
 
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite Instruction Selection [] in progress =======" >>
-  testerPrintDir "./test/test_code/good" testerPrintInstr >>
-  putStrLn "Test Canon results" >>
-  testerPrintDir "./test/test_code/good" testerPrintCanon >>
+  testerPrintDir "./test/test_code/good" >>
   putStrLn "\n======= Test suite FIN ======="  
 
-applyCodeGen :: (Assembler w) => (Stm, Frame) -> w ([Instr], Frame)
-applyCodeGen (s, f) = do res <- codeGen s
-                         return (res, f)
+type EstadoTest = StGen
 
-applyCanonTest :: (Assembler w) => [TransFrag] -> w [([Stm], Frame)]
-applyCanonTest tf = 
-  mapM (\(s, f) -> do s' <- canonM s
-                      return (s', f)) (snd $ sepFrag tf)
+runMonadaCanon :: Tank [Stm] -> StGen ([Stm], TAM)
+runMonadaCanon w = runStateT w firstTank
 
-runInstrSelect = runMonada3 . applyCodeGen
-runCanonTest = runMonada4 . applyCanonTest
+parseStage :: String -> EstadoTest TA.Exp
+parseStage str =
+  either (error . show)
+         return
+         (parse str)
 
-testerPrintCanon loc f =
+escapStage :: TA.Exp -> EstadoTest TA.Exp
+escapStage exp =
+  either (error . show)
+         return
+         (calcularEEsc exp)
+
+intermediateStage :: TA.Exp -> EstadoTest [TransFrag]
+intermediateStage exp =
+  do res <- runTransProg exp
+     either (error . show)
+            return
+            res
+
+instrSelectStageStm :: [TransFrag] -> EstadoTest [([Instr], Frame)] 
+instrSelectStageStm tfs =
+  do let (strs, stms) = sepFrag tfs
+     res <- mapM (\(stm, _) -> do resCodeGen <- runMonada3 $ codeGen stm
+                                  return $ either (error . show)
+                                                  id
+                                                  resCodeGen) stms
+     return $ zip res (map snd stms)
+
+testerInstrSelect :: String -> EstadoTest [([Instr], Frame)]
+testerInstrSelect str =
+  do res1 <- parseStage str
+     res2 <- escapStage res1
+     res3 <- intermediateStage res2 
+     instrSelectStageStm res3
+
+testerPrint :: String -> String -> IO ()
+testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
-     either (putStrLn . show)
-            (\exp -> either (putStrLn . show)
-                            (\tfs -> either (putStrLn . show)
-                                            (\l -> mapM_ (\(stms, fr) -> putStrLn $ show stms) l)
-                                            (fst $ runSt (runCanonTest tfs) 0))
-                            (fst $ runSt (runTransProg exp) 0))
-            (parse str)
+     putStrLn $ show $ fst $ runSt (testerInstrSelect str) 0
 
-testerPrintInstr loc f =
-  do str <- readFile $ loc ++ '/' : f
-     either (putStrLn . show)
-            (\exp -> let (res, st) = runSt (runTransProg $ escapTest exp) 0
-                     in either pError 
-                               (\tfs -> either pError
-                                               (\l -> mapM_ (\(instrs, fr) -> pInstrs instrs fr) l) 
-                                               (runWithResState (snd $ sepFrag tfs) st))
-                               res)  
-            (parse str)
-  where pError = putStrLn . show
-        pInstrs ins fram = let ff = procEntryExit3 fram $ procEntryExit2 fram ins
-                           in putStrLn $ prolog ff ++ concat (map (format opmakestring) (body ff)) ++ epilogue ff
-        escapTest e = either (fail "Revisar calculo de escapes")
-                             id (calcularEEsc e)
-
-runWithResState :: [(Stm, Frame)] -> Integer -> Either Symbol [([Instr], Frame)]
-runWithResState [] st       = Right []
-runWithResState (tf:tfs) st = 
-  let (val, newst) = runSt (runInstrSelect tf) st
-      res = runWithResState tfs newst
-  in either (\err -> Left err)
-            (\v -> either (\err' -> Left err')
-                          (\v' -> Right $ v : v')
-                          res)
-            val
-
-testerPrintDir loc tp = 
+testerPrintDir :: String -> IO ()
+testerPrintDir loc = 
   do fs <- listDirectory loc
-     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> tp loc f >> putStrLn "***************") fs
+     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> testerPrint loc f >> putStrLn "***************") fs

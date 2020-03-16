@@ -1,11 +1,14 @@
-import           TigerAbs
-import           TigerEscap
-import           TigerParser (parse)
-import           TigerQQ
-import           TigerSymbol
+import TigerAbs
+import TigerEscap
+import TigerParser (parse)
+import TigerQQ
+import TigerSymbol
+import TigerUnique
+import Tools
+
+import State
 
 import System.Directory
-import           Tools
 
 -- Ejemplo de cómo testear...
 
@@ -28,36 +31,36 @@ main :: IO ()
 main =
   putStrLn "\n======= Test ESCAPES in progress =======" >>
   testerPrintDir "./test/test_code/good" >>
-  {-either (const rednice)  (const bluefail) (calcularEEsc ejemplo1) >>
-  either (const redfail) (const bluenice) (calcularEEsc ejemplo2) >>
-  putStrLn "\n======= Test Ejemplo1 =======" >>
-  print (calcularEEsc ejemplo1) >>
-  putStrLn "\n======= Test Ejemplo3 =======" >>
-  print (calcularEEsc ejemplo3) >>
-  putStrLn "\n==== [escapa.tig, intro.tig] ====" >>
-  test "./test/test_code" (const bluefail) (const rednice) tester "escapa.tig" >>
-  test "./test/test_code" (const redfail) (const bluenice) tester "intro.tig" >>
-  putStrLn "\n==== Good loc ====" >>
-  testDir good_loc (testSTDGood tester) >>
-  putStrLn "\n==== Type Loc ====" >>
-  testDir type_loc (testGood type_loc tester) >>
--}
   putStrLn "\n======= Test ESCAPES FIN ======="
 
-tester :: String -> Either Symbol Exp
-tester = either (fail $ "Testing Escapes: Parser error")
-                calcularEEsc
-         . parse
+type EstadoTest = StGen
 
-testerPrint loc f =
+parseStage :: String -> EstadoTest Exp
+parseStage str =
+  either (error . show)
+         return
+         (parse str)
+
+escapStage :: Exp -> EstadoTest Exp
+escapStage exp = 
+  either (error . show)
+         return
+         (calcularEEsc exp)
+
+testerEscap :: String -> EstadoTest Exp
+testerEscap str = 
+  do res1 <- parseStage str
+     escapStage res1
+
+testerPrint :: String -> String -> (Exp -> String) -> IO ()
+testerPrint loc f printer =
   do str <- readFile $ loc ++ '/' : f
-     either (putStrLn . show) 
-            (\exp -> putStrLn $ show $ either (fail "Revisar calculo de escapes")
-                                              id (calcularEEsc exp)) (parse str)
+     putStrLn $ printer $ fst $ runSt (testerEscap str) 0
 
+testerPrintDir :: String -> IO ()
 testerPrintDir loc = 
   do fs <- listDirectory loc
-     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> testerPrint loc f >> putStrLn "***************") fs
+     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> testerPrint loc f show >> putStrLn "***************") fs
 
 ejemplo1 :: Exp -- La variable a escapa.
 ejemplo1 = [expr|
