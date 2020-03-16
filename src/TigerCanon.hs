@@ -142,11 +142,11 @@ basicBlocks stm =
      return (stm', done)
 
 class Monad w => Trackable w where
-    enterBlock' :: Label -> [Stm] -> w ()
-    enterBlock :: [Stm] -> w ()
-    enterBlock b@(Label s : _) = enterBlock' s b
-    enterBlock _ = return ()
-    getBlock :: Label -> w (Maybe [Stm])
+  enterBlock' :: Label -> [Stm] -> w ()
+  enterBlock :: [Stm] -> w ()
+  enterBlock b@(Label s : _) = enterBlock' s b
+  enterBlock _ = return ()
+  getBlock :: Label -> w (Maybe [Stm])
 
 -- [TAM](https://es.wikipedia.org/wiki/Tanque_Argentino_Mediano)
 type TAM = M.Map Label [Stm]

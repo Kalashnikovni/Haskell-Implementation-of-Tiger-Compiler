@@ -63,7 +63,7 @@ prettyFrag (AString l ts) = ((text "Str") <+> (text $ makeStringL l))
   $+$ cat (map (\t -> text "\t" <> (text $ unpack t)) ts)
 
 prettyPCan :: [Stm] -> Frame -> Doc
-prettyPCan st fr = (prettyFrame fr <> text ":") $+$ cat (map prettyStm st)
+prettyPCan st fr = (prettyFrame fr <> text ":") $+$ cat (map (\s -> prettyStm s <> text "\n") st)
 
 prettyBExp :: BExp -> Doc
 prettyBExp (Ex e) = text "Ex" <+> prettyExp e

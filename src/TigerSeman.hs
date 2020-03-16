@@ -155,7 +155,7 @@ transDecs ((FunctionDec fs) : xs)          w =
             envFunctionDec lvlFun $ 
               insertFFold fs res1
                 (do lvlArgs <- topLevel
-                    allocArg Escapa -- TODO: ver si escapa
+                    allocLocal Escapa 
                     insertFFFold params lvlArgs $ 
                       do (bf, t) <- transExp bd
                          lvlArgs' <- topLevel

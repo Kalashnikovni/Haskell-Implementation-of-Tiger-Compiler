@@ -200,10 +200,10 @@ allocLocal :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocLocal fr Escapa =
   let actual = actualLocal fr
       acc    = InFrame $ actual * wSz + localsGap
-  in  return (fr {actualLocal = actual + 1}, acc)
+  in  return (fr {actualLocal = actual + 1, locals = Escapa : (locals fr)}, acc)
 allocLocal fr NoEscapa = do
   s <- newTemp
-  return (fr{actualLocal = actualLocal fr + 1}, InReg s)
+  return (fr{actualLocal = actualLocal fr + 1, locals = NoEscapa : (locals fr)}, InReg s)
 
 -- Función auxiliar para el calculo de acceso a una variable, siguiendo el Static Link.
 -- Revisar bien antes de usarla, pero ajustando correctamente la variable |fpPrevLev|

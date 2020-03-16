@@ -124,13 +124,6 @@ setFrame :: Frame -> Level -> Level
 setFrame f (MkLI _ l : xs) = MkLI f l : xs
 setFrame _ _               = P.error "setFrame"
 
-updateFunLevel :: Level -> Level
-updateFunLevel l = 
-  let frameFun = getFrame l
-      formalsFun = formals frameFun
-  in setFrame frameFun{actualArg = Prelude.length formalsFun,
-                       actualReg = Prelude.length (Prelude.filter (== NoEscapa) formalsFun)} l
-
 newLevel :: Level -> Symbol -> [Escapa] -> Level
 newLevel []                  s bs = [MkLI (newFrame s bs) 0]
 newLevel ls@(MkLI _ lvl : _) s bs = MkLI (newFrame s bs) (lvl + 1) : ls

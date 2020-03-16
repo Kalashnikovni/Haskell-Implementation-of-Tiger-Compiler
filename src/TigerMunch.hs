@@ -48,10 +48,13 @@ codeGen stm =
      mapM_ munchStm stms
      instrs <- getInstrs
      return $ reverse instrs
-  {-do munchStm stm
-     instrs <- getInstrs
-     return $ reverse instrs
-  -}
+
+codeGenStms :: (Assembler w) => [Stm] -> w [[Instr]]
+codeGenStms []     = return []
+codeGenStms (s:ss) =
+  do instrs <- codeGen s
+     newSS <- codeGenStms ss
+     return $ instrs : newSS
 
 canonTest :: (Assembler w) => Stm -> w [Stm]
 canonTest stm = canonM stm
@@ -340,7 +343,7 @@ data AssemEstado = AEst {instrs :: [Instr], tam :: TAM}
 initAEstado = AEst {instrs = [], tam = firstTank}
 type AssemMonada = ExceptT Symbol (StateT AssemEstado StGen)
 
-runMonada3 :: AssemMonada ([Instr], Frame) -> StGen (Either Symbol ([Instr], Frame))
+runMonada3 :: AssemMonada [Instr] -> StGen (Either Symbol [Instr])
 runMonada3 = flip evalStateT initAEstado . runExceptT
 
 runMonada4 :: AssemMonada [([Stm], Frame)] -> StGen (Either Symbol [([Stm], Frame)])
