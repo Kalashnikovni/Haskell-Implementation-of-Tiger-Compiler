@@ -52,6 +52,7 @@ library
                        , containers
                        , text
                        , matrix
+                       , monad-loops
                        , mtl
                        , parsec
                        , pretty
@@ -103,58 +104,6 @@ test-suite HaskTiger-test
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
-test-suite Seman
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Seman.hs
-  build-depends:       base
-                     , parsec
-                     , directory
-                     , ansi-terminal
-                     , text
-                     , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
-
-test-suite Trans
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Trans.hs
-  build-depends:       base
-                     , parsec
-                     , directory
-                     , ansi-terminal
-                     , text
-                     , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
-
-test-suite InstrSelect
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             InstrSelect.hs
-  build-depends:       base
-                     , parsec
-                     , directory
-                     , ansi-terminal
-                     , text
-                     , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
-
-test-suite Liveness
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Liveness.hs
-  build-depends:       base
-                     , parsec
-                     , directory
-                     , ansi-terminal
-                     , text
-                     , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
-
 test-suite Parser
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
@@ -183,6 +132,88 @@ test-suite Escap
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
   default-extensions: QuasiQuotes
+
+test-suite Seman
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Seman.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+test-suite Trans
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Trans.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+test-suite Canon
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Canon.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , transformers
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+test-suite InstrSelect
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             InstrSelect.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , transformers
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+test-suite Liveness
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Liveness.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+test-suite RegAlloc
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             RegAlloc.hs
+  build-depends:       base
+                     , parsec
+                     , directory
+                     , ansi-terminal
+                     , text
+                     , HaskTiger
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+
 
 -- test-suite Interp
 --  type:                exitcode-stdio-1.0
