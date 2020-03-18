@@ -5,13 +5,17 @@ Proyecto final de la materia "Compiladores" del IV año de LCC - FCEIA, Rosario,
 # Testing
 
 Para testear usamos la herramienta *stack* que buildea proyectos pasándole un archivito
-de configuración. Si queremos cargar los módulos en ghci:
+de configuración. Todos los comandos que queramos ejecutar deben hacerse desde el directorio
+donde se encuentra el archivo HaskTiger.cabal. Si queremos cargar los módulos en ghci:
 
 ```
 stack ghci
 ```
 Después fuimos implementando algunas test suite para ir chequeando lo que pudimos
-avanzar en las distintas etapas. Para correr todas ellas:
+avanzar en las distintas etapas. Solo imprimimos el resultado de la etapa,
+para analizar si el resultado es correcto o no (dado que las etapas finales
+pueden tener múltiples resultados correctos, no parecía sensato automatizar).
+Para correr todas ellas:
 
 ```
 stack test
@@ -42,6 +46,9 @@ Pd: stack funcionó solo instalando usando el siguiente comando:
 ```
 curl -sSL https://get.haskellstack.org/ | sh
 ```
+
+Por el momento no nos hemos ocupado del intérprete del compilador.
+
 A continuación listamos algunas decisiones de diseño del compilador, que deben ser
 tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
 

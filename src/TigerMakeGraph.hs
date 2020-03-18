@@ -1,4 +1,3 @@
-
 module TigerMakeGraph where
 
 import TigerAssem as A
@@ -65,7 +64,6 @@ instrs2graph [] = (FGraph{control = newGraph,
                           ismove = Map.empty,
                           labmap = Map.empty}, [])
 instrs2graph (o@(Oper a dst src j) : instrs) =
-  --(fres{control = addJEdges j node (labmap fres) $ mkEdge (newNode $ control fres) (node, vres !! 0), 
   (fres{control = if L.null vres then newNode $ control fres
                     else mkEdge (newNode $ control fres) (node, vres !! 0), 
         info = Map.insert node o $ info fres, 
@@ -95,11 +93,11 @@ instrs2graph (lb@(ILabel a l) : instrs) =
   where (fres, vres) = instrs2graph instrs
         node = L.length vres
 
-i2gWithJumps :: [Instr] -> (FlowGraph, [Vertex]) -> (FlowGraph, [Vertex])
-i2gWithJumps [] (f, vs) = (f, vs)
-i2gWithJumps ((Oper a dst src j) : instrs) (f, vs) =
-  i2gWithJumps instrs (f{control = addJEdges j (head vs) (labmap f) $ control f}, tail vs)
-i2gWithJumps (i : instrs) (f, vs) = i2gWithJumps instrs (f, tail vs) 
+i2gWithJumps :: [Instr] -> (FlowGraph, [Vertex]) -> [Vertex] -> (FlowGraph, [Vertex])
+i2gWithJumps [] (f, vs) vlist = (f, vlist)
+i2gWithJumps ((Oper a dst src j) : instrs) (f, vs) vlist =
+  i2gWithJumps instrs (f{control = addJEdges j (head vs) (labmap f) $ control f}, tail vs) vlist
+i2gWithJumps (i : instrs) (f, vs) vlist = i2gWithJumps instrs (f, tail vs) vlist
 
 addJEdges :: Maybe [ALabel] -> Vertex -> TableLabel -> Graph -> Graph
 addJEdges Nothing _ _ g = g
@@ -116,7 +114,7 @@ setEquationAlgorithm :: FlowGraph -> [Vertex] -> LiveMonada ()
 setEquationAlgorithm fg vs =
   do mapM_ (seaAux fg) vs
      st <- get
-     let same = Map.foldl (\neu elem -> neu && elem) True $ isSame st
+     let same = and $ P.map snd (Map.toList $ isSame st)
      case same of
        True  -> return ()
        False -> setEquationAlgorithm fg vs
@@ -132,9 +130,8 @@ seaAux fg v =
      let newin = Set.union usev (oldout Set.\\ defv)
      let newout = Map.foldl Set.union Set.empty (Map.map fst $ restrictKeys io (Set.fromList $ gsucc (control fg) v)) 
      case (newin == oldin, newout == oldout) of
-       (True, True) -> do put st{inout = Map.insert v (newin, newout) io,
-                                 isSame = Map.insert v True $ isSame st}
-                          return ()
+       (True, True) -> put st{inout = Map.insert v (newin, newout) io,
+                              isSame = Map.insert v True $ isSame st}
        _            -> put st{inout = Map.insert v (newin, newout) io,
                               isSame = Map.insert v False $ isSame st}
   where errSeaAux ver tab = error $ "El vertice " ++ show ver ++ " tendria que estar en el mapeo " ++ 

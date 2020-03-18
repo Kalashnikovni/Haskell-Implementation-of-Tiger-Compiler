@@ -39,8 +39,9 @@ spillCost node = 1
 
 build :: (Color w) => [Instr] -> w ()
 build instrs = 
-  do let (fg, vs) = instrs2graph instrs
-     let forBuild = M.toList $ inout $ snd $ runState (setEquationAlgorithm fg vs) initLEstado 
+  do let (f, v) = instrs2graph instrs
+         (fg, vs) = i2gWithJumps instrs (f, v) v
+         forBuild = M.toList $ inout $ snd $ runState (setEquationAlgorithm fg vs) initLEstado 
      mapM_ (\(node, (_, liveOut)) -> 
               do putLive liveOut
                  case (M.lookup node $ FG.use fg, M.lookup node $ FG.def fg) of

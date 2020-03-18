@@ -48,26 +48,40 @@ intermediateStage exp =
             return
             res
 
-instrSelectStageStm :: [TransFrag] -> EstadoTest [([Instr], Frame)] 
-instrSelectStageStm tfs =
+instrSelectStage :: [TransFrag] -> EstadoTest ([Frag], [([Instr], Frame)]) 
+instrSelectStage tfs =
   do let (strs, stms) = sepFrag tfs
      res <- mapM (\(stm, _) -> do resCodeGen <- runMonada3 $ codeGen stm
                                   return $ either (error . show)
                                                   id
                                                   resCodeGen) stms
-     return $ zip res (map snd stms)
+     return $ (strs, zip res (map snd stms))
 
-testerInstrSelect :: String -> EstadoTest [([Instr], Frame)]
+testerInstrSelect :: String -> EstadoTest ([Frag], [([Instr], Frame)])
 testerInstrSelect str =
   do res1 <- parseStage str
      res2 <- escapStage res1
      res3 <- intermediateStage res2 
-     instrSelectStageStm res3
+     instrSelectStage res3
 
 testerPrint :: String -> String -> IO ()
 testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
-     putStrLn $ show $ fst $ runSt (testerInstrSelect str) 0
+     let res = fst $ runSt (testerInstrSelect str) 0
+     mapM_ (putStrLn . renderStrFrag) $ fst res
+     mapM_ (\(instrs, fr) -> do putStr $ renderInstr instrs fr
+                                putStrLn $ show fr
+                                putStrLn "") $ snd res
+
+renderStrFrag :: Frag -> String
+renderStrFrag (AString lab syms) =
+  unpack lab ++ ":" ++ "\n  " ++ (concat $ map (\s -> unpack s ++ "\n  ") syms)
+renderStrFrag _ = error "Fragments should be strings"
+
+renderInstr :: [Instr] -> Frame -> String
+renderInstr instrs fr =
+  let ff = procEntryExit3 fr $ procEntryExit2 fr instrs
+  in prolog ff ++ concat (map (format opmakestring) (body ff)) ++ epilogue ff
 
 testerPrintDir :: String -> IO ()
 testerPrintDir loc = 
