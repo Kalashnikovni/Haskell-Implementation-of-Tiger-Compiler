@@ -3,6 +3,7 @@ module TigerPrettyIr
   , renderFrag
   , renderBIr
   , renderPCan
+  , renderFrame
   )
 where
 
@@ -74,3 +75,4 @@ renderFrag = render . prettyFrag
 renderPCan a b = render $ prettyPCan a b
 renderIr = render . prettyExp
 renderBIr = render . prettyBExp
+renderFrame = render . prettyFrame

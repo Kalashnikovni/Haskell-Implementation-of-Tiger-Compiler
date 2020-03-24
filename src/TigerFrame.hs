@@ -223,8 +223,8 @@ procEntryExit1 fr body = body
 
 procEntryExit2 :: Frame -> [Instr] -> [Instr]
 procEntryExit2 fr instrs =
-  instrs ++ [Oper{assem = "", src = [zero, ra, sp, gp] ++ calleesaved, 
-             dst = [], jump = Just []}] 
+  instrs ++ [Oper{assem = "", src = [zero, ra, sp, gp, fp, rv0, rv1, hi, lo, ra] ++ calleesaved, 
+             dst = [], jump = Nothing}] 
 
 data FrameFunc = FF {prolog :: String, body :: [Instr], epilogue :: String}
   deriving Show

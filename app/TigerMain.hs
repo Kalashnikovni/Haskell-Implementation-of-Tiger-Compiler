@@ -10,6 +10,8 @@ import System.Console.GetOpt
 import qualified System.Environment as Env
 import System.Exit
 
+import EscapTesting
+
 import State
 import TigerAbs
 import TigerCanon
@@ -74,7 +76,7 @@ showExp e =
 
 parserStep :: Options -> String -> String -> IO Exp
 parserStep opts nm sc = 
-  either (\perr -> error $ "Parser error" ++ show perr)
+  either (\perr -> error $ "Parser error: " ++ show perr)
          return
          $ runParser expression () nm sc
 

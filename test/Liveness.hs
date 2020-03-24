@@ -63,15 +63,15 @@ intermediateStage exp =
 instrSelectStage :: [TransFrag] -> EstadoTest ([Frag], [([Instr], Frame)]) 
 instrSelectStage tfs =
   do let (strs, stms) = sepFrag tfs
-     res <- mapM (\(stm, _) -> do resCodeGen <- runMonada3 $ codeGen stm
-                                  return $ either (error . show)
-                                                  id
-                                                  resCodeGen) stms
+     res <- mapM (\(stm, fr) -> do resCodeGen <- runMonada3 $ codeGen $ procEntryExit1 fr stm
+                                   return $ either (error . show)
+                                                   id
+                                                   resCodeGen) stms
      return $ (strs, P.zip res (P.map snd stms))
 
 flowGraph :: ([Frag], [([Instr], Frame)]) -> EstadoTest (FlowGraph, [Vertex])
 flowGraph (_, stms) = 
-  let instrs = P.concat $ P.map fst stms
+  let instrs = P.concat $ P.map (\(ins, fr) -> procEntryExit2 fr ins) stms
       (fg, vs) = instrs2graph instrs
   in return $ i2gWithJumps instrs (fg, vs) vs
 

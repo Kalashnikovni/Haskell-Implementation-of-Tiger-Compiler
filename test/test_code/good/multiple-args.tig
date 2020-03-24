@@ -1,5 +1,27 @@
 let
-	function g (a : int, b:int, c:int, d:int, e:int) : int = a + b + c + d + e 
+  function g (a : int, b:int, c:int, d:int, e:int) : int = a + b + c + d + e 
+  var x1:int := 3
+  var x2:int := 4
+  var x3:int := 4
+  var x4:int := 4
+  var x5:int := 4
+  var x6:int := 4
+  var x7:int := 4
+  var x8:int := 4
+  var x9:int := 4
+  var x10:int := 4
+  var x11:int := 4
+  var x12:int := 4
+  var x13:int := 4
+  var x14:int := 4
+  var x15:int := 4
+  var x16:int := 4
+  var x17:int := 4
+  var x18:int := 4
+  var x19:int := 4
+  var x20:int := 4
+  var x21:int := 4
+  var x22:int := 4
 in
- g (2,1,1,1, 1)
+ g (2,1,1,1, 1) + x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 + x11 + x12 + x13 + x14 + x15 + x16 + x17 + x18 + x19 + x20 + x21 + x22
 end

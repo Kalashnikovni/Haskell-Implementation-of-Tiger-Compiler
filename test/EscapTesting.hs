@@ -1,3 +1,5 @@
+module EscapTesting (testerPrint) where
+
 import TigerAbs
 import TigerEscap
 import TigerParser (parse)
@@ -62,6 +64,7 @@ testerPrintDir loc =
   do fs <- listDirectory loc
      mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> testerPrint loc f show >> putStrLn "***************") fs
 
+{-
 ejemplo1 :: Exp -- La variable a escapa.
 ejemplo1 = [expr|
                 let
@@ -93,4 +96,4 @@ ejemplo3 = [expr|
                   var lis : intlist := intlist {hd = 0, tl = nil}
                 in
                   lis;0
-                end|]
+                end|]-}

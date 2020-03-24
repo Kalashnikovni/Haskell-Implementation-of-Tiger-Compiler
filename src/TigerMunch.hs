@@ -68,7 +68,7 @@ munchArgs i (a:args)
        emit Oper{assem = "move `d0, `s0\n",
                  dst = [reg], src = [a'], jump = Nothing}
        args' <- munchArgs (i + 1) args
-       return $ a':args'
+       return $ reg:args'
   | otherwise =
     do a' <- munchExp a
        emit Oper{assem = "sub `d0, `s0, 4\nsw `s1, 0(`s0)\n",

@@ -6,11 +6,14 @@ import TigerTemp
 import Algebra.Graph.AdjacencyMap as Adj
 
 import Data.List as L
-import Data.Map
-import Data.Matrix
+import Data.Map as M
+import Data.Matrix as Mat
 import Data.Set as S
 
 import Prelude as P
+
+max32Int :: Int
+max32Int = 2147483647
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Interference Graphs ----------------------------------------------------------------------------------- --
@@ -28,6 +31,13 @@ data IGraph = IG {graph :: TempGraph,
                   edgesG :: [(ATemp, ATemp)],
                   adjSet :: Set (ATemp, ATemp)}
   deriving Show
+
+defaultIGraph :: IGraph
+defaultIGraph = IG{graph = Adj.empty,
+                   bitMatrix = matrix 0 0 (const False),
+                   degree = M.empty,
+                   edgesG = [],
+                   adjSet = S.empty}
 
 -- A es adyacente a B si hay un arco partiendo de A,
 -- y llegando a B

@@ -51,10 +51,10 @@ intermediateStage exp =
 instrSelectStage :: [TransFrag] -> EstadoTest ([Frag], [([Instr], Frame)]) 
 instrSelectStage tfs =
   do let (strs, stms) = sepFrag tfs
-     res <- mapM (\(stm, _) -> do resCodeGen <- runMonada3 $ codeGen stm
-                                  return $ either (error . show)
-                                                  id
-                                                  resCodeGen) stms
+     res <- mapM (\(stm, fr) -> do resCodeGen <- runMonada3 $ codeGen $ procEntryExit1 fr stm
+                                   return $ either (error . show)
+                                                   id
+                                                   resCodeGen) stms
      return $ (strs, zip res (map snd stms))
 
 testerInstrSelect :: String -> EstadoTest ([Frag], [([Instr], Frame)])
