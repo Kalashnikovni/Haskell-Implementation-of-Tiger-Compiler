@@ -205,7 +205,7 @@ coalesce =
       False -> coalesceAux m x y
 
 getDst :: (Color w) => Instr -> w ATemp
-getDst (Move _ [] _) = internalAux "TigerColor 22"
+getDst (Move ass [] src) = internalAux $ "TigerColor 22" ++ " " ++ show ass ++ " " ++ show src
 getDst (Move ass dst src) = return $ dst !! 0 
 getDst _ = internalAux "TigerColor 15"
 
@@ -440,8 +440,11 @@ rewriteProgram =
   do spilled <- getSpilledNodes 
      let sz = wSz * S.size spilled
      instrs <- getInstrs
-     putInstrs $ Oper{assem = "addi `d0, `s0, " ++ show sz, dst = [sp], src = [sp], jump = Nothing} : instrs
-     newTemps <- createTempsInstrs
+     -- TODO: es addi o subi?
+     putInstrs $ Oper{assem = "addi `d0, `s0, " ++ show sz ++ "\n", dst = [sp], src = [sp], jump = Nothing} : instrs
+     newTemps <- rewriteSpilled
+     putOffset 0
+     putRefs []
      fr <- getFrame
      putFrame fr{actualReg = actualReg fr + S.size newTemps}
      putSpilledNodes S.empty
@@ -451,83 +454,78 @@ rewriteProgram =
      putColoredNodes S.empty
      putCoalescedNodes S.empty
 
-createTempsInstrs :: (Color w) => w (Set ATemp)
-createTempsInstrs =
-  do instrs <- getInstrs
-     (finalInstrs, finalTemps) <-
-       foldM (\(oldInstrs, oldTemp) instr -> 
-               do (newInstrs, newTemps) <- createTempsInstrsAux instr
-                  let retInstrs = oldInstrs ++ P.filter notNop newInstrs
-                  putInstrs retInstrs
-                  return $ (retInstrs, S.union oldTemp newTemps)) ([], S.empty) instrs
-     return finalTemps
-  where notNop (Oper assem dst src jmp) = assem /= "nop"
-        notNop _ = True
+rewriteSpilled :: (Color w) => w (Set ATemp)
+rewriteSpilled =
+  do instrs <- getInstrs 
+     newInstrsTemps <- mapM rewriteSpilledAux instrs
+     putInstrs $ concat $ P.map fst newInstrsTemps
+     return $ S.unions $ P.map snd newInstrsTemps
 
-createTempsInstrsAux :: (Color w) => Instr -> w ([Instr], Set ATemp) 
-createTempsInstrsAux (Oper assem dst src jmp) =
+rewriteSpilledAux :: (Color w) => Instr -> w ([Instr], Set ATemp) 
+rewriteSpilledAux (Oper assem dst src jmp) =
   do spilled <- getSpilledNodes
-     let list1 = S.toList $ S.intersection (S.fromList dst) spilled
-     (dsts, temps1, i1) <- 
-       foldM (\(oldDst, oldTemps, i) n -> 
-                do newT <- newTemp
-                   newDst <- replace n newT oldDst
-                   actAllocPos <- getAllocPos
-                   putAllocPos $ M.insert newT i actAllocPos
-                   return (newDst, S.union oldTemps (S.singleton newT), i + 1)) 
-             (dst, S.empty, 0) 
-             list1
-     res1 <- mapM (\d -> do actAllocPos <- getAllocPos
-                            maybe (return $ Oper{assem = "nop", dst = [], src = [], jump = Nothing}) 
-                                  (\off -> return $ Move{assem = "sw `s0, " ++ show (off * wSz) ++ "(`d0)\n", 
-                                                         dst = [fp], src = [d]})
-                                  (M.lookup d actAllocPos)) dsts
-     let list2 = S.toList $ S.intersection (S.fromList src) spilled 
-     (srcs, temps2) <- 
-       foldM (\(oldSrc, oldTemps) n -> 
-                do newT <- newTemp
-                   newSrc <- replace n newT oldSrc
-                   return (newSrc, S.union oldTemps (S.singleton newT))) 
-             (src, S.empty) 
-             list2
-     res2 <- mapM (\s -> do actAllocPos <- getAllocPos
-                            maybe (return $ Oper{assem = "nop", dst = [], src = [], jump = Nothing}) 
-                                  (\off -> return $ Move {assem = "lw `d0, " ++ show (off * wSz) ++ "(`s0)\n", 
-                                                          dst = [s], src = [fp]})
-                                  (M.lookup s actAllocPos)) srcs
-     return $ (res2 ++ [Oper assem dsts srcs jmp] ++ res1, S.union temps1 temps2)
-createTempsInstrsAux (Move assem dst src) =
+     let listDst = S.toList $ S.intersection (S.fromList dst) spilled
+     (newTDst, newDst) <- createNewTemps listDst dst
+     refs <- getRefs
+     putRefs $ refs ++ P.map (\(a, b, c) -> (a, c)) newTDst
+     stores <- createStores newTDst
+     let listSrc = S.toList $ S.intersection (S.fromList src) spilled 
+     (newTSrc, newSrc) <- createNewTemps listSrc src
+     loads <- createLoads newTSrc
+     let setNewTempSrc = S.fromList $ P.map snd3 newTSrc 
+     let setNewTempDst = S.fromList $ P.map snd3 newTDst 
+     return $ (loads ++ [Oper assem newDst newSrc jmp] ++ stores, 
+               S.union setNewTempSrc setNewTempDst)
+rewriteSpilledAux (Move assem dst src) =
   do spilled <- getSpilledNodes
-     let list1 = S.toList $ S.intersection (S.fromList dst) spilled
-     (dsts, temps1, i1) <- 
-       foldM (\(oldDst, oldTemps, i) n -> 
-                do newT <- newTemp
-                   newDst <- replace n newT oldDst
-                   actAllocPos <- getAllocPos
-                   putAllocPos $ M.insert newT i actAllocPos
-                   return (newDst, S.union oldTemps (S.singleton newT), i + 1)) 
-             (dst, S.empty, 0) 
-             list1
-     res1 <- mapM (\d -> do actAllocPos <- getAllocPos
-                            maybe (return $ Oper{assem = "nop", dst = [], src = [], jump = Nothing}) 
-                                  (\off -> return $ Move{assem = "sw `s0, " ++ show (off * wSz) ++ "(`d0)\n", 
-                                                         dst = [fp], src = [d]})
-                                  (M.lookup d actAllocPos)) dsts
-     let list2 = S.toList $ S.intersection (S.fromList src) spilled 
-     (srcs, temps2) <- 
-       foldM (\(oldSrc, oldTemps) n -> 
-                do newT <- newTemp
-                   newSrc <- replace n newT oldSrc
-                   return (newSrc, S.union oldTemps (S.singleton newT))) 
-             (src, S.empty) 
-             list2
-     res2 <- mapM (\s -> do actAllocPos <- getAllocPos
-                            maybe (return $ Oper{assem = "nop", dst = [], src = [], jump = Nothing}) 
-                                  (\off -> return $ Move {assem = "lw `d0, " ++ show (off * wSz) ++ "(`s0)\n", 
-                                                          dst = [s], src = [fp]})
-                                  (M.lookup s actAllocPos)) srcs
-     return $ (res2 ++ [Move assem dsts srcs] ++ res1, S.union temps1 temps2)
-createTempsInstrsAux (ILabel assem lab) = return ([ILabel assem lab], S.empty)
+     let listDst = S.toList $ S.intersection (S.fromList dst) spilled
+     (newTDst, newDst) <- createNewTemps listDst dst
+     refs <- getRefs
+     putRefs $ refs ++ P.map (\(a, b, c) -> (a, c)) newTDst
+     stores <- createStores newTDst
+     let listSrc = S.toList $ S.intersection (S.fromList src) spilled 
+     (newTSrc, newSrc) <- createNewTemps listSrc src
+     loads <- createLoads newTSrc
+     let setNewTempSrc = S.fromList $ P.map snd3 newTSrc 
+     let setNewTempDst = S.fromList $ P.map snd3 newTDst 
+     return $ (loads ++ [Move assem newDst newSrc] ++ stores, 
+               S.union setNewTempSrc setNewTempDst)
+rewriteSpilledAux (ILabel assem lab) = return ([ILabel assem lab], S.empty)
+
+fst3 :: (a, b, c) -> a
+fst3 (a, b, c) = a
+
+snd3 :: (a, b, c) -> b
+snd3 (a, b, c) = b
+
+thd3 :: (a, b, c) -> c
+thd3 (a, b, c) = c
+
+createNewTemps :: (Color w) => [ATemp] -> [ATemp] -> w ([(ATemp, ATemp, Int)], [ATemp])
+createNewTemps [] oldList     = return ([], oldList)
+createNewTemps (t:ts) oldList =
+  do newT <- newTemp 
+     newList <- replace t newT oldList
+     (resTemps, resLoc) <- createNewTemps ts newList
+     off <- getOff
+     putOffset $ off + 1
+     return $ ((t, newT, off) : resTemps, resLoc)
+
+createStores :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
+createStores []     = return []
+createStores (t:ts) =
+  do res <- createStores ts
+     return $ Move{assem = "sw `s0, " ++ show (thd3 t * wSz) ++ "(`d0)\n",
+                   dst = [fp], src = [snd3 t]} : res   
+
+createLoads :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
+createLoads []     = return []
+createLoads (t:ts) =
+  do res <- createLoads ts
+     refs <- getRefs
+     let offset = maybe (P.error $ "TigerColor 25") id (List.lookup (fst3 t) refs)
+     return $ Move{assem = "lw `d0, " ++ show (offset * wSz) ++ "(`s0)\n",
+                   dst = [snd3 t], src = [fp]} : res
 
 replace :: (Color w, Eq a) => a -> a -> [a] -> w [a]
 replace _ _ [] = return []
@@ -618,7 +616,8 @@ data AllocEstado = AE{initial :: Set ATemp,
                       def :: Set ATemp,
                       alias :: Map ATemp ATemp,
                       stInstrs :: [Instr],
-                      allocPos :: Map ATemp Int,
+                      offset :: Int,
+                      refs :: [(ATemp, Int)],
                       frame :: Frame}
 
 
@@ -644,7 +643,8 @@ initAlloc = AE{initial = S.empty,
                TigerColor.def = S.empty,
                alias = M.empty,
                stInstrs = [],
-               allocPos = M.empty,
+               offset = 0,
+               refs = [],
                frame = defaultFrame}
 
 type AllocMonada = ExceptT Symbol (StateT AllocEstado StGen)
@@ -695,10 +695,12 @@ class (Demon w, Monad w, UniqueGenerator w, TLGenerator w) => Color w where
   putAliasW :: Map ATemp ATemp -> w ()
   getInstrs :: w [Instr]
   putInstrs :: [Instr] -> w ()
-  getAllocPos :: w (Map ATemp Int)
-  putAllocPos :: Map ATemp Int -> w ()
+  getRefs :: w [(ATemp, Int)]
+  putRefs :: [(ATemp, Int)] -> w ()
+  getOff :: w Int
+  putOffset :: Int -> w ()
   getFrame :: w Frame
-  putFrame :: Frame ->  w()
+  putFrame :: Frame ->  w ()
 
 instance Demon AllocMonada where
   derror      =  throwE . pack . (++ "\n") . unpack 
@@ -863,12 +865,18 @@ instance Color AllocMonada where
   putInstrs instrs =
     do st <- get
        put st{stInstrs = instrs}
-  getAllocPos =
+  getOff =
     do st <- get
-       return $ allocPos st
-  putAllocPos mapPos =
+       return $ offset st
+  putOffset off =
     do st <- get
-       put st{allocPos = mapPos}
+       put st{offset = off}
+  getRefs = 
+    do st <- get
+       return $ refs st
+  putRefs refs =
+    do st <- get
+       put st{refs = refs}
   getFrame =
     do st <- get
        return $ frame st

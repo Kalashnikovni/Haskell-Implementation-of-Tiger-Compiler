@@ -232,5 +232,5 @@ data FrameFunc = FF {prolog :: String, body :: [Instr], epilogue :: String}
 procEntryExit3 :: Frame -> [Instr] -> FrameFunc
 procEntryExit3 fr bd = 
   FF{prolog =  "PROCEDURE " ++ unpack (name fr) ++ "\n",
-     body = bd,
+     body = bd ++ [Oper{assem = "jr `s0\n", dst = [], src = [ra], jump = Nothing}],
      epilogue = "END " ++ unpack (name fr) ++ "\n"}
