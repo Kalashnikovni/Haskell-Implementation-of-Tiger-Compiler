@@ -12,13 +12,13 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  hs-source-dirs: src, interp, test
+  hs-source-dirs: src, interp, app
 --  other-modules: State
-  other-modules: Tools
   exposed-modules:
       -- Primer entrega
           MonadsInstances
         , State
+        , Stages
         , TigerAbs
         , TigerAssem
         , TigerCanon
@@ -43,18 +43,16 @@ library
         , TigerTrans
         , TigerTree
         , TigerUnique
-        , EscapTesting
         -- Experimental
         -- , TigerInterpPP
         -- , TigerInteractive
         -- , TigerInterpTypes
         -- , TigerInterpFrame
   build-depends:       algebraic-graphs
-                       , ansi-terminal
                        , base
                        , cond
                        , containers
-                       , directory
+                       , graphviz
                        , matrix
                        , monad-loops
                        , mtl
@@ -87,12 +85,15 @@ executable HaskTiger
   build-depends:       base
                        , cond
                        , containers
+                       , directory
+                       , graphviz
                        , mtl
                        , parsec
                        , pretty
                        , text
                        , transformers
                        , HaskTiger
+  other-modules: Stages
   default-language:    Haskell2010
 
 test-suite Parser
@@ -112,7 +113,7 @@ test-suite Parser
 test-suite Escap
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             EscapTesting.hs
+  main-is:             Escap.hs
   build-depends:       ansi-terminal 
                      , base
                      , directory
@@ -120,7 +121,7 @@ test-suite Escap
                      , text
                      , HaskTiger
   other-modules: Tools
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -main-is Escap
   default-language:    Haskell2010
   default-extensions: QuasiQuotes
 
@@ -134,6 +135,7 @@ test-suite Seman
                      , parsec
                      , text
                      , HaskTiger
+  other-modules: Tools
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
@@ -147,6 +149,7 @@ test-suite Intermediate
                      , parsec
                      , text
                      , HaskTiger
+  other-modules: Tools
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
@@ -161,6 +164,7 @@ test-suite Canon
                      , text
                      , transformers
                      , HaskTiger
+  other-modules: Tools
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
@@ -175,7 +179,8 @@ test-suite InstrSelect
                      , text
                      , transformers
                      , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  other-modules: Tools
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -main-is InstrSelect
   default-language:    Haskell2010
 
 test-suite Liveness
@@ -191,23 +196,25 @@ test-suite Liveness
                      , text
                      , transformers
                      , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  other-modules: Tools
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -main-is Liveness
   default-language:    Haskell2010
 
 test-suite RegAlloc
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             RegAlloc.hs
-  build-depends:       ansi-terminal
-                     , base
+  build-depends:       base
                      , containers
-                     , directory
-                     , mtl
                      , parsec
+                     , directory
+                     , ansi-terminal
+                     , mtl
                      , text
                      , transformers
                      , HaskTiger
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  other-modules: Tools
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -main-is RegAlloc
   default-language:    Haskell2010
 
 

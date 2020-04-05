@@ -1,11 +1,10 @@
-
 module TigerFrame where
 
 import TigerAbs (Escapa(..))
 import TigerAssem(Instr(..))
 import TigerSymbol
 import TigerTemp
-import TigerTree
+import TigerTree as T
 
 import Debug.Trace
 
@@ -67,7 +66,7 @@ specialregs = [fp, sp, hi, lo, zero, ra, rv0, rv1, gp]
 allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int
-argsRegsCount = 4
+argsRegsCount = P.length argregs
 
 -- | Word size in bytes
 wSz :: Int
@@ -145,6 +144,7 @@ data Frame = Frame {
         name        :: Symbol,
         -- | Argumentos, si escapan o no.
         formals     :: [Escapa],
+        formalsAcc  :: [Access],
         -- | Variables Locales , si escapan o no.
         locals      :: [Escapa],
         -- | Contadores de cantidad de argumentos, variables y registros.
@@ -160,6 +160,7 @@ defaultFrame :: Frame
 defaultFrame = Frame
   {name        = TigerSymbol.empty,
    formals     = [],
+   formalsAcc  = [],
    locals      = [],
    actualArg   = argsInicial,
    actualLocal = localsInicial,
@@ -174,8 +175,7 @@ prepFormals :: Frame -> [Access]
 prepFormals fs = reverse $ snd
   (P.foldl (\(n, rs) _ -> (n + argsGap, InFrame n : rs))
          (argsInicial, [])
-         (formals fs)
-  )
+         (formals fs))
 
 newFrame :: Symbol -> [Escapa] -> Frame
 newFrame nm fs = defaultFrame {name = nm, formals = fs}
@@ -191,10 +191,10 @@ allocArg :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocArg fr Escapa =
   let actual = actualArg fr
       acc    = InFrame $ actual * wSz + argsGap
-  in  return (fr{actualArg = actual + 1}, acc)
+  in  return (fr{actualArg = actual + 1, formalsAcc = formalsAcc fr ++ [acc]}, acc)
 allocArg fr NoEscapa = do
   s <- newTemp
-  return (fr{actualReg = actualReg fr + 1}, InReg s)
+  return (fr{actualReg = actualReg fr + 1, formalsAcc = formalsAcc fr ++ [InReg s]}, InReg s)
 
 allocLocal :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocLocal fr Escapa =
@@ -219,7 +219,22 @@ exp (InReg l) c
   | otherwise = Just $ Temp l
 
 procEntryExit1 :: Frame -> Stm -> Stm
-procEntryExit1 fr body = body 
+procEntryExit1 fr body = 
+  fseq $ adjustArgs (formalsAcc fr) argregs 0 ++ [body]
+
+fseq :: [Stm] -> Stm
+fseq []     = ExpS $ Const 0
+fseq [s]    = s
+fseq (x:xs) = Seq x (fseq xs)
+
+adjustArgs :: [Access] -> [Temp] -> Int -> [Stm]
+adjustArgs [] _ _             = []
+adjustArgs ((InReg t):as) [] i =
+  T.Move (Mem (Binop Plus (Temp fp) (Const $ wSz * i))) (Temp t) : adjustArgs as [] (i + 1)
+adjustArgs ((InFrame k):as) [] i =
+  T.Move (Mem (Binop Plus (Temp fp) (Const $ wSz * i))) (auxexp k) : adjustArgs as [] (i + 1)
+adjustArgs ((InReg t):as) (r:rs) i   = T.Move (Temp r) (Temp t) : adjustArgs as rs i
+adjustArgs ((InFrame k):as) (r:rs) i = T.Move (Temp r) (auxexp k) : adjustArgs as rs i
 
 procEntryExit2 :: Frame -> [Instr] -> [Instr]
 procEntryExit2 fr instrs =

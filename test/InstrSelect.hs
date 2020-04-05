@@ -1,3 +1,5 @@
+module InstrSelect where
+
 import State
 import TigerAbs as TA
 import TigerAssem
