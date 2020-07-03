@@ -1,7 +1,7 @@
 module TigerFrame where
 
 import TigerAbs (Escapa(..))
-import TigerAssem(Instr(..))
+import TigerAssem as A (Instr(..))
 import TigerSymbol
 import TigerTemp
 import TigerTree as T
@@ -17,12 +17,13 @@ import Prelude as P hiding (exp)
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 -- | Registros especiales
-fp, sp, lo, hi, zero, ra, rv0, rv1, gp :: Temp 
+--fp, sp, lo, hi, zero, ra, rv0, rv1, gp :: Temp 
+fp, sp, zero, ra, rv0, rv1, gp :: Temp 
 gp = pack "gp"
 fp = pack "fp"
 sp = pack "sp"
-hi = pack "high"
-lo = pack "low"
+--hi = pack "high"
+--lo = pack "low"
 zero = pack "zero"
 ra = pack "ra"
 rv0 = pack "v0"
@@ -62,7 +63,8 @@ argregs = [a0, a1, a2, a3]
 calleesaved = [s0, s1, s2, s3, s4, s5, s6, s7]
 callersaved = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
 calldefs = [rv0, ra] ++ callersaved
-specialregs = [fp, sp, hi, lo, zero, ra, rv0, rv1, gp]
+--specialregs = [fp, sp, hi, lo, zero, ra, rv0, rv1, gp]
+specialregs = [fp, sp, zero, ra, rv0, rv1, gp]
 allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int
@@ -153,8 +155,6 @@ data Frame = Frame {
         actualReg   :: Int
     }
     deriving Show
--- Nota: claramente pueden no llevar contadores y calcularlos en base a la longitud de
--- las listas |formals| y |locals|.
 
 defaultFrame :: Frame
 defaultFrame = Frame
@@ -203,7 +203,7 @@ allocLocal fr Escapa =
   in  return (fr {actualLocal = actual + 1, locals = Escapa : (locals fr)}, acc)
 allocLocal fr NoEscapa = do
   s <- newTemp
-  return (fr{actualLocal = actualLocal fr + 1, locals = NoEscapa : (locals fr)}, InReg s)
+  return (fr{locals = NoEscapa : (locals fr)}, InReg s)
 
 -- Función auxiliar para el calculo de acceso a una variable, siguiendo el Static Link.
 -- Revisar bien antes de usarla, pero ajustando correctamente la variable |fpPrevLev|
@@ -218,9 +218,10 @@ exp (InReg l) c
   | c /= 0    = Nothing
   | otherwise = Just $ Temp l
 
-procEntryExit1 :: Frame -> Stm -> Stm
+procEntryExit1 :: (Monad w, TLGenerator w) => Frame -> Stm -> w Stm
 procEntryExit1 fr body = 
-  fseq $ adjustArgs (formalsAcc fr) argregs 0 ++ [body]
+  do (pre, post) <- allocCallee 
+     return $ fseq $ adjustArgs (formalsAcc fr) argregs 0 ++ pre ++ [body] ++ post
 
 fseq :: [Stm] -> Stm
 fseq []     = ExpS $ Const 0
@@ -236,16 +237,50 @@ adjustArgs ((InFrame k):as) [] i =
 adjustArgs ((InReg t):as) (r:rs) i   = T.Move (Temp r) (Temp t) : adjustArgs as rs i
 adjustArgs ((InFrame k):as) (r:rs) i = T.Move (Temp r) (auxexp k) : adjustArgs as rs i
 
+allocCallee :: (Monad w, TLGenerator w) => w ([Stm], [Stm]) 
+allocCallee = 
+  do ts <- mapM (\i -> newTemp) [1..P.length calleesaved]
+     let newTs = zip ts [0..P.length calleesaved - 1]
+     let m1 = P.map (\(t, i) -> T.Move (Temp $ calleesaved !! i) (Temp t)) newTs 
+     let m2 = P.map (\(t, i) -> T.Move (Temp t) (Temp $ calleesaved !! i)) newTs
+     return (m1, m2)
+
 procEntryExit2 :: Frame -> [Instr] -> [Instr]
 procEntryExit2 fr instrs =
-  instrs ++ [Oper{assem = "", src = [zero, ra, sp, gp, fp, rv0, rv1, hi, lo, ra] ++ calleesaved, 
+  instrs ++ [Oper{assem = "", src = specialregs ++ calleesaved, 
              dst = [], jump = Nothing}] 
 
-data FrameFunc = FF {prolog :: String, body :: [Instr], epilogue :: String}
+data FrameFunc = FF {prolog :: [Instr], body :: [Instr], epilogue :: [Instr]}
   deriving Show
+
+mkProlog :: Frame -> [Instr]
+mkProlog fr = 
+  case name fr of
+    "final" -> []
+    _ ->
+      let cantLocal = actualLocal fr
+      in [A.Move{assem = "sw `s0, 0(`d0)\n", dst = [sp], src = [fp]},
+          A.Move{assem = "move `d0, `s0\n", dst = [fp], src = [sp]},
+          A.Move{assem = "addi `d0, `s0, -" ++ (show $ cantLocal * wSz) ++ "\n", dst = [sp], src = [sp]}]
+
+mkEpil :: Frame -> [Instr]
+mkEpil fr =
+  case name fr of
+    "final" -> []
+    "tigermain" ->
+      let cantLocal = actualLocal fr 
+      in [A.Move{assem = "addi `d0, `s0, " ++ (show $ cantLocal * wSz) ++ "\n", dst = [sp], src = [sp]},
+          A.Move{assem = "lw `d0, 0(`s0)\n", dst = [fp], src = [sp]},
+          A.Oper{assem = "j `j0\n", dst = [], src = [], jump = Just ["final"]}]
+    _ -> 
+      let cantLocal = actualLocal fr
+      in [A.Move{assem = "addi `d0, `s0, " ++ (show $ cantLocal * wSz) ++ "\n", dst = [sp], src = [sp]},
+          A.Move{assem = "lw `d0, 0(`s0)\n", dst = [fp], src = [sp]},
+          A.Oper{assem = "jr $ra\n", dst = [], src = [], jump = Nothing}]
+
 
 procEntryExit3 :: Frame -> [Instr] -> FrameFunc
 procEntryExit3 fr bd = 
-  FF{prolog =  "PROCEDURE " ++ unpack (name fr) ++ "\n",
-     body = bd ++ [Oper{assem = "jr `s0\n", dst = [], src = [ra], jump = Nothing}],
-     epilogue = "END " ++ unpack (name fr) ++ "\n"}
+  FF{prolog =  head bd : mkProlog fr,
+     body = tail bd,
+     epilogue = mkEpil fr}

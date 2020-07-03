@@ -18,6 +18,8 @@ import Tools
 
 import Control.Monad.Trans.State.Lazy
 
+import Prelude as P
+
 import System.Directory 
 
 main :: IO ()
@@ -53,7 +55,7 @@ intermediateStage exp =
 instrSelectStage :: [TransFrag] -> EstadoTest ([Frag], [([Instr], Frame)]) 
 instrSelectStage tfs =
   do let (strs, stms) = sepFrag tfs
-     res <- mapM (\(stm, fr) -> do resCodeGen <- runMonada3 $ codeGen $ procEntryExit1 fr stm
+     res <- mapM (\(stm, fr) -> do resCodeGen <- runMonada3 $ codeGen stm
                                    return $ either (error . show)
                                                    id
                                                    resCodeGen) stms
@@ -83,7 +85,8 @@ renderStrFrag _ = error "Fragments should be strings"
 renderInstr :: [Instr] -> Frame -> String
 renderInstr instrs fr =
   let ff = procEntryExit3 fr $ procEntryExit2 fr instrs
-  in prolog ff ++ concat (map (format opmakestring) (body ff)) ++ epilogue ff
+      renderInstrs ins = P.concat (P.map (format opmakestring) ins)
+  in (renderInstrs $ prolog ff) ++ (renderInstrs $ body ff) ++ (renderInstrs $ epilogue ff)
 
 testerPrintDir :: String -> IO ()
 testerPrintDir loc = 

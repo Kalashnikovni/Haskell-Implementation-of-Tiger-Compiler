@@ -1,6 +1,6 @@
 let
-  function g (a : int, b:int, c:int, d:int, e:int) : int = a + b + c + d + e 
   var x1:int := 3
+  function g (a : int, b:int, c:int, d:int, e:int) : int = a + b + c + d + e + x1
   var x2:int := 4
   var x3:int := 5
   var x4:int := 6

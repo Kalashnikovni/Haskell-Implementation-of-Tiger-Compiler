@@ -268,15 +268,15 @@ instance (MemM w) => IrGen w where
        tind <- newTemp
        return $ Ex $ Eseq (seq [Move (Temp tvar) evar,
                                 Move (Temp tind) eind,
-                                ExpS $ externalCall "_checkIndex" [Temp tvar, Temp tind]])
+                                ExpS $ externalCall "_checkIndexArray" [Temp tvar, Temp tind]])
                      (Mem $ Binop Plus (Temp tvar) (Binop Mul (Temp tind) (Const wSz)))
   stringExp t = 
     do -- | Esto debería ser dependiente de la arquitectura...
        -- No estoy seguro que tenga que estar esto acá.
        l <- newLabel
-       let ln = T.append (pack ".long ")  (pack $ show $ T.length t)
-       let str = T.append (T.append (pack ".string \"") t) (pack "\"")
-       pushFrag $ AString l [ln,str]
+       --let ln = T.append (pack ".long ")  (pack $ show $ T.length t)
+       let str = T.append (T.append (pack ".asciiz \"") t) (pack "\"")
+       pushFrag $ AString l [str]
        return $ Ex $ Name l
     -- | Función utilizada para la declaración de una función.
   envFunctionDec lvl funDec = 
@@ -301,7 +301,8 @@ instance (MemM w) => IrGen w where
                   IsProc -> unNx bd
                   IsFun  -> Move (Temp rv0) <$> unEx bd)
        let fr = getFrame lvl
-       procEntryExit lvl (Nx $ Seq (Label $ name fr) $ procEntryExit1 fr body)
+       newBody <- procEntryExit1 fr body
+       procEntryExit lvl (Nx $ Seq (Label $ name fr) newBody)
        return $ Ex $ Const 0
   varDec acc = simpleVar acc 0 0
   unitExp = return $ Ex (Const 0)
@@ -503,7 +504,7 @@ instance (MemM w) => IrGen w where
     do sz <- unEx size
        ini <- unEx init
        t <- newTemp
-       return $ Ex $ externalCall "_allocArray" [sz, ini]
+       return $ Ex $ externalCall "_initArray" [sz, ini]
 
 canonize :: [TransFrag] -> Tank [Either ([Stm], Frame) TransFrag]
 canonize f = 

@@ -10,6 +10,8 @@ import Data.List as L
 import Data.Map as Map
 import Data.Set as Set
 
+import Debug.Trace
+
 import Prelude as P
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --

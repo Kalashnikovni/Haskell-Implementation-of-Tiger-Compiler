@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
+
+#define __DEBUG__ 10
 
 typedef struct {
     long length;
@@ -134,19 +137,22 @@ string *getstr(){
 }
 
 #if defined(__DEBUG__)
-long _tigermain(long l){
+long tigermain(long l){
+    string *res1 = getstr();
+    print(res1);
 	return 0;
 }
 #endif
 
 int main(){
-	extern long _tigermain(long);
+	extern long tigermain(long);
     int i, lelem=sizeof(string)+1;;
 	string *p=malloc(256*lelem);
     for (i = 0; i < 256; i++) {
 		consts[i]=p+i*lelem;
-		consts[i]->length = 1;
+		consts[i]->length = 2;
 		consts[i]->chars[0] = i;
+		consts[i]->chars[1] = 'z';
     }
-    return _tigermain(0 /* static link!? */ );
+    return tigermain(0 /* static link!? */ );
 }

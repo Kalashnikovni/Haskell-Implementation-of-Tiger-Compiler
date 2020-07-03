@@ -12,7 +12,10 @@ import TigerTree
 import TigerUnique
 
 import Control.Monad.State
+
 import Data.Map.Strict as M
+
+import Debug.Trace
 
 import Prelude hiding (lookup)
 
@@ -26,17 +29,20 @@ x                % y                = Seq x y
 inmut :: Exp -> Bool
 inmut (Name  _    ) = True
 inmut (Const _    ) = True
-inmut (Temp  _    ) = True
+inmut (Temp  fp    ) = True -- TODO
 inmut (Binop _ x y) = inmut x && inmut y
 inmut _             = False
 
 conmute :: Stm -> Exp -> Bool
-conmute (ExpS (Const _)) _         = True
-conmute _                (Name  _) = True
-conmute _                (Const _) = True
-conmute (ExpS (Call (Name xs) _)) _ | unpack xs == "_checkIndexArray" = True
-                                    | unpack xs == "_checkNil"        = True
+conmute (ExpS (Call (Name xs) _)) _ 
+  | unpack xs == "_checkIndexArray" = True
+  | unpack xs == "_checkNil"        = True
 conmute (ExpS x) y = inmut x || inmut y
+{-
+conmute (ExpS (Const _)) _         = True --TODO
+conmute _                (Name  _) = True --TODO
+conmute _                (Const _) = True --TODO
+-}
 conmute _        _ = False
 
 nop :: Stm
@@ -47,15 +53,14 @@ reorder []                  = return (nop, [])
 reorder (e@(Call _ _) : es) = do
   t <- newTemp
   reorder (Eseq (Move (Temp t) e) (Temp t) : es)
-reorder (e : rest) = do
-  (sts , e') <- doExp e
+reorder (a : rest) = do
+  (sts , e) <- doExp a
   (sts', el) <- reorder rest
-  if conmute sts' e'
-    then return (sts % sts', e' : el)
+  if conmute sts' e
+    then return (sts % sts', e : el)
     else do
       t <- newTemp
-      return (sts % Move (Temp t) e' % sts', Temp t : el)
-      --return (sts % Move (Temp t) e % sts', Temp t : el)
+      return (sts % Move (Temp t) e % sts', Temp t : el)
 
 reorderExp :: (TLGenerator w, Monad w) => ([Exp], [Exp] -> Exp) -> w (Stm, Exp)
 reorderExp (el, build) = 
@@ -75,11 +80,15 @@ doStm (Seq a b) =
 doStm (Jump e lb) = reorderStm ([e], \l -> Jump (prim l) lb)
 doStm (CJump p a b t f) =
   reorderStm ([a, b], \l -> CJump p (prim l) (seg l) t f)
+doStm (Move (Temp t) (Call (Name f) el)) =
+  reorderStm (el, \l -> Move (Temp t) (Call (Name f) l))
 doStm (Move (Temp t) (Call e el)) =
-  reorderStm (e : el, \l -> Move (Temp t) (Call (prim l) (tail l)))
+  reorderStm (e : el, \l -> Move (Temp t) (Call (prim l) (tail l))) 
 doStm (Move (Temp t) b) = reorderStm ([b], Move (Temp t) . prim)
 doStm (Move (Mem e) b) = reorderStm ([e, b], \l -> Move (Mem (prim l)) (seg l))
 doStm (Move (Eseq s e) b) = doStm $ Seq s (Move e b)
+doStm (ExpS (Call (Name f) el)) =
+  reorderStm (el, \l -> ExpS $ Call (Name f) l)
 doStm (ExpS (Call e el)) =
   reorderStm (e : el, \l -> ExpS $ Call (prim l) (tail l))
 doStm (ExpS e) = reorderStm ([e], ExpS . head)
@@ -98,6 +107,8 @@ doExp (Eseq s e   ) = do
   sts        <- doStm s
   (sts', e') <- doExp e
   return (sts % sts', e')
+doExp (Call (Name f) el) =
+  reorderExp (el, \l -> Call (Name f) l)
 doExp (Call e es) = reorderExp (e : es, \l -> Call (prim l) (tail l))
 doExp e           = reorderExp ([], const e)
 
@@ -145,7 +156,7 @@ class Monad w => Trackable w where
   enterBlock' :: Label -> [Stm] -> w ()
   enterBlock :: [Stm] -> w ()
   enterBlock b@(Label s : _) = enterBlock' s b
-  enterBlock _ = return ()
+  enterBlock x = return ()
   getBlock :: Label -> w (Maybe [Stm])
 
 -- [TAM](https://es.wikipedia.org/wiki/Tanque_Argentino_Mediano)

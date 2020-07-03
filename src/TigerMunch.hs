@@ -33,7 +33,7 @@ formatAux f ('`':'d':rest) dst src jmp =
   let (digs, nodigs) = span isDigit rest
   in f (dst !! (read digs :: Int)) ++ formatAux f nodigs dst src jmp 
 formatAux f ('`':'j':rest) dst src jmp 
-  | isNothing jmp = error "WAT"
+  | isNothing jmp = error "Wat?"
   | otherwise = let (digs, nodigs) = span isDigit rest
                 in (unpack $ (fromJust jmp) !! (read digs :: Int)) ++ formatAux f nodigs dst src jmp
 formatAux f (r:rest) dst src jmp = r : (formatAux f rest dst src jmp)
@@ -117,13 +117,13 @@ munchExp (Binop Mul e1 e2) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      result (\r -> emit Oper{assem = "mult `s0, `s1\n",
-                             dst = [], src = [e1', e2'], jump = Nothing})
-     return lo
+                             dst = [rv0], src = [e1', e2'], jump = Nothing})
+     --return lo
 munchExp (Binop Div e1 e2) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      result (\r -> emit Oper{assem = "div `s0, `s1\n",
-                             dst = [lo, hi], src = [e1', e2'], jump = Nothing})
+                             dst = [rv0, rv1], src = [e1', e2'], jump = Nothing})
 munchExp (Binop And (Const i) e2) 
   | i == 0    = result (\r -> moving r zero) 
   | otherwise = 
@@ -211,27 +211,11 @@ munchExp (Mem e) =
   do e' <- munchExp e
      result (\r -> emit Oper{assem = "lw `d0, 0(`s0)\n",
                             dst = [r], src = [e'], jump = Nothing})
-{-munchExp (Eseq stm e) = 
-  internalAux $ "Revisar etapas, hasta selección de instrucciones." ++ 
-                "La secuenciacion con resultado debería estar canonizada -- TigerMunch"
-  do munchStm stm
-     t <- munchExp e
-     return t
--}
-{-munchExp (Call e@(Name l) args) =
- do args' <- munchArgs 0 args
-     let n1 = Data.List.length args'
-     let n2 = Data.List.length calldefs
-     result (\r -> emit Oper{assem = "jal " ++ unpack l ++ "\nmove `d"++ show n2 ++ ", `s" ++ show n1 ++ "\n",
-                   dst = calldefs ++ [r], src = args' ++ [v0], jump = Nothing})
--}
---  internalAux $ "Revisar etapas, hasta selección de instrucciones." ++ unpack l ++ 
---                " debería estar canonizado -- TigerMunch"
 munchExp e = internalAux $ "Revisar etapas, hasta selección de instrucciones -- TigerMunch 1"
   
 munchStm :: (Assembler w) => Stm -> w ()
 munchStm (Tree.Move (Temp t) (Call e@(Name l) args)) =
-  do args' <- munchArgs 0 args
+  do args' <- munchArgs 1 args
      emit Oper{assem = "jal " ++ unpack l ++ "\n",
                dst = calldefs, src = args', jump = Just [l]}
      moving t rv0 
@@ -262,7 +246,7 @@ munchStm (Jump (Name n) (Just l)) =
   emit Oper{assem = "j `j0\n", dst = [], src = [], jump = Just [l]}
 munchStm (Jump e1 Nothing) = 
   do e1' <- munchExp e1
-     emit Oper{assem = "jr `j0\n", dst = [], src = [e1'], jump = Nothing} 
+     emit Oper{assem = "jr `s0\n", dst = [], src = [e1'], jump = Nothing} 
 munchStm (Jump _ _) = internalAux "Revisar etapas, hasta selección de instrucciones -- TigerMunch 3"
 munchStm (CJump Tree.EQ e1 e2 lt lf) = 
   do e1' <- munchExp e1
@@ -272,7 +256,7 @@ munchStm (CJump Tree.EQ e1 e2 lt lf) =
 munchStm (CJump Tree.NE e1 e2 lt lf) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
-     emit Oper{assem = "beq `s0, `s1, `j1\nj `j0\n",
+     emit Oper{assem = "bne `s0, `s1, `j0\nj `j1\n",
                dst = [], src = [e1', e2'], jump = Just [lt, lf]}
 munchStm (CJump Tree.LT e1 e2 lt lf) = 
   do e1' <- munchExp e1
@@ -317,20 +301,13 @@ munchStm (CJump UGE e1 e2 lt lf) =
 munchStm (Label l) =
   emit ILabel{assem = unpack l ++ ":\n", lab = l}
 munchStm (ExpS (Call e@(Name l) args)) =
-  do args' <- munchArgs 0 args
+  do args' <- munchArgs 1 args
      emit Oper{assem = "jal " ++ unpack l ++ "\n",
                dst = calldefs, src = args', jump = Just [l]}
      return ()
 munchStm (ExpS e) =
   do munchExp e
      return ()
-{-munchStm (Seq s1 s2) =
-  do munchStm s1
-     munchStm s2
-     return ()
--}
-  --internalAux $ "Revisar etapas, hasta selección de instrucciones." ++ 
-   --             "La secuenciacion debería estar canonizada -- TigerMunch"
 munchStm s = internalAux $ "Revisar etapas, hasta selección de instrucciones -- TigerMunch 4" ++
                            show s 
   

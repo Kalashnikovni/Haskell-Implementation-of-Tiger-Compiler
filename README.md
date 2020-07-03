@@ -47,6 +47,32 @@ Pd: stack funcionó solo instalando usando el siguiente comando:
 curl -sSL https://get.haskellstack.org/ | sh
 ```
 
+Para obtener código ejecutable con target MIPS:
+
+mips-linux-gnu-gcc-5 test47.s ../Haskell-Implementation-of-Tiger-Compiler/runtime.c -o ./exec
+
+Para ejecutar VM de Debian sobre MIPS:
+
+qemu-system-mips64 -M malta -kernel vmlinux-2.6.32-5-5kc-malta -hda debian_squeeze_mips_standard.qcow2 -append "root=/dev/sda1 console=tty0" -net user,hostfwd=tcp::10022-:22 -net nic
+
+Para cambiar configuración del teclado en la VM:
+
+1- Editar /etc/default/keyboard al layout deseado
+2- Ejecutar el siguiente comando: service keyboard-setup restart
+
+Después, copiamos el binario del host al guest con:
+
+scp -P 10022 ./Bins/binary user@localhost:/home/user/
+
+Ahora, para compartir del host al guest:
+
+1- Si hace falta instalar los siguientes paquetes, ejecutar el comando: sudo aptitude install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager
+2- Ejecutar: sudo chown libvirt-qemu foldertoshare
+
+Para Virtual Machine Manager:
+
+install ovmf, dnsmasq, firewalld, dmidecode
+
 Por el momento no nos hemos ocupado del intérprete del compilador.
 
 A continuación listamos algunas decisiones de diseño del compilador, que deben ser
@@ -165,4 +191,5 @@ tenidas en cuenta si se desea analizar la construcción que hicimos del mismo.
 - [ ] ¿Está bien lo que hicimos para TigerAssem.munchExp(Binop And (Const i) e2)?
 - [ ] ¿Memoria vs stack? Aparece en TigerFrame.
 - [ ] ¿Por qué el contador de registros iniciales es 1 en TigerFrame?
-
+- [ ] Opcional: ¿Cuándo hay que restar al sp? ¿Cuando se spillean, en procEntryExit3?
+ 

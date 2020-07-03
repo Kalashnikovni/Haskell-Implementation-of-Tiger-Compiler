@@ -144,13 +144,11 @@ transDecs ((VarDec nm escap t init p) : xs) w =
 transDecs ((FunctionDec fs) : xs)          w =
   do res1 <- mapM (\f@(nm, params, tf, bd, p) -> 
                do actLvl <- topLevel
-                  l <- newLabel
-                  let flabel = pack $ unpack l ++ "-" ++ unpack nm 
                   let varEscaps = P.map (\(_, x, _) -> x) params
                   let lvlFun = newLevel actLvl nm varEscaps
                   tfun <- maybe (return TUnit) (\t -> getTipoT t) tf
                   targs <- mapM (\(_, _, c) -> transTy c) params
-                  return (lvlFun, flabel, targs, tfun, TigerSres.Propia)) fs
+                  return (lvlFun, nm, targs, tfun, TigerSres.Propia)) fs
      res2 <- mapM_ (\((nm, params, tf, bd, p), (lvlFun, _, _, _, _))->
             envFunctionDec lvlFun $ 
               insertFFold fs res1
@@ -453,7 +451,7 @@ runSeman = runMonada1 . transExp
 
 transProg :: (MemM w, Manticore w) => Exp -> w [TransFrag]
 transProg e = 
-  do (be, _) <- transExp (LetExp [FunctionDec [(pack "_tigermain", 
+  do (be, _) <- transExp (LetExp [FunctionDec [(pack "tigermain", 
                                                 [], 
                                                 Just $ pack "int", 
                                                 e, 

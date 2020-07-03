@@ -25,6 +25,8 @@ import Control.Monad
 import Control.Monad.State hiding (evalState)
 
 import Data.Either
+import Data.List as L
+import Data.List.Split as S
 import Data.Maybe
 import Data.Text.Lazy as Lazy
 
@@ -43,7 +45,8 @@ data Options = Options {
         optDebEscap :: Bool,
         optFrags :: Bool,
         optInstrs :: Bool,
-        optLiveness :: Bool}
+        optLiveness :: Bool,
+        optRegAlloc :: Bool}
     deriving Show
 
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
@@ -57,7 +60,8 @@ defaultOptions = Options {optParse = False,
                           optDebEscap = False, 
                           optFrags = False,
                           optInstrs = False,
-                          optLiveness = False}
+                          optLiveness = False,
+                          optRegAlloc = False}
 
 options :: [OptDescr (Options -> Options)]
 options = [Option "p" ["parse"] (NoArg (\opts -> opts{optParse = True}))
@@ -69,7 +73,9 @@ options = [Option "p" ["parse"] (NoArg (\opts -> opts{optParse = True}))
            Option "i" ["instrs"] (NoArg (\opts -> opts{optInstrs = True}))
                   "Instrucciones seleccionadas para la expresion",
            Option "l" ["liveness"] (NoArg (\opts -> opts{optLiveness = True}))
-                  "Análisis de liveness del codigo generado"]
+                  "Análisis de liveness del codigo generado",
+           Option "r" ["regAlloc"] (NoArg (\opts -> opts{optRegAlloc = True}))
+                  "Asignación de registros"]
 
 compilerOptions :: [String] -> IO (Options, [String])
 compilerOptions argv = case getOpt Permute options argv of
@@ -92,10 +98,10 @@ main =
      sourceCode <- if isempty then fail header else readFile s
      let (parse, st1) = runSt (parseStage sourceCode) 0
      when (optParse opts') (do putStrLn $ renderExp parse
-                               putStrLn "") 
+                               putStrLn "**********************************************************") 
      let (escap, st2) = runSt (escapStage parse) st1
      when (optDebEscap opts') (do putStrLn $ renderExp escap
-                                  putStrLn "")
+                                  putStrLn "********************************************************")
      let (frags, st3) = runSt (intermediateStage escap) st2
      when (optFrags opts') (mapM_ (putStrLn . renderFrag) frags)
      let (instrs, st4) = runSt (instrSelectStage frags) st3
@@ -103,16 +109,32 @@ main =
                                 mapM_ (\(ins, fr) -> do putStr $ renderInstr ins fr
                                                         putStrLn $ show fr
                                                         putStrLn "") $ snd instrs
-                                putStrLn "")
+                                putStrLn "********************************************************")
      let ((fg, vs), st5) = runSt (flowGraph instrs) st4
      let (live, st6) = runSt (livenessStage (fg, vs)) st5
      when (optLiveness opts') (do printMap live
-                                  putStrLn ""
+                                  putStrLn "********************************************************"
                                   putStrLn $ "Flow graph en formato .dot escrito en " ++ outDir
                                   createDirectoryIfMissing False outDir
                                   writeFile (outDir ++ "/flowgraph.dot") 
                                             (Lazy.unpack $ defaultVis fg)
-                                  putStrLn "")
+                                  putStrLn "********************************************************")
+     let (assemInstrs, st7) = runSt (regAllocStage instrs) st6
+     when (optRegAlloc opts') (do mapM_ (putStrLn . renderStrFrag) $ fst assemInstrs
+                                  mapM_ (\(ins, fr, alloc) -> do putStr $ renderInstr ins fr
+                                                                 putStrLn ""
+                                                                 putStrLn $ renderFrame fr
+                                                                 putStrLn ""
+                                                                 putStrLn $ show alloc
+                                                                 putStrLn "") (snd assemInstrs)) 
+     let (newFileName, _) = P.span (\c -> c /= '.') (L.last $ S.splitOn "/" s)
+     writeFile (outDir ++ "/" ++ newFileName ++ ".s") 
+               (".data\n" ++
+                (P.concat $ P.map renderStrFrag (fst assemInstrs)) ++ 
+                ".text\n" ++
+                ".globl tigermain\n" ++
+                (P.concat $ P.map (\(ins, fr, _) -> renderInstr ins fr) (snd assemInstrs)) ++
+                "\nfinal:")
 
 
 

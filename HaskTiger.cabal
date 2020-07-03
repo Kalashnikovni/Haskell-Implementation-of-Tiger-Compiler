@@ -58,6 +58,7 @@ library
                        , mtl
                        , parsec
                        , pretty
+                       , split
                        , text
                        , transformers
                        -- QuasiQuoting things
@@ -90,6 +91,7 @@ executable HaskTiger
                        , mtl
                        , parsec
                        , pretty
+                       , split
                        , text
                        , transformers
                        , HaskTiger

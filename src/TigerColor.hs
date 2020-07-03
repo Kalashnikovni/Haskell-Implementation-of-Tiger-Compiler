@@ -382,11 +382,11 @@ pickSpill =
 
 assignColors :: (Color w) => w ()
 assignColors =
-  whileM_ (do selectStk <- getSelectStack
-              return $ not $ stackIsEmpty selectStk)
-          (do selectStk <- getSelectStack
-              maybe (internalAux $ "TigerColor 24 -- Haskell error")
-                    (\(newStk, n) -> 
+  do whileM_ (do selectStk <- getSelectStack
+                 return $ not $ stackIsEmpty selectStk)
+             (do selectStk <- getSelectStack
+                 maybe (internalAux $ "TigerColor 24 -- Haskell error")
+                       (\(newStk, n) -> 
                          do putSelectStack newStk
                             let okColors = keysSet precolored
                             ig <- getIGraph
@@ -397,16 +397,14 @@ assignColors =
                             case S.null newOkColors of
                               True -> do spilled <- getSpilledNodes
                                          putSpilledNodes $ S.union spilled nSet
-                                         coalesced <- getCoalescedNodes
-                                         paintCoalesced coalesced
                               False -> do colored <- getColoredNodes
                                           putColoredNodes $ S.union colored nSet
                                           let c = S.elemAt 0 newOkColors
                                           color <- getColor
-                                          putColor $ M.insert n c color  
-                                          coalesced <- getCoalescedNodes
-                                          paintCoalesced coalesced)
-                    (stackPop selectStk))
+                                          putColor $ M.insert n c color)
+                       (stackPop selectStk))
+     coalesced <- getCoalescedNodes
+     paintCoalesced coalesced
 
 limitColors :: (Color w) => Set ATemp -> Set ATemp -> w (Set ATemp)
 limitColors wSet colors 
@@ -440,8 +438,9 @@ rewriteProgram =
   do spilled <- getSpilledNodes 
      let sz = wSz * S.size spilled
      instrs <- getInstrs
-     -- TODO: es addi o subi?
-     putInstrs $ Oper{assem = "addi `d0, `s0, " ++ show sz ++ "\n", dst = [sp], src = [sp], jump = Nothing} : instrs
+     putInstrs $ [head instrs] ++ 
+                 [Oper{assem = "addi `d0, `s0, -" ++ show sz ++ "\n", dst = [sp], src = [sp], jump = Nothing}] ++
+                 (tail instrs)
      newTemps <- rewriteSpilled
      putOffset 0
      putRefs []
@@ -576,11 +575,47 @@ registerAllocation :: (Color w) => [Instr] -> Frame -> w ([Instr], Frame)
 registerAllocation [] fr = return ([], fr)
 registerAllocation instrs fr =
   do putInstrs instrs
+     putFrame fr
      putInit $ (P.foldl (\set i -> S.union (makeInit i) set) (S.empty) instrs) S.\\ (keysSet precolored)
      mainColor
+     applyColors
      newInstrs <- getInstrs
-     fr <- getFrame
-     return (newInstrs, fr)
+     fram <- getFrame
+     return (removeCoal newInstrs, fram)
+
+applyColors :: (Color w) => w ()
+applyColors = 
+  do instrs <- getInstrs
+     alloc <- getColor 
+     putInstrs $ P.map (applyColor alloc) instrs
+
+applyColor :: Allocation -> Instr -> Instr
+applyColor alloc (Oper assem dst src jmp) = 
+  let newDst = P.map (\t -> maybe (P.error "TigerColor 26")
+                                  id
+                                  (M.lookup t alloc)) dst
+      newSrc = P.map (\t -> maybe (P.error "TigerColor 27")
+                                  id
+                                  (M.lookup t alloc)) src
+  in Oper assem newDst newSrc jmp
+applyColor alloc (Move assem dst src) = 
+  let newDst = P.map (\t -> maybe (P.error "TigerColor 28")
+                                  id
+                                  (M.lookup t alloc)) dst
+      newSrc = P.map (\t -> maybe (P.error $ "TigerColor 29")
+                                  id
+                                  (M.lookup t alloc)) src
+  in Move assem newDst newSrc
+applyColor alloc (ILabel assem lab) = ILabel assem lab
+
+removeCoal :: [Instr] -> [Instr]
+removeCoal [] = [] 
+removeCoal (Oper assem dst src jmp : is) =
+  if dst == src then removeCoal is else (Oper assem dst src jmp : (removeCoal is))
+removeCoal (Move assem dst src : is) =
+  if dst == src then removeCoal is else (Move assem dst src : (removeCoal is))
+removeCoal (ILabel assem lab : is) = ILabel assem lab : removeCoal is
+    
 
 makeInit :: Instr -> Set ATemp
 makeInit (Oper assem dst src jmp) = S.union (S.fromList dst) (S.fromList src)
@@ -589,11 +624,6 @@ makeInit _ = S.empty
 
 runMonadaRA :: AllocMonada ([Instr], Frame) -> StGen (Either Symbol ([Instr], Frame), AllocEstado)
 runMonadaRA mon = runStateT (runExceptT mon) initAlloc 
-
-
-{-color :: IGraph -> Allocation -> (Vertex -> Int) -> [Temp] -> (Allocation, [Temp])
-color ig precolored ??? allregs 
--}
 
 data AllocEstado = AE{initial :: Set ATemp,
                       simplifyWorkList :: Set ATemp,
