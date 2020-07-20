@@ -1,11 +1,14 @@
-module InstrSelect where
+module RegAlloc where
 
 import State
 import TigerAbs as TA
 import TigerAssem
 import TigerCanon
+import TigerColor
 import TigerEscap
 import TigerFrame hiding (exp)
+import TigerLiveness
+import TigerMakeGraph
 import TigerMunch
 import TigerParser (parse)
 import TigerPrettyIr
@@ -16,7 +19,11 @@ import TigerTree
 import TigerUnique
 import Tools
 
+import Control.Monad.Except
 import Control.Monad.Trans.State.Lazy
+
+import Data.Map as M
+import Data.Set
 
 import Prelude as P
 
@@ -24,7 +31,7 @@ import System.Directory
 
 main :: IO ()
 main = 
-  putStrLn "\n======= Test suite Instruction Selection [] in progress =======" >>
+  putStrLn "\n======= Test suite RegAlloc [] in progress =======" >>
   testerPrint "./test/test_code/good" "test12.tig" >>
   putStrLn "\n======= Test suite FIN ======="  
 
@@ -37,7 +44,7 @@ parseStage :: String -> EstadoTest TA.Exp
 parseStage str =
   either (error . show)
          return
-         (parse str)
+         (TigerParser.parse str)
 
 escapStage :: TA.Exp -> EstadoTest TA.Exp
 escapStage exp =
@@ -49,7 +56,7 @@ intermediateStage :: TA.Exp -> EstadoTest [TransFrag]
 intermediateStage exp =
   do res <- runTransProg exp
      either (error . show)
-            return
+            (\x -> return $ x ++ [Proc (Label $ pack "final") (newFrame (pack "final") [])])
             res
 
 instrSelectStage :: [TransFrag] -> EstadoTest ([Frag], [([Instr], Frame)]) 
@@ -59,28 +66,44 @@ instrSelectStage tfs =
                                    return $ either (error . show)
                                                    id
                                                    resCodeGen) stms
-     return $ (strs, zip res (map snd stms))
+     return $ (strs, P.zip res (P.map snd stms))
 
-testerInstrSelect :: String -> EstadoTest ([Frag], [([Instr], Frame)])
-testerInstrSelect str =
+regAllocStage :: ([Frag], [([Instr], Frame)]) -> EstadoTest ([Frag], [([Instr], Frame, Allocation)]) 
+regAllocStage (strs, linstrs) =
+  let res = P.map (\(instrs, fr) -> 
+                    let newIns = procEntryExit2 fr instrs
+                        (val, st) = runSt (runMonadaRA $ registerAllocation newIns fr) 0
+                    in  either (error . show)
+                               (\(is, f) -> (is, f, color $ snd val))
+                               (fst val)) linstrs 
+  in return $ (strs, res)
+ 
+testerRegAlloc :: String -> EstadoTest ([Frag], [([Instr], Frame, Allocation)])
+testerRegAlloc str =
   do res1 <- parseStage str
      res2 <- escapStage res1
-     res3 <- intermediateStage res2 
-     instrSelectStage res3
+     res3 <- intermediateStage res2
+     res4 <- instrSelectStage res3
+     regAllocStage res4
 
+--res::([Frag], [([Instr], Frame, Allocation)])
 testerPrint :: String -> String -> IO ()
 testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
-     let res = fst $ runSt (testerInstrSelect str) 0
+     let (res, st) = runSt (testerRegAlloc str) 0
      mapM_ (putStrLn . renderStrFrag) $ fst res
-     mapM_ (\(instrs, fr) -> do putStr $ renderInstr instrs fr
-                                putStrLn $ show fr
-                                putStrLn "") $ snd res
+     mapM_ (\(instrs, fr, alloc) -> do putStr $ renderInstr instrs fr
+                                       putStrLn ""
+                                       putStrLn $ renderFrame fr
+                                       putStrLn ""
+                                       putStrLn $ show alloc
+                                       putStrLn "") (snd res)
 
 renderStrFrag :: Frag -> String
 renderStrFrag (AString lab syms) =
-  unpack lab ++ ":" ++ "\n  " ++ (concat $ map (\s -> unpack s ++ "\n  ") syms)
+  unpack lab ++ ":" ++ "\n  " ++ (concat $ P.map (\s -> unpack s ++ "\n  ") syms)
 renderStrFrag _ = error "Fragments should be strings"
+
 
 renderInstr :: [Instr] -> Frame -> String
 renderInstr instrs fr =
@@ -91,4 +114,6 @@ renderInstr instrs fr =
 testerPrintDir :: String -> IO ()
 testerPrintDir loc = 
   do fs <- listDirectory loc
-     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> testerPrint loc f >> putStrLn "***************") fs
+     mapM_ (\f -> putStrLn ("*** " ++ f ++ " ***") >> 
+                  testerPrint loc f >> 
+                  putStrLn "***************") fs

@@ -42,7 +42,8 @@ prettyField ((s, _, t):fs) =
   text (show s) <>
   text ":" <>
   text (show t) <>
-  text ", "
+  text ", " <>
+  prettyField fs
 
 prettyDec :: Dec -> Doc
 prettyDec (FunctionDec f) = vcat $ map functionDec f

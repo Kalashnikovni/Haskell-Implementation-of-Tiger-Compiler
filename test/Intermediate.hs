@@ -15,9 +15,10 @@ import System.Directory
 
 main :: IO ()
 main = 
-  putStrLn "\n======= Test suite Translate [for TigerTrans testing] in progress =======" >>
-  putStrLn "Show results good:" >>
-  testerPrintDir "./test/test_code/good" >>
+  putStrLn "\n======= Test suite Intermediate [for TigerTrans testing] in progress =======" >>
+  --putStrLn "Show results good:" >>
+  --testerPrintDir "./test/test_code/good" >>
+  testerPrint "./test/test_code/good" "test12.tig" >>
   putStrLn "\n======= Test suite FIN ======="
 
 type EstadoTest = StGen
@@ -50,7 +51,7 @@ testerIntermediate str =
 testerPrint :: String -> String -> IO ()
 testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
-     mapM_ (\frag -> putStrLn $ renderFrag frag) (fst $ runSt (testerIntermediate str) 0) 
+     mapM_ (\frag -> putStrLn $ show frag) (fst $ runSt (testerIntermediate str) 0) 
 
 testerPrintDir :: String -> IO ()
 testerPrintDir loc = 

@@ -238,6 +238,7 @@ coalesceAux m u v =
                 case (S.member u pre && and pred1) || ((not $ S.member u pre) && pred2) of
                   True -> 
                     do coalesced <- getCoalescedMoves 
+                       trace (show mSet) $ return ()
                        putCoalescedMoves (S.union coalesced mSet)
                        combine u v
                        addWorkList u
@@ -388,7 +389,7 @@ assignColors =
                  maybe (internalAux $ "TigerColor 24 -- Haskell error")
                        (\(newStk, n) -> 
                          do putSelectStack newStk
-                            let okColors = keysSet precolored
+                            let okColors = S.fromList usablecolors
                             ig <- getIGraph
                             let adjList = graph ig
                             let wSet = S.union (preSet n adjList) (postSet n adjList)
@@ -439,7 +440,7 @@ rewriteProgram =
      let sz = wSz * S.size spilled
      instrs <- getInstrs
      putInstrs $ [head instrs] ++ 
-                 [Oper{assem = "addi `d0, `s0, -" ++ show sz ++ "\n", dst = [sp], src = [sp], jump = Nothing}] ++
+                 [Oper{assem = "addq $-"  ++ show sz ++ "(`s0), `d0\n", dst = [sp], src = [sp], jump = Nothing}] ++
                  (tail instrs)
      newTemps <- rewriteSpilled
      putOffset 0
@@ -514,7 +515,7 @@ createStores :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
 createStores []     = return []
 createStores (t:ts) =
   do res <- createStores ts
-     return $ Move{assem = "sw `s0, " ++ show (thd3 t * wSz) ++ "(`d0)\n",
+     return $ Move{assem = "movq `s0, " ++ show (thd3 t * wSz) ++ "(`d0)\n",
                    dst = [fp], src = [snd3 t]} : res   
 
 createLoads :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
@@ -523,7 +524,7 @@ createLoads (t:ts) =
   do res <- createLoads ts
      refs <- getRefs
      let offset = maybe (P.error $ "TigerColor 25") id (List.lookup (fst3 t) refs)
-     return $ Move{assem = "lw `d0, " ++ show (offset * wSz) ++ "(`s0)\n",
+     return $ Move{assem = "movq " ++  show (offset * wSz) ++ "(`s0), `d0\n",
                    dst = [snd3 t], src = [fp]} : res
 
 replace :: (Color w, Eq a) => a -> a -> [a] -> w [a]
@@ -611,7 +612,7 @@ applyColor alloc (ILabel assem lab) = ILabel assem lab
 removeCoal :: [Instr] -> [Instr]
 removeCoal [] = [] 
 removeCoal (Oper assem dst src jmp : is) =
-  if dst == src then removeCoal is else (Oper assem dst src jmp : (removeCoal is))
+  Oper assem dst src jmp : (removeCoal is)
 removeCoal (Move assem dst src : is) =
   if dst == src then removeCoal is else (Move assem dst src : (removeCoal is))
 removeCoal (ILabel assem lab : is) = ILabel assem lab : removeCoal is

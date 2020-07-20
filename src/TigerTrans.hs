@@ -275,7 +275,7 @@ instance (MemM w) => IrGen w where
        -- No estoy seguro que tenga que estar esto acá.
        l <- newLabel
        --let ln = T.append (pack ".long ")  (pack $ show $ T.length t)
-       let str = T.append (T.append (pack ".asciiz \"") t) (pack "\"")
+       let str = pack $ ".quad " ++ (show $ T.length t) ++ "\n .string \"" ++ unpack t ++ "\""
        pushFrag $ AString l [str]
        return $ Ex $ Name l
     -- | Función utilizada para la declaración de una función.
@@ -299,7 +299,7 @@ instance (MemM w) => IrGen w where
   functionDec bd lvl proc = 
     do body <- (case proc of
                   IsProc -> unNx bd
-                  IsFun  -> Move (Temp rv0) <$> unEx bd)
+                  IsFun  -> Move (Temp rv) <$> unEx bd)
        let fr = getFrame lvl
        newBody <- procEntryExit1 fr body
        procEntryExit lvl (Nx $ Seq (Label $ name fr) newBody)
@@ -322,7 +322,7 @@ instance (MemM w) => IrGen w where
          IsProc -> return $ Nx $ ExpS $ Call (Name nm) fargs
          IsFun  -> do tres <- newTemp
                       return $ Ex $ Eseq (seq [ExpS $ Call (Name nm) fargs,
-                                               Move (Temp tres) (Temp rv0)]) 
+                                               Move (Temp tres) (Temp rv)]) 
                                          (Temp tres)
     where defLvl = getNlvl lvl
           isRT (Runtime) = True

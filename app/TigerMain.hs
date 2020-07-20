@@ -131,10 +131,11 @@ main =
      writeFile (outDir ++ "/" ++ newFileName ++ ".s") 
                (".data\n" ++
                 (P.concat $ P.map renderStrFrag (fst assemInstrs)) ++ 
-                ".text\n" ++
+                "\n.text\n" ++
                 ".globl tigermain\n" ++
                 (P.concat $ P.map (\(ins, fr, _) -> renderInstr ins fr) (snd assemInstrs)) ++
-                "\nfinal:")
+                "\nfinal:\n" ++
+                (P.concat $ P.map formatInstr (mkEpil defaultFrame)))
 
 
 

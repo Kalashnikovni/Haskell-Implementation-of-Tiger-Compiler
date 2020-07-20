@@ -18,53 +18,37 @@ import Prelude as P hiding (exp)
 
 -- | Registros especiales
 --fp, sp, lo, hi, zero, ra, rv0, rv1, gp :: Temp 
-fp, sp, zero, ra, rv0, rv1, gp :: Temp 
-gp = pack "gp"
-fp = pack "fp"
-sp = pack "sp"
---hi = pack "high"
---lo = pack "low"
-zero = pack "zero"
-ra = pack "ra"
-rv0 = pack "v0"
-rv1 = pack "v1"
+sp, fp, rv :: Temp 
+sp = pack "rsp"
+fp = pack "rbp"
+rv = pack "rax"
 
-a0, a1, a2, a3 :: Temp
-a0 = pack "a0"
-a1 = pack "a1"
-a2 = pack "a2"
-a3 = pack "a3"
+a0, a1, a2, a3, a5 :: Temp
+a0 = pack "rdi"
+a1 = pack "rsi"
+a2 = pack "rdx"
+a3 = pack "rcx"
+a4 = pack "r8"
+a5 = pack "r9"
 
-t0, t1, t2, t3, t4, t5, t6, t7, t8, t9 :: Temp 
-t0 = pack "t0"
-t1 = pack "t1"
-t2 = pack "t2"
-t3 = pack "t3"
-t4 = pack "t4"
-t5 = pack "t5"
-t6 = pack "t6"
-t7 = pack "t7"
-t8 = pack "t8"
-t9 = pack "t9"
-
-s0, s1, s2, s3, s4, s5, s6, s7 :: Temp
-s0 = pack "s0"
-s1 = pack "s1"
-s2 = pack "s2"
-s3 = pack "s3"
-s4 = pack "s4"
-s5 = pack "s5"
-s6 = pack "s6"
-s7 = pack "s7"
+r0, r1, r2, r3, r4, r5, r6, r7 :: Temp
+r0 = pack "rax"
+r1 = pack "rbx"
+r2 = pack "r10"
+r3 = pack "r11"
+r4 = pack "r12"
+r5 = pack "r13"
+r6 = pack "r14"
+r7 = pack "r15"
 
 -- | Listas de registros que define la llamada y registros especiales
 calldefs, specialregs, argregs, callersaved :: [Temp]
-argregs = [a0, a1, a2, a3]
-calleesaved = [s0, s1, s2, s3, s4, s5, s6, s7]
-callersaved = [t0, t1, t2, t3, t4, t5, t6, t7, t8, t9]
-calldefs = [rv0, ra] ++ callersaved
---specialregs = [fp, sp, hi, lo, zero, ra, rv0, rv1, gp]
-specialregs = [fp, sp, zero, ra, rv0, rv1, gp]
+argregs = [a0, a1, a2, a3, a4, a5]
+calleesaved = [r1, r4, r5, r6, r7]
+callersaved = [rv, r2, r3]
+calldefs = callersaved
+specialregs = [fp, sp]
+usablecolors = calleesaved ++ argregs ++ callersaved
 allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int
@@ -72,11 +56,11 @@ argsRegsCount = P.length argregs
 
 -- | Word size in bytes
 wSz :: Int
-wSz = 4
+wSz = 8
 
 -- | Base two logarithm of word size in bytes
 log2WSz :: Int
-log2WSz = 2
+log2WSz = 3
 
 -- Estos offsets se utilizan para el calculo de acceso de variables que escapan
 -- (principalmente)
@@ -85,13 +69,13 @@ fpPrev :: Int
 fpPrev = 0
 -- | Donde se encuentra el FP del nivel anterior (no necesariamente el llamante?)
 fpPrevLev :: Int
-fpPrevLev = 0
+fpPrevLev = wSz
 
 -- | Esto es un offset previo a al lugar donde se encuentra el lugar de las variables
 -- o de los argumentos.
 argsGap, localsGap :: Int
 argsGap = wSz
-localsGap = 4
+localsGap = wSz
 
 -- | Dan inicio a los contadores de argumentos, variables y registros usados.
 -- Ver |defaultFrame|
@@ -221,28 +205,40 @@ exp (InReg l) c
 procEntryExit1 :: (Monad w, TLGenerator w) => Frame -> Stm -> w Stm
 procEntryExit1 fr body = 
   do (pre, post) <- allocCallee 
-     return $ fseq $ adjustArgs (formalsAcc fr) argregs 0 ++ pre ++ [body] ++ post
+     return $ fseq $ adjFp ++ adjustArgs (formalsAcc fr) (tail argregs) 0 ++ pre ++ [body] ++ post
+  where adjFp = maybe [] (\x -> [x]) $ adjustFp fr
 
 fseq :: [Stm] -> Stm
 fseq []     = ExpS $ Const 0
 fseq [s]    = s
 fseq (x:xs) = Seq x (fseq xs)
 
+adjustFp :: Frame -> Maybe Stm
+adjustFp fr 
+  | infr == 0 = Nothing
+  | otherwise = Just $ T.Move (Temp sp) (Mem (Binop Minus (Temp sp) (Const infr)))  
+  where isInFrame (InFrame _) = True
+        isInFrame _         = False
+        infr = P.length $ P.filter  isInFrame $ formalsAcc fr
+
 adjustArgs :: [Access] -> [Temp] -> Int -> [Stm]
-adjustArgs [] _ _             = []
+adjustArgs [] _ _              = []
 adjustArgs ((InReg t):as) [] i =
-  T.Move (Mem (Binop Plus (Temp fp) (Const $ wSz * i))) (Temp t) : adjustArgs as [] (i + 1)
+  T.Move (Temp t) (Mem (Binop Plus (Temp fp) (Const $ wSz * i + 2 * wSz))) : adjustArgs as [] (i + 1)
 adjustArgs ((InFrame k):as) [] i =
-  T.Move (Mem (Binop Plus (Temp fp) (Const $ wSz * i))) (auxexp k) : adjustArgs as [] (i + 1)
-adjustArgs ((InReg t):as) (r:rs) i   = T.Move (Temp r) (Temp t) : adjustArgs as rs i
-adjustArgs ((InFrame k):as) (r:rs) i = T.Move (Temp r) (auxexp k) : adjustArgs as rs i
+  T.Move (Mem (Binop Plus (Temp fp) (Const k))) 
+         (Mem (Binop Plus (Temp fp) (Const $ wSz * i + 2 * wSz))) : adjustArgs as [] (i + 1)
+adjustArgs ((InReg t):as) (r:rs) i   = 
+  T.Move (Temp t) (Temp r) : adjustArgs as rs i
+adjustArgs ((InFrame k):as) (r:rs) i = 
+  T.Move (Mem (Binop Plus (Temp fp) (Const $ wSz * k))) (Temp r) : adjustArgs as rs i
 
 allocCallee :: (Monad w, TLGenerator w) => w ([Stm], [Stm]) 
 allocCallee = 
   do ts <- mapM (\i -> newTemp) [1..P.length calleesaved]
      let newTs = zip ts [0..P.length calleesaved - 1]
-     let m1 = P.map (\(t, i) -> T.Move (Temp $ calleesaved !! i) (Temp t)) newTs 
-     let m2 = P.map (\(t, i) -> T.Move (Temp t) (Temp $ calleesaved !! i)) newTs
+     let m1 = P.map (\(t, i) -> T.Move (Temp t) (Temp $ calleesaved !! i)) newTs 
+     let m2 = P.map (\(t, i) -> T.Move (Temp $ calleesaved !! i) (Temp t)) newTs
      return (m1, m2)
 
 procEntryExit2 :: Frame -> [Instr] -> [Instr]
@@ -255,28 +251,19 @@ data FrameFunc = FF {prolog :: [Instr], body :: [Instr], epilogue :: [Instr]}
 
 mkProlog :: Frame -> [Instr]
 mkProlog fr = 
-  case name fr of
-    "final" -> []
-    _ ->
-      let cantLocal = actualLocal fr
-      in [A.Move{assem = "sw `s0, 0(`d0)\n", dst = [sp], src = [fp]},
-          A.Move{assem = "move `d0, `s0\n", dst = [fp], src = [sp]},
-          A.Move{assem = "addi `d0, `s0, -" ++ (show $ cantLocal * wSz) ++ "\n", dst = [sp], src = [sp]}]
+  [A.Oper{assem = "pushq `s0\n", dst = [], src = [fp], jump = Nothing},
+   A.Move{assem = "movq `s0, `d0\n", dst = [fp], src = [sp]},
+   A.Oper{assem = "addq $-8, `d0\n", dst = [sp], src = [], jump = Nothing}]
 
 mkEpil :: Frame -> [Instr]
 mkEpil fr =
-  case name fr of
-    "final" -> []
-    "tigermain" ->
-      let cantLocal = actualLocal fr 
-      in [A.Move{assem = "addi `d0, `s0, " ++ (show $ cantLocal * wSz) ++ "\n", dst = [sp], src = [sp]},
-          A.Move{assem = "lw `d0, 0(`s0)\n", dst = [fp], src = [sp]},
-          A.Oper{assem = "j `j0\n", dst = [], src = [], jump = Just ["final"]}]
-    _ -> 
-      let cantLocal = actualLocal fr
-      in [A.Move{assem = "addi `d0, `s0, " ++ (show $ cantLocal * wSz) ++ "\n", dst = [sp], src = [sp]},
-          A.Move{assem = "lw `d0, 0(`s0)\n", dst = [fp], src = [sp]},
-          A.Oper{assem = "jr $ra\n", dst = [], src = [], jump = Nothing}]
+  let stackEpil = [A.Move{assem = "movq `s0, `d0\n", dst = [sp], src = [fp]},
+                   A.Oper{assem = "popq `d0\n", dst = [fp], src = [], jump = Nothing},
+                   A.Oper{assem = "ret\n", dst = [], src = [], jump = Nothing}]
+  in case name fr of
+       "tigermain" -> 
+         [A.Oper{assem = "jmp `j0\n", dst = [], src = [], jump = Just ["final"]}]
+       _ -> stackEpil
 
 
 procEntryExit3 :: Frame -> [Instr] -> FrameFunc
