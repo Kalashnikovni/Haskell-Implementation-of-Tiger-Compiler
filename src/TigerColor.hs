@@ -20,10 +20,13 @@ import Data.List as List
 import Data.Map as M
 import Data.Set as S
 import Data.Stack as Stk
+import qualified Data.Text.Lazy as Lazy
 
 import Debug.Trace
 
 import Prelude as P
+
+import System.Directory
 
 -- La key es temporario de TigerTemp
 -- El valor es registro de TigerFrame
@@ -43,7 +46,8 @@ build :: (Color w) => [Instr] -> w ()
 build instrs = 
   do let (f, v) = instrs2graph instrs
          (fg, vs) = i2gWithJumps instrs (f, v) v
-         forBuild = M.toList $ inout $ snd $ runState (setEquationAlgorithm fg vs) initLEstado 
+         forBuild = reverse $ M.toList $ inout $ snd $ runState (setEquationAlgorithm fg vs) initLEstado 
+     --trace (Lazy.unpack $ defaultVis fg) $ return ()
      mapM_ (\(node, (_, liveOut)) -> 
               do putLive liveOut
                  case (M.lookup node $ FG.use fg, M.lookup node $ FG.def fg) of
@@ -69,33 +73,40 @@ build instrs =
 
 buildInstruction :: (Color w) => Instr -> w ()
 buildInstruction instr@(Move ass dst src) =
-  do use <- getUse 
-     live <- getLive
-     putLive (live S.\\ use) 
-     def <- getDef
+  do useC <- getUse 
+     live1 <- getLive
+     putLive (live1 S.\\ useC) 
+     defC <- getDef
      mapM_ (\n -> do moveL <- getMoveList
                      maybe (putMoveList $ M.insert n (S.singleton instr) moveL)
                            (\v -> putMoveList $ M.insert n (S.union v (S.singleton instr)) moveL)
-                           (M.lookup n moveL)) (S.union def use)
+                           (M.lookup n moveL)) (S.union defC useC)
      addWorkListMoves instr    
-     live <- getLive
-     putLive (S.union live def)
-     live <- getLive
-     mapM_ (\d -> mapM_ (\l -> addEdge l d) live) def
+     live2 <- getLive
+     putLive (S.union live2 defC)
+     live3 <- getLive
+     mapM_ (\d -> mapM_ (\l -> addEdge l d) live3) defC
+     --trace ("mv: " ++ show live3 ++ show defC) $ return ()
+     putLive $ S.union useC (live3 S.\\ defC)
      return ()
 buildInstruction instr = 
-  do def <- getDef
-     live <- getLive
-     putLive (S.union live def)
-     live <- getLive
-     mapM_ (\d -> mapM_ (\l -> addEdge l d) live) def
+  do defC <- getDef
+     live1 <- getLive
+     putLive (S.union live1 defC)
+     live2 <- getLive
+     mapM_ (\d -> mapM_ (\l -> addEdge l d) live2) defC
+     --trace (show live ++ show defC) $ return ()
+     useC <- getUse
+     putLive $ S.union useC (live2 S.\\ defC)
      return ()
 
 addEdge :: (Color w) => ATemp -> ATemp -> w ()
 addEdge l d = 
   do igraph <- getIGraph
+     --trace ("l, d: " ++ show l ++ show d) $ return ()
      case l /= d && (not $ elem (l, d) $ edgesG igraph) of
-       True -> makePutIGraph l d 
+       True -> do --trace ("l, d: " ++ show l ++ show d) $ return ()
+                  makePutIGraph l d
        False -> return () 
 
 makeWorkList :: (Color w) => w ()
@@ -200,6 +211,7 @@ coalesce =
     mSrc <- getSrc m
     x <- getAlias mSrc
     y <- getAlias mDst
+    --trace ("x: " ++ show mSrc ++ show x ++ ", y: " ++ show mDst ++ show y) $ return () 
     case S.member y $ keysSet precolored of
       True -> coalesceAux m y x 
       False -> coalesceAux m x y
@@ -238,7 +250,6 @@ coalesceAux m u v =
                 case (S.member u pre && and pred1) || ((not $ S.member u pre) && pred2) of
                   True -> 
                     do coalesced <- getCoalescedMoves 
-                       trace (show mSet) $ return ()
                        putCoalescedMoves (S.union coalesced mSet)
                        combine u v
                        addWorkList u
@@ -310,13 +321,17 @@ combine u v =
                                  (M.lookup v mvList))
                   (M.lookup u mvList)
      putMoveList $ M.insert u res mvList
-     enableMoves vSet -- FIXME: esto es asi?
+     --enableMoves vSet -- FIXME: esto es asi?
      adjV <- adjacent v
+     --trace (show u ++ show adjV) $ return ()
      mapM_ (\t -> do addEdge t u
                      decrementDegree t) adjV 
      ig <- getIGraph 
+     let newAdj = edges $ edgesG ig
+     putIGraph ig{graph = newAdj}
+     ig' <- getIGraph
      freezeWL <- getFreezeWorkList
-     maybe (internalAux $ "TigerColor 20" ++ show u ++ show (degree ig))
+     maybe (internalAux $ "TigerColor 20" ++ show u ++ show (degree ig'))
            (\d -> ifM (return $ d >= kNumber && S.member u freezeWL) 
                       (do let uSet = S.singleton u
                           putFreezeWorkList $ freezeWL S.\\ uSet
@@ -347,7 +362,7 @@ freezeMovesAux u m =
      x <- getAlias mSrc
      y <- getAlias mDst
      uAlias <- getAlias u
-     let v = if mDst == u then x else y
+     let v = if y == u then x else y
      let mSet = S.singleton m
      actMoves <- getActiveMoves
      putActiveMoves (actMoves S.\\ mSet)
@@ -393,6 +408,7 @@ assignColors =
                             ig <- getIGraph
                             let adjList = graph ig
                             let wSet = S.union (preSet n adjList) (postSet n adjList)
+                            nAlias <- getAlias n
                             newOkColors <- limitColors wSet okColors
                             let nSet = S.singleton n
                             case S.null newOkColors of
@@ -401,6 +417,7 @@ assignColors =
                               False -> do colored <- getColoredNodes
                                           putColoredNodes $ S.union colored nSet
                                           let c = S.elemAt 0 newOkColors
+                                          --trace (show n ++ show nAlias ++ show wSet ++ show c) $ return ()
                                           color <- getColor
                                           putColor $ M.insert n c color)
                        (stackPop selectStk))
@@ -415,11 +432,12 @@ limitColors wSet colors
                    colored <- getColoredNodes
                    color <- getColor
                    let newSet = wSet S.\\ (S.singleton w)
-                   let newColors = case S.member w (S.union colored (keysSet precolored)) of
+                   let newColors = case S.member wAlias (S.union colored (keysSet precolored)) of
                                      True -> colors S.\\ (maybe (S.empty)
                                                                 (\res -> S.singleton res)
                                                                 (M.lookup wAlias color))
                                      False -> colors
+                   --trace (show w ++ show wAlias ++ (show $ M.lookup wAlias color)) $ return ()
                    limitColors newSet newColors
 
 paintCoalesced :: (Color w) => Set ATemp -> w ()
@@ -431,19 +449,21 @@ paintCoalesced coal
                    nAlias <- getAlias n
                    maybe (paintCoalesced newCoal)
                          (\c -> do putColor $ M.insert n c color
+                                   --trace (show n ++ show nAlias ++ show c) $ return ()
                                    paintCoalesced newCoal)
                          (M.lookup nAlias color)
 
 rewriteProgram :: (Color w) => w ()
 rewriteProgram = 
   do spilled <- getSpilledNodes 
-     let sz = wSz * S.size spilled
+     u <- getUse
+     d <- getDef
+     let sz = 2 * wSz * S.size spilled
      instrs <- getInstrs
      putInstrs $ [head instrs] ++ 
-                 [Oper{assem = "addq $-"  ++ show sz ++ "(`s0), `d0\n", dst = [sp], src = [sp], jump = Nothing}] ++
+                 [Oper{assem = "addq $-"  ++ show sz ++ ", `d0\n", dst = [sp], src = [], jump = Nothing}] ++
                  (tail instrs)
      newTemps <- rewriteSpilled
-     putOffset 0
      putRefs []
      fr <- getFrame
      putFrame fr{actualReg = actualReg fr + S.size newTemps}
@@ -515,8 +535,8 @@ createStores :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
 createStores []     = return []
 createStores (t:ts) =
   do res <- createStores ts
-     return $ Move{assem = "movq `s0, " ++ show (thd3 t * wSz) ++ "(`d0)\n",
-                   dst = [fp], src = [snd3 t]} : res   
+     return $ Oper{assem = "movq `s0, " ++ show (thd3 t * (-wSz)) ++ "(`d0)\n",
+                   dst = [fp], src = [snd3 t], jump = Nothing} : res   
 
 createLoads :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
 createLoads []     = return []
@@ -524,8 +544,8 @@ createLoads (t:ts) =
   do res <- createLoads ts
      refs <- getRefs
      let offset = maybe (P.error $ "TigerColor 25") id (List.lookup (fst3 t) refs)
-     return $ Move{assem = "movq " ++  show (offset * wSz) ++ "(`s0), `d0\n",
-                   dst = [snd3 t], src = [fp]} : res
+     return $ Oper{assem = "movq " ++  show (offset * (-wSz)) ++ "(`s0), `d0\n",
+                   dst = [snd3 t], src = [fp], jump = Nothing} : res
 
 replace :: (Color w, Eq a) => a -> a -> [a] -> w [a]
 replace _ _ [] = return []
@@ -537,9 +557,10 @@ replace old new (a:as)
       do res <- replace old new as
          return $ a : res
 
-mainColor :: (Color w) => w ()     
-mainColor =
-  do instrs <- getInstrs
+mainColor :: (Color w) => Frame -> w ()     
+mainColor fr =
+  do putOffset $ locSize fr + 1
+     instrs <- getInstrs
      init <- getInit
      putIGraph IG{degree = M.union (M.fromList $ P.map (\i -> (i, 0)) (S.toList init))
                                    (M.fromList $ P.map (\p -> (p, max32Int)) (keys precolored)),
@@ -569,7 +590,7 @@ mainColor =
      spilled <- getSpilledNodes
      ifM (return $ not $ S.null spilled)
          (do rewriteProgram
-             mainColor)
+             mainColor fr)
          (return ())
 
 registerAllocation :: (Color w) => [Instr] -> Frame -> w ([Instr], Frame)
@@ -578,7 +599,12 @@ registerAllocation instrs fr =
   do putInstrs instrs
      putFrame fr
      putInit $ (P.foldl (\set i -> S.union (makeInit i) set) (S.empty) instrs) S.\\ (keysSet precolored)
-     mainColor
+     mainColor fr
+     --al <- getAliasW
+     --trace ("\n\n\n") $ return ()
+     --trace (show al) $ return () 
+     ig <- getIGraph
+     --trace (show $ graph ig) $ return () 
      applyColors
      newInstrs <- getInstrs
      fram <- getFrame
@@ -828,9 +854,12 @@ instance Color AllocMonada where
   makePutIGraph l d =
     do st <- get
        let igraph = interfGraph st
+       let g = graph igraph
        let adjSet' = S.insert (l, d) $ S.insert (d, l) $ adjSet igraph
        C.when (not $ List.elem l precolored) 
               (do let edgesG' = (l, d) : edgesG igraph
+                  --let g' = 
+                  --trace ("1: " ++ show l ++ show d) $ return ()
                   maybe (putIGraph igraph{adjSet = adjSet',
                                           edgesG = edgesG',
                                           degree = M.insert l 0 (degree igraph)})
@@ -840,6 +869,7 @@ instance Color AllocMonada where
                         (M.lookup l $ degree igraph))
        C.when (not $ List.elem d precolored) 
               (do let edgesG' = (d, l) : edgesG igraph
+                  --trace ("2: " ++ show d ++ show l) $ return ()
                   maybe (putIGraph igraph{adjSet = adjSet',
                                           edgesG = edgesG',
                                           degree = M.insert d 0 (degree igraph)})

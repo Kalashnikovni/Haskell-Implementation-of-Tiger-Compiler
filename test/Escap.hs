@@ -32,7 +32,8 @@ import System.Directory
 main :: IO ()
 main =
   putStrLn "\n======= Test ESCAPES in progress =======" >>
-  testerPrintDir "./test/test_code/good" >>
+  --testerPrintDir "./test/test_code/good" >>
+  testerPrint "./test/test_code/good" "recursive-lets.tig" show >>
   putStrLn "\n======= Test ESCAPES FIN ======="
 
 type EstadoTest = StGen

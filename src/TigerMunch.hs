@@ -132,13 +132,13 @@ munchExp (Binop Div e1 e2) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      result (\r -> do emit A.Move{assem = "movq `s0, `d0\n",
-                                  dst = [r0], src = [e1']}
+                                  dst = [rv], src = [e1']}
                       emit A.Oper{assem = "xorq `s0, `d0\n",
                                   dst = [a2], src = [a2], jump = Nothing}
                       emit A.Oper{assem = "idiv `s0\n",
                                   dst = [], src = [e2'], jump = Nothing}
                       emit A.Move{assem = "movq `s0, `d0\n",
-                                  dst = [r], src = [r0]})
+                                  dst = [r], src = [rv]})
 munchExp (Binop And (Const i) e2) 
   | i == 0    = result (\r -> emit Oper{assem = "movq $0, `d0\n",
                                         dst = [r], src = [], jump = Nothing}) 
@@ -227,6 +227,7 @@ munchExp (Binop ARShift e1 e2) =
      e2' <- munchExp e2
      result (\r -> emit Oper{assem = "srav `d0, `s0, `s1\n",
                              dst = [r], src = [e1', e2'], jump = Nothing})
+{-
 munchExp (Mem (Binop Plus (Const i) e2)) =
   do e2' <- munchExp e2
      result (\r -> emit Oper{assem = "movq " ++ show i ++ "(`s0), `d0\n",
@@ -238,15 +239,18 @@ munchExp (Mem (Binop Plus e1 (Const i))) =
 munchExp (Mem (Const i)) =
   result (\r -> emit Oper{assem = "movq $" ++ show i ++ ", `d0\n",
                           dst = [r], src = [], jump = Nothing})
+-}
 munchExp (Mem e) =
   do e' <- munchExp e
-     result (\r -> emit Oper{assem = "movq 0(`s0), `d0\n",
+     result (\r -> emit Oper{assem = "movq (`s0), `d0\n",
                              dst = [r], src = [e'], jump = Nothing})
 munchExp e = internalAux $ "Revisar etapas, hasta selección de instrucciones -- TigerMunch 1"
   
 munchStm :: (Assembler w) => Stm -> w ()
 munchStm (Tree.Move (Temp t) (Call e@(Name l) args)) =
-  do args' <- munchArgs 0 args
+  do emit Oper{assem = "xorq `s0, `d0\n",
+               dst = [rv], src = [rv], jump = Nothing}
+     args' <- munchArgs 0 args
      emit Oper{assem = "call " ++ unpack l ++ "\n",
                dst = calldefs, src = args', jump = Just [l]}
      moving rv t
@@ -259,8 +263,8 @@ munchStm (Tree.Move (Temp t) e2) =
 munchStm (Tree.Move (Mem e1) e2) =
   do e1' <- munchExp e1 -- movq 16, newr1; addq rbp, new1 
      e2' <- munchExp e2 -- movq 0, newr2
-     emit Oper{assem = "movq `s0, (`d0)\n", -- movq newr2, (new1) 
-               dst = [e1'], src = [e2'], jump = Nothing}
+     emit Oper{assem = "movq `s0, (`s1)\n", -- movq newr2, (new1) 
+               dst = [], src = [e2', e1'], jump = Nothing}
 munchStm (Jump (Name n) Nothing)  = internalAux "Revisar etapas, hasta selección de instrucciones -- TigerMunch 2"
 munchStm (Jump (Name n) (Just l)) =
   emit Oper{assem = "jmp `j0\n", 
@@ -367,7 +371,9 @@ munchStm (CJump UGE e1 e2 lt lf) =
 munchStm (Label l) =
   emit ILabel{assem = unpack l ++ ":\n", lab = l}
 munchStm (ExpS (Call e@(Name l) args)) =
-  do args' <- munchArgs 0 args
+  do emit Oper{assem = "xorq `s0, `d0\n",
+               dst = [rv], src = [rv], jump = Nothing}
+     args' <- munchArgs 0 args
      emit Oper{assem = "call " ++ unpack l ++ "\n",
                dst = calldefs, src = args', jump = Just [l]}
      return ()

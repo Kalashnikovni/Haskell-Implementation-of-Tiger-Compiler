@@ -2,10 +2,11 @@ module TigerMakeGraph where
 
 import TigerAssem as A
 
-import Control.Monad.State
-import Control.Monad.Trans.Except
-
 import Data.Graph
+import Data.GraphViz.Attributes.Complete as Att
+import Data.GraphViz.Types
+import Data.GraphViz.Types.Canonical
+import qualified Data.Text.Lazy as Lazy
 import Data.List as L
 import Data.Map as Map
 import Data.Set as Set
@@ -112,34 +113,20 @@ addJEdges (Just j) v tl g =
                                        False -> mkEdge g' (v, jj)
                        Nothing -> g') g j   
 
-setEquationAlgorithm :: FlowGraph -> [Vertex] -> LiveMonada ()
-setEquationAlgorithm fg vs =
-  do mapM_ (seaAux fg) vs
-     st <- get
-     let same = and $ P.map snd (Map.toList $ isSame st)
-     case same of
-       True  -> return ()
-       False -> setEquationAlgorithm fg vs
-
-seaAux :: FlowGraph -> Vertex -> LiveMonada ()
-seaAux fg v = 
-  do st <- get
-     let io = inout st
-     let oldin = maybe Set.empty fst $ Map.lookup v io
-     let oldout = maybe Set.empty snd $ Map.lookup v io
-     let usev = maybe Set.empty Set.fromList $ Map.lookup v $ use fg 
-     let defv = maybe Set.empty Set.fromList $ Map.lookup v $ def fg
-     let newin = Set.union usev (oldout Set.\\ defv)
-     let newout = Map.foldl Set.union Set.empty (Map.map fst $ restrictKeys io (Set.fromList $ gsucc (control fg) v)) 
-     case (newin == oldin, newout == oldout) of
-       (True, True) -> put st{inout = Map.insert v (newin, newout) io,
-                              isSame = Map.insert v True $ isSame st}
-       _            -> put st{inout = Map.insert v (newin, newout) io,
-                              isSame = Map.insert v False $ isSame st}
-  where errSeaAux ver tab = error $ "El vertice " ++ show ver ++ " tendria que estar en el mapeo " ++ 
-                                    show tab ++ "-- TigerLiveness" 
-
-data LiveEstado = LEst {inout :: Map Vertex (Set ATemp, Set ATemp), 
-                        isSame :: Map Vertex Bool} deriving Show
-initLEstado = LEst {inout = Map.empty, isSame = Map.empty}
-type LiveMonada = State LiveEstado
+-- Print graph in .dot format
+defaultVis :: FlowGraph -> Lazy.Text
+defaultVis fg =
+  let (vs, es) = (vertices $ control fg, edges $ control fg)  
+      (vcount, dotvs) = 
+        P.foldl (\(i, vlist) v -> (i + 1, 
+                                   DotNode i [Att.Label $ 
+                                              StrLabel $ 
+                                              Lazy.pack $ maybe (error "Liveness.hs")
+                                                                show
+                                                                (Map.lookup v $ info fg)] : vlist)) 
+                              (0, []) vs
+      (ecount, dotes) = P.foldl (\(i, elist) e -> (i + 1, DotEdge (fst e) (snd e) 
+                                                          [Att.Label $ StrLabel $ Lazy.pack $ show e] : elist)) 
+                              (0, []) es
+  in printDotGraph $
+       DotGraph True True (Just $ Str (Lazy.pack "FlowGraph")) (DotStmts [] [] dotvs dotes)

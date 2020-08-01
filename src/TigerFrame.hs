@@ -31,8 +31,8 @@ a3 = pack "rcx"
 a4 = pack "r8"
 a5 = pack "r9"
 
-r0, r1, r2, r3, r4, r5, r6, r7 :: Temp
-r0 = pack "rax"
+r1, r2, r3, r4, r5, r6, r7 :: Temp
+--r0 = pack "rax"
 r1 = pack "rbx"
 r2 = pack "r10"
 r3 = pack "r11"
@@ -74,8 +74,8 @@ fpPrevLev = wSz
 -- | Esto es un offset previo a al lugar donde se encuentra el lugar de las variables
 -- o de los argumentos.
 argsGap, localsGap :: Int
-argsGap = wSz
-localsGap = wSz
+argsGap = -wSz
+localsGap = 2 * (-wSz)
 
 -- | Dan inicio a los contadores de argumentos, variables y registros usados.
 -- Ver |defaultFrame|
@@ -174,7 +174,7 @@ externalCall s = Call (Name $ pack s)
 allocArg :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocArg fr Escapa =
   let actual = actualArg fr
-      acc    = InFrame $ actual * wSz + argsGap
+      acc    = InFrame $ actual * (-wSz) + argsGap
   in  return (fr{actualArg = actual + 1, formalsAcc = formalsAcc fr ++ [acc]}, acc)
 allocArg fr NoEscapa = do
   s <- newTemp
@@ -183,7 +183,7 @@ allocArg fr NoEscapa = do
 allocLocal :: (Monad w, TLGenerator w) => Frame -> Escapa -> w (Frame, Access)
 allocLocal fr Escapa =
   let actual = actualLocal fr
-      acc    = InFrame $ actual * wSz + localsGap
+      acc    = InFrame $ actual * (-wSz) + localsGap
   in  return (fr {actualLocal = actual + 1, locals = Escapa : (locals fr)}, acc)
 allocLocal fr NoEscapa = do
   s <- newTemp
@@ -194,7 +194,7 @@ allocLocal fr NoEscapa = do
 -- debería estar relativamente cerca de la solución
 auxexp :: Int -> Exp
 auxexp 0 = Temp fp
-auxexp n = Mem (Binop Plus (auxexp (n - 1)) (Const fpPrevLev))
+auxexp n = Mem (Binop Plus (auxexp (n - 1)) (Const $ -wSz))
 
 exp :: Access -> Int -> Maybe Exp
 exp (InFrame k) e = Just $ Mem (Binop Plus (auxexp e) (Const k))
@@ -205,21 +205,12 @@ exp (InReg l) c
 procEntryExit1 :: (Monad w, TLGenerator w) => Frame -> Stm -> w Stm
 procEntryExit1 fr body = 
   do (pre, post) <- allocCallee 
-     return $ fseq $ adjFp ++ adjustArgs (formalsAcc fr) (tail argregs) 0 ++ pre ++ [body] ++ post
-  where adjFp = maybe [] (\x -> [x]) $ adjustFp fr
+     return $ fseq $ adjustArgs (formalsAcc fr) argregs 0 ++ pre ++ [body] ++ post
 
 fseq :: [Stm] -> Stm
 fseq []     = ExpS $ Const 0
 fseq [s]    = s
 fseq (x:xs) = Seq x (fseq xs)
-
-adjustFp :: Frame -> Maybe Stm
-adjustFp fr 
-  | infr == 0 = Nothing
-  | otherwise = Just $ T.Move (Temp sp) (Mem (Binop Minus (Temp sp) (Const infr)))  
-  where isInFrame (InFrame _) = True
-        isInFrame _         = False
-        infr = P.length $ P.filter  isInFrame $ formalsAcc fr
 
 adjustArgs :: [Access] -> [Temp] -> Int -> [Stm]
 adjustArgs [] _ _              = []
@@ -231,7 +222,7 @@ adjustArgs ((InFrame k):as) [] i =
 adjustArgs ((InReg t):as) (r:rs) i   = 
   T.Move (Temp t) (Temp r) : adjustArgs as rs i
 adjustArgs ((InFrame k):as) (r:rs) i = 
-  T.Move (Mem (Binop Plus (Temp fp) (Const $ wSz * k))) (Temp r) : adjustArgs as rs i
+  T.Move (Mem (Binop Plus (Temp fp) (Const k))) (Temp r) : adjustArgs as rs i
 
 allocCallee :: (Monad w, TLGenerator w) => w ([Stm], [Stm]) 
 allocCallee = 
@@ -252,8 +243,21 @@ data FrameFunc = FF {prolog :: [Instr], body :: [Instr], epilogue :: [Instr]}
 mkProlog :: Frame -> [Instr]
 mkProlog fr = 
   [A.Oper{assem = "pushq `s0\n", dst = [], src = [fp], jump = Nothing},
-   A.Move{assem = "movq `s0, `d0\n", dst = [fp], src = [sp]},
-   A.Oper{assem = "addq $-8, `d0\n", dst = [sp], src = [], jump = Nothing}]
+   A.Move{assem = "movq `s0, `d0\n", dst = [fp], src = [sp]}] ++ adjFp
+   where adjFp = maybe [] (\x -> [x]) $ adjustFp fr
+
+adjustFp :: Frame -> Maybe Instr
+adjustFp fr 
+  | infr == 0 = Nothing
+  | otherwise = Just $ A.Oper{assem = "subq $" ++ show infr ++ ", `d0\n",
+                              dst = [sp], src = [], jump = Nothing}  
+  where isInFrame (InFrame _) = True
+        isInFrame _         = False
+        infr = wSz * ((P.length $ P.filter isInFrame $ formalsAcc fr) +
+                      locSize fr)
+
+locSize :: Frame -> Int
+locSize fr = P.length $ P.filter (== Escapa) $ locals fr
 
 mkEpil :: Frame -> [Instr]
 mkEpil fr =

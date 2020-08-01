@@ -30,6 +30,8 @@ import Data.List.Split as S
 import Data.Maybe
 import Data.Text.Lazy as Lazy
 
+import Debug.Trace
+
 import Prelude as P
 
 import System.Console.GetOpt
@@ -119,7 +121,7 @@ main =
                                   writeFile (outDir ++ "/flowgraph.dot") 
                                             (Lazy.unpack $ defaultVis fg)
                                   putStrLn "********************************************************")
-     let (assemInstrs, st7) = runSt (regAllocStage instrs) st6
+     let (assemInstrs, st7) = runSt (regAllocStage st6 instrs) st6
      when (optRegAlloc opts') (do mapM_ (putStrLn . renderStrFrag) $ fst assemInstrs
                                   mapM_ (\(ins, fr, alloc) -> do putStr $ renderInstr ins fr
                                                                  putStrLn ""

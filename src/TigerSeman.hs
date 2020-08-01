@@ -145,7 +145,7 @@ transDecs ((FunctionDec fs) : xs)          w =
   do res1 <- mapM (\f@(nm, params, tf, bd, p) -> 
                do actLvl <- topLevel
                   let varEscaps = P.map (\(_, x, _) -> x) params
-                  let lvlFun = newLevel actLvl nm varEscaps
+                  let lvlFun = newLevel actLvl nm (Escapa : varEscaps)
                   tfun <- maybe (return TUnit) (\t -> getTipoT t) tf
                   targs <- mapM (\(_, _, c) -> transTy c) params
                   return (lvlFun, nm, targs, tfun, TigerSres.Propia)) fs
@@ -153,7 +153,7 @@ transDecs ((FunctionDec fs) : xs)          w =
             envFunctionDec lvlFun $ 
               insertFFold fs res1
                 (do lvlArgs <- topLevel
-                    allocLocal Escapa 
+                    allocArg Escapa 
                     insertFFFold params lvlArgs $ 
                       do (bf, t) <- transExp bd
                          lvlArgs' <- topLevel
@@ -404,7 +404,8 @@ transExp(ForExp nv mb lo hi bo p) =
      posWhileforExp
      return (res, TUnit)
 transExp(LetExp dcs body p) = 
-  do (bs, bb, tb) <- transDecs dcs $ transExp body
+  do let simpleDcs = deleteDuplicates dcs
+     (bs, bb, tb) <- transDecs simpleDcs $ transExp body
      res <- letExp bs bb
      return (res, tb)
 transExp(BreakExp p) = 
@@ -421,6 +422,23 @@ transExp(ArrayExp sn cant init p) =
                          return (res, tsn)
        _           -> errorTiposMsg p "La variable no es de tipo arreglo" tsn (TArray TUnit 0)
 
+deleteDuplicates :: [Dec] -> [Dec]
+deleteDuplicates []     = []
+deleteDuplicates (d : ds) = (deleteDec d ds) : (deleteDuplicates ds)
+
+deleteDec :: Dec -> [Dec] -> Dec
+deleteDec (FunctionDec fs) ds = deleteFD fs ds  
+deleteDec (VarDec nm esc ty init p) ds = VarDec nm esc ty init p 
+deleteDec (TypeDec ts) ds = TypeDec ts
+
+deleteFD :: [(Symbol, [(Symbol, Escapa, Ty)], Maybe Symbol, Exp, Pos)] -> [Dec] -> Dec
+deleteFD [] _ = FunctionDec []
+deleteFD (f@(nm, _, _, _, _):fs) [] = FunctionDec (f:fs) 
+deleteFD (f@(nm1, _, _, _, _):fs1) ((FunctionDec fs2):ds)
+  | P.length (P.filter (\(nm2, _, _, _, _) -> nm1 == nm2) fs2) == 0 = deleteFD (f:fs1) ds 
+  | otherwise = deleteFD fs1 ((FunctionDec fs2):ds)
+deleteFD fs (d:ds) = deleteFD fs ds
+
 -- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ --
 -- Estado inicial y ejecucion ---------------------------------------------------------------------------- --
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
@@ -431,7 +449,7 @@ initConf = Est
             , vEnv = M.fromList
                      [(pack "print", Func (outermost,pack "print",[TString], TUnit, TigerSres.Runtime)),
                       (pack "flush", Func (outermost,pack "flush",[],TUnit, TigerSres.Runtime)),
-                      (pack "getchar",Func (outermost,pack "getchar",[],TString, TigerSres.Runtime)),
+                      (pack "getchar",Func (outermost,pack "getstr",[],TString, TigerSres.Runtime)),
                       (pack "ord",Func (outermost,pack "ord",[TString],TInt RW, TigerSres.Runtime)),
                       (pack "chr",Func (outermost,pack "chr",[TInt RW],TString, TigerSres.Runtime)),
                       (pack "size",Func (outermost,pack "size",[TString],TInt RW, TigerSres.Runtime)),

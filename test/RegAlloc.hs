@@ -32,7 +32,7 @@ import System.Directory
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite RegAlloc [] in progress =======" >>
-  testerPrint "./test/test_code/good" "test12.tig" >>
+  testerPrint "./test/test_code/good" "queens.tig" >>
   putStrLn "\n======= Test suite FIN ======="  
 
 type EstadoTest = StGen
@@ -92,9 +92,9 @@ testerPrint loc f =
   do str <- readFile $ loc ++ '/' : f
      let (res, st) = runSt (testerRegAlloc str) 0
      mapM_ (putStrLn . renderStrFrag) $ fst res
-     mapM_ (\(instrs, fr, alloc) -> do putStr $ renderInstr instrs fr
+     mapM_ (\(instrs, fr, alloc) -> do --putStr $ renderInstr instrs fr
                                        putStrLn ""
-                                       putStrLn $ renderFrame fr
+                                       --putStrLn $ renderFrame fr
                                        putStrLn ""
                                        putStrLn $ show alloc
                                        putStrLn "") (snd res)

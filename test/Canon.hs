@@ -22,7 +22,7 @@ main :: IO ()
 main = 
   putStrLn "\n======= Test suite Translate [for TigerTrans testing] in progress =======" >>
   --putStrLn "Show results good:" >>
-  testerPrint "./test/test_code/good" "test06.tig" >>
+  testerPrint "./test/test_code/good" "queens.tig" >>
   putStrLn "\n======= Test suite FIN ======="
 
 type EstadoTest = StGen

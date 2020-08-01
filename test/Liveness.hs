@@ -28,6 +28,8 @@ import Data.Text.Lazy as Lazy
 import Data.Map as M
 import Data.Set
 
+import Debug.Trace
+
 import Prelude as P
 
 import System.Directory 
@@ -99,25 +101,10 @@ testerPrint loc f out =
      let (res, st) = runSt (testerLiveness str) 0
      writeFile out (Lazy.unpack $ defaultVis $ fst res)
      printMap $ snd res
+     --printMap $ use $ fst res
+     --printMap $ def $ fst res
 
-defaultVis :: FlowGraph -> Text
-defaultVis fg =
-  let (vs, es) = (vertices $ control fg, edges $ control fg)  
-      (vcount, dotvs) = 
-        P.foldl (\(i, vlist) v -> (i + 1, 
-                                   DotNode i [Att.Label $ 
-                                              StrLabel $ 
-                                              Lazy.pack $ maybe (error "Liveness.hs")
-                                                                show
-                                                                (M.lookup v $ info fg)] : vlist)) 
-                              (0, []) vs
-      (ecount, dotes) = P.foldl (\(i, elist) e -> (i + 1, DotEdge (fst e) (snd e) 
-                                                          [Att.Label $ StrLabel $ Lazy.pack $ show e] : elist)) 
-                              (0, []) es
-  in printDotGraph $
-       DotGraph True True (Just $ Str (Lazy.pack "FlowGraph")) (DotStmts [] [] dotvs dotes)
-
-printMap :: Map Vertex (Set ATemp, Set ATemp) -> IO ()
+printMap :: (Show a, Show b) => Map a b -> IO ()
 printMap m =
   mapM_ (\(k, v) -> putStrLn $ show k ++ ": " ++ show v) (M.toList m) 
 

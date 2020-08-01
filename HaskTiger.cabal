@@ -52,6 +52,7 @@ library
                        , base
                        , cond
                        , containers
+                       , directory
                        , graphviz
                        , matrix
                        , monad-loops

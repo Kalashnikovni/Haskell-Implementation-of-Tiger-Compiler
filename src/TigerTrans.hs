@@ -316,7 +316,7 @@ instance (MemM w) => IrGen w where
   callExp nm external isproc lvl args = 
     do lvlact <- getActualLevel
        args'  <- mapM unEx args
-       let staticLink = if (lvlact > defLvl) then Temp fp else auxexp 1
+       let staticLink = auxexp $ lvlact - defLvl + 1
        let fargs = if isRT external then args' else staticLink : args'
        case isproc of
          IsProc -> return $ Nx $ ExpS $ Call (Name nm) fargs

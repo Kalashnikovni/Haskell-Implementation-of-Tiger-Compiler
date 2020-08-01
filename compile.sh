@@ -22,5 +22,7 @@ do
   fname=${bname%.s}
   #echo $bname
   #echo $fname
-  gcc -g $bname $runtime -o "${exec_dir}/${fname}"
+  if [ ! $fname == $bname ]; then
+    gcc -g $bname $runtime -o "${exec_dir}/${fname}"
+  fi
 done

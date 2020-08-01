@@ -18,6 +18,7 @@ import TigerCanon
 import TigerColor
 import TigerEscap
 import TigerFrame
+import TigerLiveness
 import TigerMakeGraph
 import TigerMunch
 import TigerParser
@@ -92,23 +93,6 @@ flowGraph (_, stms) =
       (fg, vs) = instrs2graph instrs
   in return $ i2gWithJumps instrs (fg, vs) vs
 
-defaultVis :: FlowGraph -> Text
-defaultVis fg =
-  let (vs, es) = (vertices $ control fg, edges $ control fg)  
-      (vcount, dotvs) = 
-        P.foldl (\(i, vlist) v -> (i + 1, 
-                                   DotNode i [Att.Label $ 
-                                              StrLabel $ 
-                                              Lazy.pack $ maybe (error "Liveness.hs")
-                                                                show
-                                                                (M.lookup v $ info fg)] : vlist)) 
-                              (0, []) vs
-      (ecount, dotes) = P.foldl (\(i, elist) e -> (i + 1, DotEdge (fst e) (snd e) 
-                                                          [Att.Label $ StrLabel $ Lazy.pack $ show e] : elist)) 
-                              (0, []) es
-  in printDotGraph $
-       DotGraph True True (Just $ Str (Lazy.pack "FlowGraph")) (DotStmts [] [] dotvs dotes)
-
 printMap :: Map Vertex (Set ATemp, Set ATemp) -> IO ()
 printMap m =
   mapM_ (\(k, v) -> putStrLn $ show k ++ ": " ++ show v) (M.toList m) 
@@ -119,11 +103,11 @@ livenessStage (fg, vs) =
                                       (initLEstado{isSame = M.fromList $ P.map (\v -> (v, False)) vs}) 
      return res
 
-regAllocStage :: ([Frag], [([Instr], Frame)]) -> EstadoTest ([Frag], [([Instr], Frame, Allocation)]) 
-regAllocStage (strs, linstrs) =
+regAllocStage :: Integer -> ([Frag], [([Instr], Frame)]) -> EstadoTest ([Frag], [([Instr], Frame, Allocation)])
+regAllocStage st (strs, linstrs) =
   let res = P.map (\(instrs, fr) -> 
                     let newIns = procEntryExit2 fr instrs
-                        (val, st) = runSt (runMonadaRA $ registerAllocation newIns fr) 0
+                        (val, st') = runSt (runMonadaRA $ registerAllocation newIns fr) st
                     in  either (error . show)
                                (\(is, f) -> (is, f, color $ snd val))
                                (fst val)) linstrs 
