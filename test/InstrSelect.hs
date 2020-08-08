@@ -25,7 +25,7 @@ import System.Directory
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite Instruction Selection [] in progress =======" >>
-  testerPrint "./test/test_code/good" "queens.tig" >>
+  testerPrint "./test/test_code/good" "merge3.tig" >>
   putStrLn "\n======= Test suite FIN ======="  
 
 type EstadoTest = StGen

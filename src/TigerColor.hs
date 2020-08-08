@@ -47,7 +47,6 @@ build instrs =
   do let (f, v) = instrs2graph instrs
          (fg, vs) = i2gWithJumps instrs (f, v) v
          forBuild = reverse $ M.toList $ inout $ snd $ runState (setEquationAlgorithm fg vs) initLEstado 
-     --trace (Lazy.unpack $ defaultVis fg) $ return ()
      mapM_ (\(node, (_, liveOut)) -> 
               do putLive liveOut
                  case (M.lookup node $ FG.use fg, M.lookup node $ FG.def fg) of
@@ -86,7 +85,6 @@ buildInstruction instr@(Move ass dst src) =
      putLive (S.union live2 defC)
      live3 <- getLive
      mapM_ (\d -> mapM_ (\l -> addEdge l d) live3) defC
-     --trace ("mv: " ++ show live3 ++ show defC) $ return ()
      putLive $ S.union useC (live3 S.\\ defC)
      return ()
 buildInstruction instr = 
@@ -95,7 +93,6 @@ buildInstruction instr =
      putLive (S.union live1 defC)
      live2 <- getLive
      mapM_ (\d -> mapM_ (\l -> addEdge l d) live2) defC
-     --trace (show live ++ show defC) $ return ()
      useC <- getUse
      putLive $ S.union useC (live2 S.\\ defC)
      return ()
@@ -103,10 +100,8 @@ buildInstruction instr =
 addEdge :: (Color w) => ATemp -> ATemp -> w ()
 addEdge l d = 
   do igraph <- getIGraph
-     --trace ("l, d: " ++ show l ++ show d) $ return ()
      case l /= d && (not $ elem (l, d) $ edgesG igraph) of
-       True -> do --trace ("l, d: " ++ show l ++ show d) $ return ()
-                  makePutIGraph l d
+       True -> makePutIGraph l d
        False -> return () 
 
 makeWorkList :: (Color w) => w ()
@@ -211,7 +206,6 @@ coalesce =
     mSrc <- getSrc m
     x <- getAlias mSrc
     y <- getAlias mDst
-    --trace ("x: " ++ show mSrc ++ show x ++ ", y: " ++ show mDst ++ show y) $ return () 
     case S.member y $ keysSet precolored of
       True -> coalesceAux m y x 
       False -> coalesceAux m x y
@@ -321,9 +315,8 @@ combine u v =
                                  (M.lookup v mvList))
                   (M.lookup u mvList)
      putMoveList $ M.insert u res mvList
-     --enableMoves vSet -- FIXME: esto es asi?
+     enableMoves vSet -- FIXME: esto es asi?
      adjV <- adjacent v
-     --trace (show u ++ show adjV) $ return ()
      mapM_ (\t -> do addEdge t u
                      decrementDegree t) adjV 
      ig <- getIGraph 
@@ -417,7 +410,6 @@ assignColors =
                               False -> do colored <- getColoredNodes
                                           putColoredNodes $ S.union colored nSet
                                           let c = S.elemAt 0 newOkColors
-                                          --trace (show n ++ show nAlias ++ show wSet ++ show c) $ return ()
                                           color <- getColor
                                           putColor $ M.insert n c color)
                        (stackPop selectStk))
@@ -437,7 +429,6 @@ limitColors wSet colors
                                                                 (\res -> S.singleton res)
                                                                 (M.lookup wAlias color))
                                      False -> colors
-                   --trace (show w ++ show wAlias ++ (show $ M.lookup wAlias color)) $ return ()
                    limitColors newSet newColors
 
 paintCoalesced :: (Color w) => Set ATemp -> w ()
@@ -449,7 +440,6 @@ paintCoalesced coal
                    nAlias <- getAlias n
                    maybe (paintCoalesced newCoal)
                          (\c -> do putColor $ M.insert n c color
-                                   --trace (show n ++ show nAlias ++ show c) $ return ()
                                    paintCoalesced newCoal)
                          (M.lookup nAlias color)
 
@@ -458,13 +448,13 @@ rewriteProgram =
   do spilled <- getSpilledNodes 
      u <- getUse
      d <- getDef
-     let sz = 2 * wSz * S.size spilled
+     let sz = wSz * S.size spilled
      instrs <- getInstrs
      putInstrs $ [head instrs] ++ 
                  [Oper{assem = "addq $-"  ++ show sz ++ ", `d0\n", dst = [sp], src = [], jump = Nothing}] ++
                  (tail instrs)
+     putSpillAlloc M.empty
      newTemps <- rewriteSpilled
-     putRefs []
      fr <- getFrame
      putFrame fr{actualReg = actualReg fr + S.size newTemps}
      putSpilledNodes S.empty
@@ -484,68 +474,70 @@ rewriteSpilled =
 rewriteSpilledAux :: (Color w) => Instr -> w ([Instr], Set ATemp) 
 rewriteSpilledAux (Oper assem dst src jmp) =
   do spilled <- getSpilledNodes
-     let listDst = S.toList $ S.intersection (S.fromList dst) spilled
-     (newTDst, newDst) <- createNewTemps listDst dst
-     refs <- getRefs
-     putRefs $ refs ++ P.map (\(a, b, c) -> (a, c)) newTDst
-     stores <- createStores newTDst
-     let listSrc = S.toList $ S.intersection (S.fromList src) spilled 
-     (newTSrc, newSrc) <- createNewTemps listSrc src
-     loads <- createLoads newTSrc
-     let setNewTempSrc = S.fromList $ P.map snd3 newTSrc 
-     let setNewTempDst = S.fromList $ P.map snd3 newTDst 
+     let sDst = S.fromList dst
+     let spillDst = S.toList $ S.intersection sDst spilled
+     createNewTemps spillDst
+     stores <- mapM createStore spillDst
+     let sSrc = S.fromList src
+     let spillSrc = S.toList $ S.intersection (S.fromList src) spilled 
+     createNewTemps spillSrc
+     loads <- mapM createLoad spillSrc
+     newSrc <- mapM replaceTemp src
+     newDst <- mapM replaceTemp dst 
+     let newTemps = (S.union (S.fromList newSrc) (S.fromList newDst)) S.\\
+                    (S.union sDst sSrc)
      return $ (loads ++ [Oper assem newDst newSrc jmp] ++ stores, 
-               S.union setNewTempSrc setNewTempDst)
+               newTemps)
 rewriteSpilledAux (Move assem dst src) =
   do spilled <- getSpilledNodes
-     let listDst = S.toList $ S.intersection (S.fromList dst) spilled
-     (newTDst, newDst) <- createNewTemps listDst dst
-     refs <- getRefs
-     putRefs $ refs ++ P.map (\(a, b, c) -> (a, c)) newTDst
-     stores <- createStores newTDst
-     let listSrc = S.toList $ S.intersection (S.fromList src) spilled 
-     (newTSrc, newSrc) <- createNewTemps listSrc src
-     loads <- createLoads newTSrc
-     let setNewTempSrc = S.fromList $ P.map snd3 newTSrc 
-     let setNewTempDst = S.fromList $ P.map snd3 newTDst 
+     let sDst = S.fromList dst
+     let spillDst = S.toList $ S.intersection sDst spilled
+     createNewTemps spillDst
+     stores <- mapM createStore spillDst
+     let sSrc = S.fromList src
+     let spillSrc = S.toList $ S.intersection sSrc spilled 
+     createNewTemps spillSrc
+     loads <- mapM createLoad spillSrc
+     newSrc <- mapM replaceTemp src
+     newDst <- mapM replaceTemp dst 
+     let newTemps = (S.union (S.fromList newSrc) (S.fromList newDst)) S.\\
+                    (S.union sDst sSrc)
      return $ (loads ++ [Move assem newDst newSrc] ++ stores, 
-               S.union setNewTempSrc setNewTempDst)
+               newTemps)
 rewriteSpilledAux (ILabel assem lab) = return ([ILabel assem lab], S.empty)
 
-fst3 :: (a, b, c) -> a
-fst3 (a, b, c) = a
+createNewTemps :: (Color w) => [ATemp] -> w ()
+createNewTemps [] = return ()
+createNewTemps (t:ts) =
+  do sAlloc <- getSpillAlloc 
+     case M.member t sAlloc of
+       True -> createNewTemps ts
+       False -> do t' <- newTemp 
+                   off <- TigerColor.getOffset
+                   putSpillAlloc $ M.insert t (t', off) sAlloc
+                   putOffset $ off + 1
+                   createNewTemps ts
 
-snd3 :: (a, b, c) -> b
-snd3 (a, b, c) = b
+replaceTemp :: (Color w) => ATemp -> w ATemp
+replaceTemp t = 
+  do sAlloc <- getSpillAlloc
+     return $ maybe t
+                    fst 
+                    (M.lookup t sAlloc) 
 
-thd3 :: (a, b, c) -> c
-thd3 (a, b, c) = c
+createStore :: (Color w) => ATemp -> w Instr
+createStore t =
+  do sAlloc <- getSpillAlloc
+     let (newT, off) = maybe (P.error "TigerColor 30") id (M.lookup t sAlloc) 
+     return Oper{assem = "movq `s0, " ++ show (off * (-wSz)) ++ "(`s1)\n",
+                 dst = [], src = [newT, fp], jump = Nothing}  
 
-createNewTemps :: (Color w) => [ATemp] -> [ATemp] -> w ([(ATemp, ATemp, Int)], [ATemp])
-createNewTemps [] oldList     = return ([], oldList)
-createNewTemps (t:ts) oldList =
-  do newT <- newTemp 
-     newList <- replace t newT oldList
-     (resTemps, resLoc) <- createNewTemps ts newList
-     off <- getOff
-     putOffset $ off + 1
-     return $ ((t, newT, off) : resTemps, resLoc)
-
-createStores :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
-createStores []     = return []
-createStores (t:ts) =
-  do res <- createStores ts
-     return $ Oper{assem = "movq `s0, " ++ show (thd3 t * (-wSz)) ++ "(`d0)\n",
-                   dst = [fp], src = [snd3 t], jump = Nothing} : res   
-
-createLoads :: (Color w) => [(ATemp, ATemp, Int)] -> w [Instr]
-createLoads []     = return []
-createLoads (t:ts) =
-  do res <- createLoads ts
-     refs <- getRefs
-     let offset = maybe (P.error $ "TigerColor 25") id (List.lookup (fst3 t) refs)
-     return $ Oper{assem = "movq " ++  show (offset * (-wSz)) ++ "(`s0), `d0\n",
-                   dst = [snd3 t], src = [fp], jump = Nothing} : res
+createLoad :: (Color w) => ATemp -> w Instr
+createLoad t =
+  do sAlloc <- getSpillAlloc
+     let (newT, off) = maybe (P.error "TigerColor 31") id (M.lookup t sAlloc)
+     return Oper{assem = "movq " ++  show (off * (-wSz)) ++ "(`s0), `d0\n",
+                 dst = [newT], src = [fp], jump = Nothing}
 
 replace :: (Color w, Eq a) => a -> a -> [a] -> w [a]
 replace _ _ [] = return []
@@ -559,8 +551,7 @@ replace old new (a:as)
 
 mainColor :: (Color w) => Frame -> w ()     
 mainColor fr =
-  do putOffset $ locSize fr + 1
-     instrs <- getInstrs
+  do instrs <- getInstrs
      init <- getInit
      putIGraph IG{degree = M.union (M.fromList $ P.map (\i -> (i, 0)) (S.toList init))
                                    (M.fromList $ P.map (\p -> (p, max32Int)) (keys precolored)),
@@ -588,6 +579,7 @@ mainColor fr =
                 return $ S.null simplifyWL && S.null wlMoves && S.null freezeWL && S.null spillWL)   
      assignColors
      spilled <- getSpilledNodes
+     coal <- getCoalescedMoves
      ifM (return $ not $ S.null spilled)
          (do rewriteProgram
              mainColor fr)
@@ -599,15 +591,12 @@ registerAllocation instrs fr =
   do putInstrs instrs
      putFrame fr
      putInit $ (P.foldl (\set i -> S.union (makeInit i) set) (S.empty) instrs) S.\\ (keysSet precolored)
+     putOffset $ locSize fr + 2
      mainColor fr
-     --al <- getAliasW
-     --trace ("\n\n\n") $ return ()
-     --trace (show al) $ return () 
-     ig <- getIGraph
-     --trace (show $ graph ig) $ return () 
      applyColors
      newInstrs <- getInstrs
      fram <- getFrame
+     newIG <- getIGraph
      return (removeCoal newInstrs, fram)
 
 applyColors :: (Color w) => w ()
@@ -629,7 +618,7 @@ applyColor alloc (Move assem dst src) =
   let newDst = P.map (\t -> maybe (P.error "TigerColor 28")
                                   id
                                   (M.lookup t alloc)) dst
-      newSrc = P.map (\t -> maybe (P.error $ "TigerColor 29")
+      newSrc = P.map (\t -> maybe (P.error "TigerColor 29")
                                   id
                                   (M.lookup t alloc)) src
   in Move assem newDst newSrc
@@ -674,7 +663,7 @@ data AllocEstado = AE{initial :: Set ATemp,
                       alias :: Map ATemp ATemp,
                       stInstrs :: [Instr],
                       offset :: Int,
-                      refs :: [(ATemp, Int)],
+                      spillAlloc :: Map ATemp (ATemp, Int),
                       frame :: Frame}
 
 
@@ -701,7 +690,7 @@ initAlloc = AE{initial = S.empty,
                alias = M.empty,
                stInstrs = [],
                offset = 0,
-               refs = [],
+               spillAlloc = M.empty, 
                frame = defaultFrame}
 
 type AllocMonada = ExceptT Symbol (StateT AllocEstado StGen)
@@ -752,9 +741,9 @@ class (Demon w, Monad w, UniqueGenerator w, TLGenerator w) => Color w where
   putAliasW :: Map ATemp ATemp -> w ()
   getInstrs :: w [Instr]
   putInstrs :: [Instr] -> w ()
-  getRefs :: w [(ATemp, Int)]
-  putRefs :: [(ATemp, Int)] -> w ()
-  getOff :: w Int
+  getSpillAlloc :: w (Map ATemp (ATemp, Int))
+  putSpillAlloc :: Map ATemp (ATemp, Int) -> w ()
+  getOffset :: w Int
   putOffset :: Int -> w ()
   getFrame :: w Frame
   putFrame :: Frame ->  w ()
@@ -858,8 +847,6 @@ instance Color AllocMonada where
        let adjSet' = S.insert (l, d) $ S.insert (d, l) $ adjSet igraph
        C.when (not $ List.elem l precolored) 
               (do let edgesG' = (l, d) : edgesG igraph
-                  --let g' = 
-                  --trace ("1: " ++ show l ++ show d) $ return ()
                   maybe (putIGraph igraph{adjSet = adjSet',
                                           edgesG = edgesG',
                                           degree = M.insert l 0 (degree igraph)})
@@ -869,7 +856,6 @@ instance Color AllocMonada where
                         (M.lookup l $ degree igraph))
        C.when (not $ List.elem d precolored) 
               (do let edgesG' = (d, l) : edgesG igraph
-                  --trace ("2: " ++ show d ++ show l) $ return ()
                   maybe (putIGraph igraph{adjSet = adjSet',
                                           edgesG = edgesG',
                                           degree = M.insert d 0 (degree igraph)})
@@ -926,18 +912,18 @@ instance Color AllocMonada where
   putInstrs instrs =
     do st <- get
        put st{stInstrs = instrs}
-  getOff =
+  getOffset =
     do st <- get
        return $ offset st
   putOffset off =
     do st <- get
        put st{offset = off}
-  getRefs = 
+  getSpillAlloc = 
     do st <- get
-       return $ refs st
-  putRefs refs =
+       return $ spillAlloc st
+  putSpillAlloc sAlloc =
     do st <- get
-       put st{refs = refs}
+       put st{spillAlloc = sAlloc}
   getFrame =
     do st <- get
        return $ frame st

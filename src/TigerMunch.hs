@@ -97,16 +97,16 @@ munchExp (Name n) =
 munchExp (Temp t) = return t
 munchExp (Binop Plus (Const i) e2) = 
   do e2' <- munchExp e2
-     result (\r -> do emit Oper{assem = "movq $" ++ show i ++ ", `d0\n",
-                                dst = [r], src = [], jump = Nothing}
-                      emit Oper{assem = "addq `s0, `d0\n",
-                                dst = [r], src = [e2'], jump = Nothing})
+     result (\r -> do emit A.Move{assem = "movq `s0, `d0\n",
+                                  dst = [r], src = [e2']}
+                      emit Oper{assem = "addq $" ++ show i ++ ", `d0\n",
+                                dst = [r], src = [r], jump = Nothing})
 munchExp (Binop Plus e1 (Const i)) = 
   do e1' <- munchExp e1
-     result (\r -> do emit Oper{assem = "movq $" ++ show i ++ ", `d0\n",
-                                  dst = [r], src = [], jump = Nothing}
-                      emit Oper{assem = "addq `s0, `d0\n",
-                                dst = [r], src = [e1'], jump = Nothing})
+     result (\r -> do emit A.Move{assem = "movq `s0, `d0\n",
+                                  dst = [r], src = [e1']}
+                      emit Oper{assem = "addq $" ++ show i ++ ", `d0\n",
+                                dst = [r], src = [r], jump = Nothing})
 munchExp (Binop Plus e1 e2) = 
   do e1' <- munchExp e1
      e2' <- munchExp e2
@@ -296,7 +296,7 @@ munchStm (CJump Tree.LT e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "jl `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jmp `j0\n",
@@ -305,7 +305,7 @@ munchStm (CJump Tree.GT e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "jg `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jmp `j0\n",
@@ -314,7 +314,7 @@ munchStm (CJump LE e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "jle `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jmp `j0\n",
@@ -323,7 +323,7 @@ munchStm (CJump GE e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "jge `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jmp `j0\n",
@@ -332,7 +332,7 @@ munchStm (CJump ULT e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "jb `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jmp `j0\n",
@@ -341,7 +341,7 @@ munchStm (CJump UGT e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "ja `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jmp `j0\n",
@@ -350,7 +350,7 @@ munchStm (CJump ULE e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "je `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "jb `j0\n",
@@ -361,7 +361,7 @@ munchStm (CJump UGE e1 e2 lt lf) =
   do e1' <- munchExp e1
      e2' <- munchExp e2
      emit Oper{assem = "cmp `s0, `s1\n",
-               dst = [], src = [e1', e2'], jump = Nothing}
+               dst = [], src = [e2', e1'], jump = Nothing}
      emit Oper{assem = "je `j0\n",
                dst = [], src = [], jump = Just [lt]}
      emit Oper{assem = "ja `j0\n",

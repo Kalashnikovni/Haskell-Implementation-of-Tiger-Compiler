@@ -18,7 +18,7 @@ main =
   putStrLn "\n======= Test suite Intermediate [for TigerTrans testing] in progress =======" >>
   --putStrLn "Show results good:" >>
   --testerPrintDir "./test/test_code/good" >>
-  testerPrint "./test/test_code/good" "queens.tig" >>
+  testerPrint "./test/test_code/good" "fact.tig" >>
   putStrLn "\n======= Test suite FIN ======="
 
 type EstadoTest = StGen

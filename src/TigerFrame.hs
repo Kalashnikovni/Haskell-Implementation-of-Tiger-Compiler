@@ -45,11 +45,11 @@ r7 = pack "r15"
 calldefs, specialregs, argregs, callersaved :: [Temp]
 argregs = [a0, a1, a2, a3, a4, a5]
 calleesaved = [r1, r4, r5, r6, r7]
-callersaved = [rv, r2, r3]
+callersaved = [rv, r2, r3] ++ argregs
 calldefs = callersaved
 specialregs = [fp, sp]
-usablecolors = calleesaved ++ argregs ++ callersaved
-allregs = argregs ++ calleesaved ++ callersaved ++ specialregs
+usablecolors = calleesaved ++ callersaved
+allregs = calleesaved ++ callersaved ++ specialregs
 
 argsRegsCount :: Int
 argsRegsCount = P.length argregs
@@ -254,7 +254,7 @@ adjustFp fr
   where isInFrame (InFrame _) = True
         isInFrame _         = False
         infr = wSz * ((P.length $ P.filter isInFrame $ formalsAcc fr) +
-                      locSize fr)
+                      locSize fr + 1)
 
 locSize :: Frame -> Int
 locSize fr = P.length $ P.filter (== Escapa) $ locals fr

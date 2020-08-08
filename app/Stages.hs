@@ -104,11 +104,17 @@ livenessStage (fg, vs) =
      return res
 
 regAllocStage :: Integer -> ([Frag], [([Instr], Frame)]) -> EstadoTest ([Frag], [([Instr], Frame, Allocation)])
-regAllocStage st (strs, linstrs) =
-  let res = P.map (\(instrs, fr) -> 
-                    let newIns = procEntryExit2 fr instrs
-                        (val, st') = runSt (runMonadaRA $ registerAllocation newIns fr) st
-                    in  either (error . show)
-                               (\(is, f) -> (is, f, color $ snd val))
-                               (fst val)) linstrs 
-  in return $ (strs, res)
+regAllocStage st (strs, []) = return (strs, [])
+regAllocStage st (strs, (i:ins)) =
+  do (alloci, newSt) <- regAllocStageAux st i
+     auxRes <- regAllocStage newSt (strs, ins)
+     return (strs, alloci : (snd auxRes))
+
+regAllocStageAux :: Integer -> ([Instr], Frame) -> EstadoTest (([Instr], Frame, Allocation), Integer)
+regAllocStageAux st (instrs, fr) =
+  let newIns = procEntryExit2 fr instrs
+      (val, newSt) = runSt (runMonadaRA $ registerAllocation newIns fr) st
+      res = either (error . show)
+                   (\(is, f) -> (is, f, color $ snd val))
+                   (fst val)
+  in return (res, newSt)

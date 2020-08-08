@@ -282,16 +282,24 @@ transExp (OpExp el' oper er' p) =
   do (resl, el) <- transExp el'
      (resr, er) <- transExp er'
      case oper of
-       EqOp  -> if tiposComparables el er EqOp 
-                then do (_, t) <- eqOps el er
-                        res <- binOpIntRelExp resl EqOp resr
-                        return (res, TInt RO)
-                else errmsg "Error de tipos. Tipos no comparables 1:" el er
-       NeqOp -> if tiposComparables el er EqOp 
-                then do (_, t) <- eqOps el er
-                        res <- binOpIntRelExp resl NeqOp resr
-                        return (res, TInt RO)
-                else errmsg "Error de tipos. Tipos no comparables 2:" el er
+       EqOp  -> do cond1 <- tiposIguales el er  
+                   if cond1 && (not $ el == TNil && er == TNil) && (el /= TUnit)
+                   then do cond2 <- tiposIguales el TString 
+                           if cond2
+                           then do e <- binOpStrExp resl EqOp resr
+                                   return (e, TBool)
+                           else do e <- binOpIntRelExp resl EqOp resr
+                                   return (e, TBool)
+                   else errmsg "Error de tipos. Tipos distintos 1:" el er
+       NeqOp -> do cond1 <- tiposIguales el er
+                   if cond1 && (not $ el == TNil && er == TNil) && (el /= TUnit)
+                   then do cond2 <- tiposIguales el TString
+                           if cond2
+                           then do e <- binOpStrExp resl NeqOp resr
+                                   return (e, TBool)
+                           else do e <- binOpIntRelExp resl NeqOp resr
+                                   return (e, TBool)
+                   else errmsg "Error de tipos. Tipos no comparables 2:" el er
        PlusOp -> oOps el resl er resr PlusOp
        MinusOp -> oOps el resl er resr MinusOp
        TimesOp -> oOps el resl er resr TimesOp
@@ -301,41 +309,67 @@ transExp (OpExp el' oper er' p) =
        GtOp -> ineqOps el resl er resr GtOp
        GeOp -> ineqOps el resl er resr GeOp
   where errmsg msg t1 t2 = addpos (derror $ pack $ msg ++ " " ++ show t1 ++ " " ++ show t2) p
-        eqOps TNil TNil = errmsg "Error de tipos. Tipos no comparables 3:" TNil TNil -- Redundant
-        eqOps TNil r    = if equivTipo TNil r
-                          then do resu <- unitExp
-                                  return (resu, TInt RO)
-                          else errmsg "Error de tipos. Tipos no comparables 4:" TNil r 
-        eqOps l TNil    = if equivTipo l TNil
-                          then do resu <- unitExp
-                                  return (resu, TInt RO)
-                          else errmsg "Error de tipos. Tipos no comparables 5:" l TNil 
-        eqOps l r = 
-          case (equivTipo l r, equivTipo l (TInt RO), equivTipo l TString) of
-            (True, True, _) -> do resu <- unitExp
-                                  return (resu, TInt RO)
-            (True, _, True) -> do resu <- unitExp
-                                  return (resu, TString)
-            (True, _, _)    -> if equivTipo l r
-                               then do resu <- unitExp
-                                       return (resu, TInt RO)
-                               else errmsg "Error de tipos. Tipos no comparables 6:" l r
-            _               -> errmsg "Error de tipos. Tipos no comparables 7: " l r
+        eqOp tl@(TInt rwo) tr l r op = 
+          case equivTipo tl tr of
+            True  -> do res <- binOpIntExp l op r
+                        return (res, TBool)
+            False -> errmsg "Error de tipos. Tipos no comparables 3: " tl tr
+        eqOp tl@TString tr l r op = 
+          case equivTipo tl tr of
+            True  -> do res <- binOpStrExp l op r
+                        return (res, TBool)
+            False -> errmsg "Error de tipos. Tipos no comparables 4: " tl tr
+        eqOp tl@TNil tr@(TRecord{}) l r EqOp = 
+          do res <- intExp 1
+             return (res, TBool)
+        eqOp tl@TNil tr@(TRecord{}) l r NeqOp = 
+          do res <- intExp 0
+             return (res, TBool)
+        eqOp tl@(TRecord{}) tr@TNil l r EqOp = 
+          do res <- intExp 1
+             return (res, TBool)
+        eqOp tr@(TRecord{}) tl@TNil l r NeqOp = 
+          do res <- intExp 0
+             return (res, TBool)
+        eqOp tl@(TRecord _ u1) tr@(TRecord _ u2) l r EqOp = 
+          case u1 == u2 of
+            True  -> do res <- intExp 1
+                        return (res, TBool)
+            False -> do res <- intExp 0
+                        return (res, TBool)
+        eqOp tl@(TRecord _ u1) tr@(TRecord _ u2) l r NeqOp = 
+          case u1 == u2 of
+            True  -> do res <- intExp 0
+                        return (res, TBool)
+            False -> do res <- intExp 1
+                        return (res, TBool)
+        eqOp tl@(TArray _ u1) tr@(TArray _ u2) l r EqOp = 
+          case u1 == u2 of
+            True  -> do res <- intExp 1
+                        return (res, TBool)
+            False -> do res <- intExp 0
+                        return (res, TBool)
+        eqOp tl@(TArray _ u1) tr@(TArray _ u2) l r NeqOp = 
+          case u1 == u2 of
+            True  -> do res <- intExp 0
+                        return (res, TBool)
+            False -> do res <- intExp 1
+                        return (res, TBool)
         oOps l rl r rr op = if equivTipo l r 
                                && equivTipo l (TInt RO) 
                             then do res <- binOpIntExp rl op rr
-                                    return (res, TInt RO)
+                                    return (res, TBool)
                             else errmsg "Error de tipos. Tipos no comparables 8:" l r
         ineqOps l rl r rr op = 
           case equivTipo l r of
             True ->
               case equivTipo l (TInt RO) of
                 True  -> do res <- binOpIntRelExp rl op rr
-                            return (res, TInt RO) 
+                            return (res, TBool) 
                 False ->
                   case equivTipo l TString of
                     True  -> do res <- binOpStrExp rl op rr
-                                return (res, TInt RO) 
+                                return (res, TBool) 
                     False -> errmsg "Error de tipos. Tipos no comparables 9:" l r
             False -> errmsg "No se pueden comparar los tipos 2: " l r
 transExp(RecordExp flds rt p) =
@@ -371,6 +405,7 @@ transExp(IfExp co th Nothing p) =
      return (res , TUnit)
 transExp(IfExp co th (Just el) p) = 
   do (bco, condType) <- transExp co
+     trace (show co ++ show bco) $ return ()
      C.unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
      (bth, ttType) <- transExp th
      (bel, ffType) <- transExp el
