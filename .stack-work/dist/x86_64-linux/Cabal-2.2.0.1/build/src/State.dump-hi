@@ -1,0 +1,381 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:18:18.331290525 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:State 8043
+  interface hash: c6d77f6cc5dbc813886e253c9af6bcb2
+  ABI hash: 43f87bf4e8aea3612f83bd0ee4cef0a5
+  export-list hash: ce0c6360dc67cbf5d57758c5b03617e2
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 84a707957232ceed2ddebd5ca4ca265a
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  State.get
+  State.modify
+  State.put
+  State.State{State.St runSt}
+module dependencies:
+package dependencies: base-4.11.1.0* ghc-prim-0.5.2.0
+                      integer-gmp-1.0.2.0
+orphans: base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity base-4.11.1.0:Data.Monoid
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:GHC.Generics
+                         base-4.11.1.0:GHC.IO.Exception
+import  -/  base-4.11.1.0:Control.Arrow ce43199b5356a11ee2a8317f0ec30aee
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+68a62a41dcc3b091e8fa1b704988f04b
+  $fApplicativeState :: GHC.Base.Applicative (State.State s)
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun: @ s.
+                  @ (State.State s)
+                  (State.$fFunctorState @ s)
+                  (State.$fApplicativeState5 @ s)
+                    `cast`
+                  (forall (a :: <*>_N).
+                   <a>_R ->_R Sym (State.N:State[0] <s>_R <a>_R))
+                  (State.$fApplicativeState4 @ s)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N).
+                   <State.State s (a -> b)>_R
+                   ->_R <State.State s a>_R
+                   ->_R Sym (State.N:State[0] <s>_R <b>_R))
+                  (\ @ a @ b @ c -> State.$fApplicativeState3 @ c @ b @ s @ a)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N) (c :: <*>_N).
+                   <a -> b -> c>_R
+                   ->_R <State.State s a>_R
+                   ->_R <State.State s b>_R
+                   ->_R Sym (State.N:State[0] <s>_R <c>_R))
+                  (\ @ a @ b -> State.$fApplicativeState2 @ b @ a @ s)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N).
+                   <State.State s a>_R
+                   ->_R <State.State s b>_R
+                   ->_R Sym (State.N:State[0] <s>_R <b>_R))
+                  (\ @ a @ b -> State.$fApplicativeState1 @ b @ a @ s)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N).
+                   <State.State s a>_R
+                   ->_R <State.State s b>_R
+                   ->_R Sym (State.N:State[0] <s>_R <a>_R)) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fApplicativeState1 ::
+    State.State s a -> State.State s b -> s -> (a, s)
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,1*C1(U(1*U,1*U))><L,1*C1(U(A,1*U))><L,U>m,
+     Unfolding: InlineRule (3, True, False)
+                (\ @ b
+                   @ a
+                   @ s
+                   (x :: State.State s a)
+                   (eta :: State.State s b)
+                   (eta1 :: s) ->
+                 let {
+                   ds1 :: (a, s) = x `cast` (State.N:State[0] <s>_R <a>_R) eta1
+                 } in
+                 (case ds1 of wild { (,) x1 y -> x1 },
+                  case eta `cast` (State.N:State[0] <s>_R <b>_R)
+                         (case ds1 of wild { (,) x1 y -> y }) of wild { (,) x' s'' ->
+                  s'' })) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fApplicativeState2 ::
+    State.State s a -> State.State s b -> s -> (b, s)
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,1*C1(U(A,1*U))><L,1*C1(U(1*U,1*U))><L,U>m,
+     Unfolding: InlineRule (3, True, False)
+                (\ @ b
+                   @ a
+                   @ s
+                   (a1 :: State.State s a)
+                   (a2 :: State.State s b)
+                   (eta :: s) ->
+                 let {
+                   ds :: (b, s)
+                   = a2 `cast` (State.N:State[0] <s>_R <b>_R)
+                       (case a1 `cast` (State.N:State[0] <s>_R <a>_R)
+                               eta of wild { (,) x y ->
+                        y })
+                 } in
+                 (case ds of wild { (,) x' s'' -> x' },
+                  case ds of wild { (,) x' s'' -> s'' })) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fApplicativeState3 ::
+    (a -> b -> c) -> State.State s a -> State.State s b -> s -> (c, s)
+  {- Arity: 4, HasNoCafRefs,
+     Strictness: <L,1*C1(C1(U))><L,1*C1(U(1*U,1*U))><L,1*C1(U(1*U,1*U))><L,U>m,
+     Inline: [0],
+     Unfolding: InlineRule (4, True, False)
+                (\ @ c
+                   @ b
+                   @ s
+                   @ a
+                   (w :: a -> b -> c)
+                   (w1 :: State.State s a)
+                   (w2 :: State.State s b)
+                   (w3 :: s) ->
+                 let {
+                   ds1 :: (a, s) = w1 `cast` (State.N:State[0] <s>_R <a>_R) w3
+                 } in
+                 let {
+                   ds :: (b, s)
+                   = w2 `cast` (State.N:State[0] <s>_R <b>_R)
+                       (case ds1 of wild { (,) x y -> y })
+                 } in
+                 (w (case ds1 of wild { (,) x y -> x })
+                    (case ds of wild { (,) x' s'' -> x' }),
+                  case ds of wild { (,) x' s'' -> s'' })) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fApplicativeState4 ::
+    State.State s (a -> b) -> State.State s a -> s -> (b, s)
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,1*C1(U(1*C1(U),1*U))><L,1*C1(U(1*U,1*U))><L,U>m,
+     Inline: [0],
+     Unfolding: InlineRule (3, True, False)
+                (\ @ s
+                   @ a
+                   @ b
+                   (w :: State.State s (a -> b))
+                   (w1 :: State.State s a)
+                   (w2 :: s) ->
+                 let {
+                   ds :: (a -> b, s) = w `cast` (State.N:State[0] <s>_R <a -> b>_R) w2
+                 } in
+                 let {
+                   ds1 :: (a, s)
+                   = w1 `cast` (State.N:State[0] <s>_R <a>_R)
+                       (case ds of wild { (,) f' s' -> s' })
+                 } in
+                 (case ds of wild { (,) f' s' ->
+                  f' (case ds1 of wild1 { (,) x' s'' -> x' }) },
+                  case ds1 of wild { (,) x' s'' -> s'' })) -}
+1aed49389165d49aada8c95404bd86d5
+  $fApplicativeState5 :: a -> s -> (a, s)
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,U><L,U>m,
+     Unfolding: InlineRule (2, True, True)
+                (\ @ s @ a (a1 :: a) (s1 :: s) -> (a1, s1)) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fFunctorState :: GHC.Base.Functor (State.State s)
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun: @ s.
+                  @ (State.State s)
+                  (State.$fFunctorState2 @ s)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N).
+                   <a -> b>_R
+                   ->_R <State.State s a>_R
+                   ->_R Sym (State.N:State[0] <s>_R <b>_R))
+                  (\ @ a @ b -> State.$fFunctorState1 @ s @ b @ a)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N).
+                   <a>_R
+                   ->_R <State.State s b>_R
+                   ->_R Sym (State.N:State[0] <s>_R <a>_R)) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fFunctorState1 :: a -> State.State s b -> s -> (a, s)
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,U><L,1*C1(U(A,1*U))><L,U>m,
+     Unfolding: InlineRule (3, True, False)
+                (\ @ s @ b @ a (x :: a) (m :: State.State s b) (s' :: s) ->
+                 (x,
+                  case m `cast` (State.N:State[0] <s>_R <b>_R)
+                         s' of wild { (,) x1 y ->
+                  y })) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fFunctorState2 :: (a -> b) -> State.State s a -> s -> (b, s)
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,1*C1(U)><L,1*C1(U(1*U,1*U))><L,U>m,
+     Unfolding: InlineRule (3, True, False)
+                (\ @ s @ a @ b (f :: a -> b) (m :: State.State s a) (s' :: s) ->
+                 let {
+                   ds1 :: (a, s) = m `cast` (State.N:State[0] <s>_R <a>_R) s'
+                 } in
+                 (f (case ds1 of wild { (,) x y -> x }),
+                  case ds1 of wild { (,) x y -> y })) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fMonadState :: GHC.Base.Monad (State.State s)
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun: @ s.
+                  @ (State.State s)
+                  (State.$fApplicativeState @ s)
+                  (State.$fMonadState1 @ s)
+                    `cast`
+                  (forall (a :: <*>_N) (b :: <*>_N).
+                   <State.State s a>_R
+                   ->_R <a -> State.State s b>_R
+                   ->_R Sym (State.N:State[0] <s>_R <b>_R))
+                  (State.$fMonadState_$c>> @ s)
+                  (State.$fApplicativeState5 @ s)
+                    `cast`
+                  (forall (a :: <*>_N).
+                   <a>_R ->_R Sym (State.N:State[0] <s>_R <a>_R))
+                  (\ @ a ->
+                   GHC.Err.errorWithoutStackTrace
+                     @ 'GHC.Types.LiftedRep
+                     @ (State.State s a)) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fMonadState1 ::
+    State.State s a -> (a -> State.State s b) -> s -> (b, s)
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,1*C1(U(1*U,1*U))><C(C(S)),1*C1(C1(U(U,U)))><L,U>,
+     Unfolding: InlineRule (3, True, False)
+                (\ @ s
+                   @ a
+                   @ b
+                   (x :: State.State s a)
+                   (g :: a -> State.State s b)
+                   (s1 :: s) ->
+                 let {
+                   ds :: (a, s) = x `cast` (State.N:State[0] <s>_R <a>_R) s1
+                 } in
+                 (g (case ds of wild { (,) x' s' -> x' }))
+                   `cast`
+                 (State.N:State[0] <s>_R <b>_R)
+                   (case ds of wild { (,) x' s' -> s' })) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  $fMonadState_$c>> ::
+    State.State s a -> State.State s b -> State.State s b
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <L,1*C1(U(A,1*U))><C(S),1*C1(U(U,U))><L,U>,
+     Inline: (sat-args=2),
+     Unfolding: InlineRule (2, False, False)
+                (\ @ s
+                   @ a
+                   @ b
+                   (m1 :: State.State s a)
+                   (k :: State.State s b)
+                   (s1 :: s) ->
+                 k `cast` (State.N:State[0] <s>_R <b>_R)
+                   (case m1 `cast` (State.N:State[0] <s>_R <a>_R)
+                           s1 of wild { (,) x' s' ->
+                    s' }))
+                  `cast`
+                (forall (s :: <*>_N) (a :: <*>_N) (b :: <*>_N).
+                 <State.State s a>_R
+                 ->_R <State.State s b>_R
+                 ->_R Sym (State.N:State[0] <s>_R <b>_R)) -}
+9560bdf0e4ee3072e7bdd3a6a19482b7
+  $tc'St :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   31398273618898120##
+                   1878024031055725021##
+                   State.$trModule
+                   State.$tc'St2
+                   2#
+                   State.$tc'St1) -}
+e1c07875fb4cafc998b433898603bb4e
+  $tc'St1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+61bb64761ceccab0161ee9ca87df6fbe
+  $tc'St2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS State.$tc'St3) -}
+1ee099371197db529908791a73d907ff
+  $tc'St3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'St"#) -}
+584cfec6d9708ad98303092696dd991e
+  $tcState :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6655713937496941223##
+                   7405221837102086873##
+                   State.$trModule
+                   State.$trModule1
+                   0#
+                   GHC.Types.krep$*->*->*) -}
+e8486cea78b729650d6c03f604f98474
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module State.$trModule3 State.$trModule1) -}
+3f276d964e14e5fc2a9db550c326c042
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS State.$trModule2) -}
+d43a224c2c2dd54f638e0550bb420d94
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("State"#) -}
+1f783eb265875e2c3b84cae534f7094a
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS State.$trModule4) -}
+54a035ed41ecc3938a3bf6477f2a4634
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  newtype State s v = St {runSt :: s -> (v, s)}
+a05c82f218ae8e6cafe7f1fe2914fb59
+  get :: State.State a a
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,U>m,
+     Unfolding: InlineRule (0, True, True)
+                State.get1
+                  `cast`
+                (forall (a :: <*>_N). Sym (State.N:State[0] <a>_R <a>_R)) -}
+f885d52cc29aaf3fab5e8e0e3cbea3b4
+  get1 :: a -> (a, a)
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,U>m,
+     Unfolding: InlineRule (1, True, False)
+                (\ @ a (s :: a) -> (s, s)) -}
+561e62b545e1f8964ed6411225dda1f9
+  modify :: (s -> s) -> State.State s ()
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,1*C1(U)><L,U>m,
+     Unfolding: InlineRule (0, True, True)
+                State.modify1
+                  `cast`
+                (forall (s :: <*>_N).
+                 <s -> s>_R ->_R Sym (State.N:State[0] <s>_R <()>_R)) -}
+be607c2153c9f6d2baf99157bcfa2518
+  modify1 :: (s -> s) -> s -> ((), s)
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,1*C1(U)><L,U>m,
+     Unfolding: InlineRule (2, True, False)
+                (\ @ s (f :: s -> s) (s1 :: s) -> (GHC.Tuple.(), f s1)) -}
+af794f6626400cf8f539e1b78428d815
+  put :: b -> State.State b ()
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,U><L,A>m,
+     Unfolding: InlineRule (0, True, True)
+                State.put1
+                  `cast`
+                (forall (b :: <*>_N).
+                 <b>_R ->_R Sym (State.N:State[0] <b>_R <()>_R)) -}
+688afb0c0df9c2211a86dc12f1821bb4
+  put1 :: b -> b -> ((), b)
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,U><L,A>m,
+     Unfolding: InlineRule (2, True, True)
+                (\ @ b (b1 :: b) (eta :: b) -> (GHC.Tuple.(), b1)) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  runSt :: State.State s v -> s -> (v, s)
+  RecSel Left State.State
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>,
+     Unfolding: InlineRule (0, True, True)
+                State.runSt1
+                  `cast`
+                (forall (s :: <*>_N) (v :: <*>_N).
+                 <State.State s v>_R ->_R State.N:State[0] <s>_R <v>_R) -}
+68a62a41dcc3b091e8fa1b704988f04b
+  runSt1 :: State.State s v -> State.State s v
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, True)
+                (\ @ s @ v (ds :: State.State s v) -> ds) -}
+instance [safe] GHC.Base.Applicative [State.State]
+  = State.$fApplicativeState
+instance [safe] GHC.Base.Functor [State.State]
+  = State.$fFunctorState
+instance [safe] GHC.Base.Monad [State.State] = State.$fMonadState
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

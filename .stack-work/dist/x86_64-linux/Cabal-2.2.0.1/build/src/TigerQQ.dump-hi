@@ -1,0 +1,534 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:23:45.740213222 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerQQ 8043
+  interface hash: fe8e7652eb1ebfe8c6644fc8d5c91444
+  ABI hash: 0238a0ec4a48e3277140968190816d31
+  export-list hash: a7d8a741f360566a6eb2445500232194
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: fb30f40bd47a26ad6864f8674b3f8ced
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  TigerQQ.antiExprPat
+  TigerQQ.expr
+  TigerQQ.handleSymbol
+  TigerQQ.quoteExprExp
+  TigerQQ.quoteExprPat
+module dependencies: TigerAbs TigerLexer TigerParser TigerSymbol
+package dependencies: array-0.5.2.0 base-4.11.1.0 binary-0.8.5.1
+                      bytestring-0.10.8.2 containers-0.5.11.0 deepseq-1.4.3.0
+                      ghc-boot-th-8.4.3 ghc-prim-0.5.2.0 integer-gmp-1.0.2.0 mtl-2.2.2
+                      parsec-3.1.13.0 pretty-1.1.3.6 syb-0.7 template-haskell-2.13.0.0
+                      text-1.2.3.0 transformers-0.5.5.0
+orphans: text-1.2.3.0:Data.Text.Lazy
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         text-1.2.3.0:Data.Text binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show syb-0.7:Data.Generics.Instances
+         base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         ghc-boot-th-8.4.3:GHC.ForeignSrcLang.Type
+                         ghc-boot-th-8.4.3:GHC.LanguageExtensions.Type
+                         pretty-1.1.3.6:Text.PrettyPrint.Annotated.HughesPJ
+                         pretty-1.1.3.6:Text.PrettyPrint.HughesPJ
+                         template-haskell-2.13.0.0:Language.Haskell.TH.Syntax
+                         text-1.2.3.0:Data.Text text-1.2.3.0:Data.Text.Lazy
+import  -/  TigerAbs 039cda3126c7cc999dbdd3c9a8fcaa0d
+  exports: 7916be92b0d3730e8979910ab1e541e2
+  Exp 88da78297a197b572c2b5511c12295ec
+import  -/  TigerParser 08ee935ede5b6811b1d06e65a545d374
+  exports: 3f7236a1f1b97fce0f14cc06024617af
+  parseFromStr 141dea13d0ffb43889c5875bdebd7135
+import  -/  TigerSymbol 4628943ae21548f9838cca1c81589f49
+  exports: 3aa8690c7d65c85b2775cbd880ffcd19
+  Symbol 80a54d65275119c925e5daf83dc9ca3b
+import  -/  base-4.11.1.0:Data.Tuple 3af66f3ac61ed95ba8a3a3f68ebc5003
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:GHC.Err 5e26aa744981f14e0f1e4d29c44ac52e
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  syb-0.7:Data.Generics 2ddc257f9ac35414fc37ff4d19b4d388
+import  -/  syb-0.7:Data.Generics.Aliases a5097c06261967df51d59247bf1d4958
+import  -/  template-haskell-2.13.0.0:Language.Haskell.TH 8c7daf59c30f2d6867e9648969e317fc
+import  -/  template-haskell-2.13.0.0:Language.Haskell.TH.Lib.Internal 2fce8062e0f808cd5f150d375cfd7105
+import  -/  template-haskell-2.13.0.0:Language.Haskell.TH.Quote 4753800554c2c18a1d981e894c5ed618
+import  -/  template-haskell-2.13.0.0:Language.Haskell.TH.Syntax 3e32e309555ba250b4e64084f1389487
+import  -/  text-1.2.3.0:Data.Text 4f359e32d6f1c9011b171e00ff8fb023
+import  -/  text-1.2.3.0:Data.Text.Show 3b4b6fb2985a731022d67f636682da2b
+69a8ad570734d8114e6376eb047b84ea
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module
+                   TigerQQ.$trModule3
+                   TigerQQ.$trModule1) -}
+52a37d39464937e2623fba254c71b4b1
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerQQ.$trModule2) -}
+a633be60619928602b9fda6f6660dc4a
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("TigerQQ"#) -}
+ddf93d9eb544821898e9d6d311c40aed
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerQQ.$trModule4) -}
+5947e43b1659959c6ef211b822e636c3
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+29c5249e2088abc3da455da9da1d7245
+  $whandleSymbol ::
+    TigerSymbol.Symbol -> (# Language.Haskell.TH.Lib.Internal.ExpQ #)
+  {- Arity: 1, Strictness: <L,1*U(U,U,U)>, Inline: [0],
+     Unfolding: (\ (w :: TigerSymbol.Symbol) ->
+                 (# (Language.Haskell.TH.Lib.Internal.appE1
+                       TigerQQ.handleSymbol1
+                         `cast`
+                       (Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                 <Language.Haskell.TH.Syntax.Exp>_N))
+                       (Language.Haskell.TH.Lib.Internal.litE1
+                          (Language.Haskell.TH.Syntax.StringL
+                             (case w of wild { Data.Text.Internal.Text dt dt1 dt2 ->
+                              let {
+                                end :: GHC.Prim.Int# = GHC.Prim.+# dt1 dt2
+                              } in
+                              letrec {
+                                $wunfold :: GHC.Prim.Int# -> [GHC.Types.Char]
+                                  {- Arity: 1, Strictness: <S,U>, Inline: [0] -}
+                                = \ (ww :: GHC.Prim.Int#) ->
+                                  case GHC.Prim.>=# ww end of lwild {
+                                    DEFAULT
+                                    -> case GHC.Prim.indexWord16Array# dt ww of r# { DEFAULT ->
+                                       case GHC.Prim.geWord# r# 55296## of lwild1 {
+                                         DEFAULT
+                                         -> GHC.Types.:
+                                              @ GHC.Types.Char
+                                              (GHC.Types.C# (GHC.Prim.chr# (GHC.Prim.word2Int# r#)))
+                                              ($wunfold (GHC.Prim.+# ww 1#))
+                                         1#
+                                         -> case GHC.Prim.leWord# r# 56319## of lwild2 {
+                                              DEFAULT
+                                              -> GHC.Types.:
+                                                   @ GHC.Types.Char
+                                                   (GHC.Types.C#
+                                                      (GHC.Prim.chr# (GHC.Prim.word2Int# r#)))
+                                                   ($wunfold (GHC.Prim.+# ww 1#))
+                                              1#
+                                              -> case GHC.Prim.indexWord16Array#
+                                                        dt
+                                                        (GHC.Prim.+# ww 1#) of r#1 { DEFAULT ->
+                                                 GHC.Types.:
+                                                   @ GHC.Types.Char
+                                                   (GHC.Types.C#
+                                                      (GHC.Prim.chr#
+                                                         (GHC.Prim.+#
+                                                            (GHC.Prim.+#
+                                                               (GHC.Prim.uncheckedIShiftL#
+                                                                  (GHC.Prim.-#
+                                                                     (GHC.Prim.word2Int# r#)
+                                                                     55296#)
+                                                                  10#)
+                                                               (GHC.Prim.-#
+                                                                  (GHC.Prim.word2Int# r#1)
+                                                                  56320#))
+                                                            65536#)))
+                                                   ($wunfold (GHC.Prim.+# ww 2#)) } } } }
+                                    1# -> GHC.Types.[] @ GHC.Types.Char }
+                              } in
+                              $wunfold dt1 })))
+                         `cast`
+                       (Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                 <Language.Haskell.TH.Syntax.Exp>_N)))
+                      `cast`
+                    (Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                              <Language.Haskell.TH.Syntax.Exp>_N)) #)) -}
+1e1cb48f6f71e563610a4e0a9e0a27d5
+  antiExprPat ::
+    TigerAbs.Exp
+    -> GHC.Base.Maybe
+         (Language.Haskell.TH.Syntax.Q Language.Haskell.TH.Syntax.Pat)
+  {- Arity: 1, HasNoCafRefs, Strictness: <L,A>,
+     Unfolding: InlineRule (1, True, True)
+                (\ (ds :: TigerAbs.Exp) ->
+                 GHC.Base.Nothing
+                   @ (Language.Haskell.TH.Syntax.Q Language.Haskell.TH.Syntax.Pat)) -}
+8fc69aa5404ba9e8b2fca8ccfca4c8df
+  expr :: Language.Haskell.TH.Quote.QuasiQuoter
+  {- Strictness: m,
+     Unfolding: (Language.Haskell.TH.Quote.QuasiQuoter
+                   TigerQQ.expr6
+                     `cast`
+                   (<GHC.Base.String>_R
+                    ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                  <Language.Haskell.TH.Syntax.Exp>_N))
+                   TigerQQ.expr3
+                     `cast`
+                   (<GHC.Base.String>_R
+                    ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                  <Language.Haskell.TH.Syntax.Pat>_N))
+                   TigerQQ.expr2
+                   TigerQQ.expr1) -}
+d28e908d9c1bb58a8fd0bac5d780283e
+  expr1 ::
+    GHC.Base.String
+    -> Language.Haskell.TH.Syntax.Q [Language.Haskell.TH.Syntax.Dec]
+  {- Strictness: x -}
+3e0a7eecf7f9904855d92e26f0533171
+  expr2 ::
+    GHC.Base.String
+    -> Language.Haskell.TH.Syntax.Q Language.Haskell.TH.Syntax.Type
+  {- Strictness: x -}
+004d512042e5a6a39a60e36a91df787f
+  expr3 ::
+    GHC.Base.String
+    -> forall (m :: * -> *).
+       Language.Haskell.TH.Syntax.Quasi m =>
+       m Language.Haskell.TH.Syntax.Pat
+  {- Arity: 2,
+     Strictness: <L,U><S(S(S(LC(C(S))LLL)L)LLLLLLLLLLLLLLLLLLLLLLL),U(U(U(U,U,U,U,U),U),U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U)>,
+     Unfolding: (\ (s :: GHC.Base.String)
+                   @ m :: * -> *
+                   ($dQuasi :: Language.Haskell.TH.Syntax.Quasi m) ->
+                 let {
+                   lvl14 :: Control.Monad.IO.Class.MonadIO m
+                   = Language.Haskell.TH.Syntax.$p1Quasi @ m $dQuasi
+                 } in
+                 let {
+                   lvl15 :: GHC.Base.Monad m
+                   = Control.Monad.IO.Class.$p1MonadIO @ m lvl14
+                 } in
+                 let {
+                   lvl16 :: TigerAbs.Exp -> m Language.Haskell.TH.Syntax.Pat
+                     {- Arity: 1, Strictness: <L,U>,
+                        Unfolding: InlineRule (1, True, False)
+                                   (\ (x :: TigerAbs.Exp) ->
+                                    (Language.Haskell.TH.Syntax.dataToPatQ_$sdataToQa
+                                       @ TigerAbs.Exp
+                                       x
+                                       TigerQQ.expr4
+                                       @~ (<Language.Haskell.TH.Syntax.Lit>_R
+                                           ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                                         <Language.Haskell.TH.Syntax.Pat>_N))
+                                       (GHC.Base.id @ Language.Haskell.TH.Syntax.Name)
+                                       TigerAbs.$fDataExp)
+                                      `cast`
+                                    (Language.Haskell.TH.Syntax.N:Q[0]
+                                         <Language.Haskell.TH.Syntax.Pat>_N)
+                                      @ m
+                                      $dQuasi) -}
+                   = \ (x :: TigerAbs.Exp) ->
+                     (Language.Haskell.TH.Syntax.dataToPatQ_$sdataToQa
+                        @ TigerAbs.Exp
+                        x
+                        TigerQQ.expr4
+                        @~ (<Language.Haskell.TH.Syntax.Lit>_R
+                            ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                          <Language.Haskell.TH.Syntax.Pat>_N))
+                        (GHC.Base.id @ Language.Haskell.TH.Syntax.Name)
+                        TigerAbs.$fDataExp)
+                       `cast`
+                     (Language.Haskell.TH.Syntax.N:Q[0]
+                          <Language.Haskell.TH.Syntax.Pat>_N)
+                       @ m
+                       $dQuasi
+                 } in
+                 GHC.Base.>>=
+                   @ m
+                   lvl15
+                   @ Language.Haskell.TH.Syntax.Loc
+                   @ Language.Haskell.TH.Syntax.Pat
+                   (Language.Haskell.TH.Syntax.qLocation @ m $dQuasi)
+                   (\ (x :: Language.Haskell.TH.Syntax.Loc) ->
+                    GHC.Base.>>=
+                      @ m
+                      lvl15
+                      @ TigerAbs.Exp
+                      @ Language.Haskell.TH.Syntax.Pat
+                      ((TigerParser.$wparseFromStr
+                          @ Language.Haskell.TH.Syntax.Q
+                          Language.Haskell.TH.Syntax.$fMonadQ
+                          (case x of wild { Language.Haskell.TH.Syntax.Loc ds1 ds2 ds3 ds4 ds5 ->
+                           ds1 })
+                          (case x of wild { Language.Haskell.TH.Syntax.Loc ds1 ds2 ds3 ds4 ds5 ->
+                           case ds4 of wild1 { (,) x1 ds7 -> x1 } })
+                          (case x of wild { Language.Haskell.TH.Syntax.Loc ds1 ds2 ds3 ds4 ds5 ->
+                           case ds4 of wild1 { (,) ds7 y -> y } })
+                          s)
+                         `cast`
+                       (Language.Haskell.TH.Syntax.N:Q[0] <TigerAbs.Exp>_N)
+                         @ m
+                         $dQuasi)
+                      lvl16)) -}
+4012e9685f94bb8ab9dec1121e665b41
+  expr4 ::
+    Data.Data.Data b =>
+    b
+    -> GHC.Base.Maybe
+         (Language.Haskell.TH.Syntax.Q Language.Haskell.TH.Syntax.Pat)
+  {- Arity: 2,
+     Strictness: <S(SLLLLLLLLLLLLLL),1*U(1*U,A,A,A,A,A,A,A,A,A,A,A,A,A,A)><L,A>,
+     Unfolding: InlineRule (2, True, False)
+                (\ @ b ($dData :: Data.Data.Data b) (a1 :: b)[OneShot] ->
+                 case Data.Typeable.Internal.typeRepFingerprint
+                        @ *
+                        @ b
+                        (Data.Data.$p1Data @ b $dData)
+                          `cast`
+                        (Data.Typeable.Internal.N:Typeable[0] <*>_N <b>_N) of wild { GHC.Fingerprint.Type.Fingerprint dt dt1 ->
+                 case TigerQQ.expr5 of wild1 { GHC.Fingerprint.Type.Fingerprint dt2 dt3 ->
+                 GHC.Base.Nothing
+                   @ (Language.Haskell.TH.Syntax.Q
+                        Language.Haskell.TH.Syntax.Pat) } }) -}
+1d40b54daaf3537e8150774fbcf1503c
+  expr5 :: GHC.Fingerprint.Type.Fingerprint
+  {- Unfolding: (case Data.Typeable.Internal.$wmkTrCon
+                        @ *
+                        @ TigerAbs.Exp
+                        10803534835360227018##
+                        17213501839241073364##
+                        TigerAbs.$trModule
+                        TigerAbs.$fDataExp10
+                        0#
+                        GHC.Types.krep$*
+                        (GHC.Types.[]
+                           @ Data.Typeable.Internal.SomeTypeRep) of ww7 { (#,,,,#) ww8 ww9 ww10 ww11 ww12 ->
+                 Data.Typeable.Internal.typeRepFingerprint
+                   @ *
+                   @ TigerAbs.Exp
+                   (Data.Typeable.Internal.TrTyCon
+                      @ *
+                      @ TigerAbs.Exp
+                      ww8
+                      ww9
+                      ww10
+                      ww11
+                      ww12) }) -}
+e0d853e8fcae4c3816ad221ff1057a7f
+  expr6 ::
+    GHC.Base.String
+    -> forall (m :: * -> *).
+       Language.Haskell.TH.Syntax.Quasi m =>
+       m Language.Haskell.TH.Syntax.Exp
+  {- Arity: 2,
+     Strictness: <L,U><S(S(S(LC(C(S))LLL)L)LLLLLLLLLLLLLLLLLLLLLLL),U(U(U(U,U,U,U,U),U),U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U)>,
+     Unfolding: (\ (s :: GHC.Base.String)
+                   @ m :: * -> *
+                   ($dQuasi :: Language.Haskell.TH.Syntax.Quasi m) ->
+                 let {
+                   lvl14 :: Control.Monad.IO.Class.MonadIO m
+                   = Language.Haskell.TH.Syntax.$p1Quasi @ m $dQuasi
+                 } in
+                 let {
+                   lvl15 :: GHC.Base.Monad m
+                   = Control.Monad.IO.Class.$p1MonadIO @ m lvl14
+                 } in
+                 let {
+                   lvl16 :: TigerAbs.Exp -> m Language.Haskell.TH.Syntax.Exp
+                     {- Arity: 1, Strictness: <L,U>,
+                        Unfolding: InlineRule (1, True, False)
+                                   (\ (x :: TigerAbs.Exp) ->
+                                    (Language.Haskell.TH.Syntax.dataToExpQ_$sdataToQa
+                                       @ TigerAbs.Exp
+                                       x
+                                       TigerQQ.expr7
+                                       @~ (<Language.Haskell.TH.Syntax.Lit>_R
+                                           ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                                         <Language.Haskell.TH.Syntax.Exp>_N))
+                                       TigerAbs.$fDataExp)
+                                      `cast`
+                                    (Language.Haskell.TH.Syntax.N:Q[0]
+                                         <Language.Haskell.TH.Syntax.Exp>_N)
+                                      @ m
+                                      $dQuasi) -}
+                   = \ (x :: TigerAbs.Exp) ->
+                     (Language.Haskell.TH.Syntax.dataToExpQ_$sdataToQa
+                        @ TigerAbs.Exp
+                        x
+                        TigerQQ.expr7
+                        @~ (<Language.Haskell.TH.Syntax.Lit>_R
+                            ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                                          <Language.Haskell.TH.Syntax.Exp>_N))
+                        TigerAbs.$fDataExp)
+                       `cast`
+                     (Language.Haskell.TH.Syntax.N:Q[0]
+                          <Language.Haskell.TH.Syntax.Exp>_N)
+                       @ m
+                       $dQuasi
+                 } in
+                 GHC.Base.>>=
+                   @ m
+                   lvl15
+                   @ Language.Haskell.TH.Syntax.Loc
+                   @ Language.Haskell.TH.Syntax.Exp
+                   (Language.Haskell.TH.Syntax.qLocation @ m $dQuasi)
+                   (\ (x :: Language.Haskell.TH.Syntax.Loc) ->
+                    GHC.Base.>>=
+                      @ m
+                      lvl15
+                      @ TigerAbs.Exp
+                      @ Language.Haskell.TH.Syntax.Exp
+                      ((TigerParser.$wparseFromStr
+                          @ Language.Haskell.TH.Syntax.Q
+                          Language.Haskell.TH.Syntax.$fMonadQ
+                          (case x of wild { Language.Haskell.TH.Syntax.Loc ds1 ds2 ds3 ds4 ds5 ->
+                           ds1 })
+                          (case x of wild { Language.Haskell.TH.Syntax.Loc ds1 ds2 ds3 ds4 ds5 ->
+                           case ds4 of wild1 { (,) x1 ds7 -> x1 } })
+                          (case x of wild { Language.Haskell.TH.Syntax.Loc ds1 ds2 ds3 ds4 ds5 ->
+                           case ds4 of wild1 { (,) ds7 y -> y } })
+                          s)
+                         `cast`
+                       (Language.Haskell.TH.Syntax.N:Q[0] <TigerAbs.Exp>_N)
+                         @ m
+                         $dQuasi)
+                      lvl16)) -}
+ff8964e930924cc6d87809312dd29758
+  expr7 ::
+    Data.Data.Data b =>
+    b -> GHC.Base.Maybe Language.Haskell.TH.Lib.Internal.ExpQ
+  {- Arity: 2,
+     Strictness: <S(SLLLLLLLLLLLLLL),1*U(1*U,A,A,A,A,A,A,A,A,A,A,A,A,A,A)><L,1*U>,
+     Unfolding: (\ @ b
+                   ($dData :: Data.Data.Data b)
+                   (a1 :: b)[OneShot] ->
+                 case Data.Typeable.Internal.typeRepFingerprint
+                        @ *
+                        @ b
+                        (Data.Data.$p1Data @ b $dData)
+                          `cast`
+                        (Data.Typeable.Internal.N:Typeable[0] <*>_N <b>_N) of wild { GHC.Fingerprint.Type.Fingerprint dt dt1 ->
+                 case TigerQQ.expr8 of wild1 { GHC.Fingerprint.Type.Fingerprint dt2 dt3 ->
+                 case GHC.Prim.eqWord# dt dt2 of lwild {
+                   DEFAULT -> GHC.Base.Nothing @ Language.Haskell.TH.Lib.Internal.ExpQ
+                   1#
+                   -> case GHC.Prim.eqWord# dt1 dt3 of lwild1 {
+                        DEFAULT -> GHC.Base.Nothing @ Language.Haskell.TH.Lib.Internal.ExpQ
+                        1#
+                        -> TigerQQ.handleSymbol
+                             a1
+                               `cast`
+                             (UnsafeCo representational b TigerSymbol.Symbol) } } } }) -}
+336eaf1ef104920fcda2dbbc0ce3483b
+  expr8 :: GHC.Fingerprint.Type.Fingerprint
+  {- Unfolding: (case Data.Typeable.Internal.$wmkTrCon
+                        @ *
+                        @ TigerSymbol.Symbol
+                        3810241021376807344##
+                        7034524702488815325##
+                        Data.Text.Internal.$trModule
+                        Data.Text.Internal.$tcText1
+                        0#
+                        GHC.Types.krep$*
+                        (GHC.Types.[]
+                           @ Data.Typeable.Internal.SomeTypeRep) of ww7 { (#,,,,#) ww8 ww9 ww10 ww11 ww12 ->
+                 Data.Typeable.Internal.typeRepFingerprint
+                   @ *
+                   @ TigerSymbol.Symbol
+                   (Data.Typeable.Internal.TrTyCon
+                      @ *
+                      @ TigerSymbol.Symbol
+                      ww8
+                      ww9
+                      ww10
+                      ww11
+                      ww12) }) -}
+e157a884384dc43509b90befb12a93b1
+  handleSymbol ::
+    TigerSymbol.Symbol
+    -> GHC.Base.Maybe Language.Haskell.TH.Lib.Internal.ExpQ
+  {- Arity: 1, Strictness: <L,1*U(U,U,U)>m2, Inline: [0],
+     Unfolding: InlineRule (1, True, False)
+                (\ (w :: TigerSymbol.Symbol) ->
+                 case TigerQQ.$whandleSymbol w of ww { Unit# ww1 ->
+                 GHC.Base.Just @ Language.Haskell.TH.Lib.Internal.ExpQ ww1 }) -}
+6e1f1c498a5108dec4a59fcb655169e8
+  handleSymbol1 ::
+    Language.Haskell.TH.Syntax.Quasi m =>
+    m Language.Haskell.TH.Syntax.Exp
+  {- Arity: 1,
+     Unfolding: (Language.Haskell.TH.Lib.Internal.varE1
+                   TigerQQ.handleSymbol2) -}
+59e39a0de5e6015b862bc388881b6b23
+  handleSymbol2 :: Language.Haskell.TH.Syntax.Name
+  {- Strictness: m,
+     Unfolding: (Language.Haskell.TH.Syntax.Name
+                   TigerQQ.handleSymbol8
+                     `cast`
+                   (Sym (Language.Haskell.TH.Syntax.N:OccName[0]))
+                   TigerQQ.handleSymbol3) -}
+c760393179037b99a79f5a5fdecf5e3c
+  handleSymbol3 :: Language.Haskell.TH.Syntax.NameFlavour
+  {- Strictness: m5,
+     Unfolding: (Language.Haskell.TH.Syntax.NameG
+                   Language.Haskell.TH.Syntax.VarName
+                   TigerQQ.handleSymbol6
+                     `cast`
+                   (Sym (Language.Haskell.TH.Syntax.N:PkgName[0]))
+                   TigerQQ.handleSymbol4
+                     `cast`
+                   (Sym (Language.Haskell.TH.Syntax.N:ModName[0]))) -}
+9b0cc9d1daa7060a785bc22ce120c010
+  handleSymbol4 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerQQ.handleSymbol5) -}
+48d1de8a48682eff999d9677b5655c2d
+  handleSymbol5 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Data.Text"#) -}
+a517c88342c7a3a36eb27567aa9c4915
+  handleSymbol6 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerQQ.handleSymbol7) -}
+f5c81be65a41069ed1f1346f0f15a4d8
+  handleSymbol7 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("text-1.2.3.0"#) -}
+43b181f1d490b0a77b4e550642262a1b
+  handleSymbol8 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerQQ.handleSymbol9) -}
+ca64e747d4c6d6c245e1e69f74e34fbb
+  handleSymbol9 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("pack"#) -}
+7dfd8b915b837d198485de0a3f262747
+  quoteExprExp ::
+    GHC.Base.String -> Language.Haskell.TH.Lib.Internal.ExpQ
+  {- Arity: 2,
+     Strictness: <L,U><S(S(S(LC(C(S))LLL)L)LLLLLLLLLLLLLLLLLLLLLLL),U(U(U(U,U,U,U,U),U),U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U)>,
+     Unfolding: InlineRule (0, True, True)
+                TigerQQ.expr6
+                  `cast`
+                (<GHC.Base.String>_R
+                 ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                               <Language.Haskell.TH.Syntax.Exp>_N)) -}
+3d10599002ae3e4905a030bf9df3fcdd
+  quoteExprPat ::
+    GHC.Base.String -> Language.Haskell.TH.Lib.Internal.PatQ
+  {- Arity: 2,
+     Strictness: <L,U><S(S(S(LC(C(S))LLL)L)LLLLLLLLLLLLLLLLLLLLLLL),U(U(U(U,U,U,U,U),U),U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U,U)>,
+     Unfolding: InlineRule (0, True, True)
+                TigerQQ.expr3
+                  `cast`
+                (<GHC.Base.String>_R
+                 ->_R Sym (Language.Haskell.TH.Syntax.N:Q[0]
+                               <Language.Haskell.TH.Syntax.Pat>_N)) -}
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: none
+require own pkg trusted: False
+

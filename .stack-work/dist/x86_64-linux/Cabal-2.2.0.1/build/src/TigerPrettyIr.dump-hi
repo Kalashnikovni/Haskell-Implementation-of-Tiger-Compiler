@@ -1,0 +1,292 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:18:34.20312003 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerPrettyIr 8043
+  interface hash: 2cec1d2c099936c7453adf712ff759f4
+  ABI hash: 2c604055c0a920b9314498b829f8ea59
+  export-list hash: 318e20499af35c20ce19d96a48ebae1a
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 84a707957232ceed2ddebd5ca4ca265a
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  TigerPrettyIr.renderBIr
+  TigerPrettyIr.renderFrag
+  TigerPrettyIr.renderIr
+  TigerPrettyIr.renderPCan
+module dependencies: State TigerAbs TigerErrores TigerFrame
+                     TigerSres TigerSymbol TigerTemp TigerTips TigerTrans TigerTree
+                     TigerUnique
+package dependencies: array-0.5.2.0 base-4.11.1.0 binary-0.8.5.1
+                      bytestring-0.10.8.2 containers-0.5.11.0 deepseq-1.4.3.0
+                      ghc-prim-0.5.2.0 integer-gmp-1.0.2.0 mtl-2.2.2 pretty-1.1.3.6
+                      syb-0.7 text-1.2.3.0 transformers-0.5.5.0
+orphans: syb-0.7:Data.Generics.Instances text-1.2.3.0:Data.Text
+         binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show
+         HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerUnique
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         pretty-1.1.3.6:Text.PrettyPrint.Annotated.HughesPJ
+                         pretty-1.1.3.6:Text.PrettyPrint.HughesPJ text-1.2.3.0:Data.Text
+import  -/  TigerFrame 7eb51d7d5a91c47548394ac765842900
+  exports: 4cbd6d04df00e4af1800a132015f446c
+  AString aa59d13b814591c4c69cd6f81e61ef55
+  Frag 41864f388235f25303204a3930172f8b
+  Frame bf499c227d94a9dd94eb3774ac963142
+  Frame 78e2e978d2a586083c89fa1eff5036c1
+  Proc 81fab1387fa546d31e9c4ecac029780d
+import  -/  TigerSymbol 4628943ae21548f9838cca1c81589f49
+  exports: 3aa8690c7d65c85b2775cbd880ffcd19
+import  -/  TigerTemp de3b8ff373a73b9b291ae6f59a678eef
+  exports: 2391c2332908a7f3d5d168a67d1d057d
+  makeStringL 21c1be8e7c244c3f8c853e6603bbde37
+  makeStringT 68e80057eb4c3b9dd6306512d56c3ec9
+import  -/  TigerTrans f0b8973f771b00647ab94f0122a249aa
+  exports: 03393ec61c7d52701fdac40733ddadb0
+  BExp 418d0651fb90ee8246c5f8db2996609b
+  Ex 14768aaa3af8dc0f841b7d9d719876fa
+  Nx 36f4e494c1e509127458103c652ba965
+import  -/  TigerTree 7948b47c28cc775bb6841a6d0b3c4ee5
+  exports: 575bc60858dbed47a8fffd063cdf6ddc
+  BOp 3bb3d5196dfecef9f6e8dd771ec42a5a
+  Binop eb04fae5bc7de9295793159f76854a38
+  CJump 5671c2741bcd1dc9080229ed28a15928
+  Call a09b2da616823b3e041648d0eca62272
+  Const 8b8e2b668a15e4299dd60885acad3828
+  Eseq c71116c1aefd48a513ed5808e0b1aba5
+  Exp a27a57fa78085f075826b7b43c634615
+  ExpS c938d37b2cfba094100371606ff229a2
+  Jump cf284385afde0628f9d90fccd4c1ed1f
+  Label c206865e3a15de7690fa2dca76309eb1
+  Mem 3393c26be3bcf2f893e2ec204e35cdb0
+  Move f89e11120040233961342cef3d09958e
+  Name de6e7695d1fc73c82fc9536acf1b0a63
+  Relop b5b59ac70dd65132dbdca917dfa76616
+  Seq 496f4e2ec1b3c7514f21ebaf5cbbad29
+  Stm a27a57fa78085f075826b7b43c634615
+  Temp 7d157cc0764ac74ac92d91bc174db05f
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:GHC.Show 73be67392447c974f19c3befd83c46c0
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  pretty-1.1.3.6:Text.PrettyPrint a55b31642213633153d080aff8b20cc5
+import  -/  pretty-1.1.3.6:Text.PrettyPrint.HughesPJ 22d850001db380aeef37eaaa15f62abe
+import  -/  text-1.2.3.0:Data.Text.Show 3b4b6fb2985a731022d67f636682da2b
+a98046d101bb831927f5cd7b879903a9
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module
+                   TigerPrettyIr.$trModule3
+                   TigerPrettyIr.$trModule1) -}
+e06e9ed961d5e9b1938122b8d981ef53
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerPrettyIr.$trModule2) -}
+2606ae395cf47cad2542f49345748a18
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("TigerPrettyIr"#) -}
+d66b5db99017ca7bb68263873a5db1e8
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerPrettyIr.$trModule4) -}
+2e994f6fd85aa159b661e4f2239d7432
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+6ac38ff52b085634ad857a1477200e7b
+  prettyExp :: TigerTree.Exp -> Text.PrettyPrint.HughesPJ.Doc
+  {- Arity: 1, Strictness: <S,1*U> -}
+27c95a06828c2a1d7f4d46224ab9a991
+  prettyStm :: TigerTree.Stm -> Text.PrettyPrint.HughesPJ.Doc
+  {- Arity: 1, Strictness: <S,1*U> -}
+d2c713ee706cd66ead3c375e16526ead
+  renderBIr :: TigerTrans.BExp -> GHC.Base.String
+  {- Arity: 1, Strictness: <L,1*U>,
+     Unfolding: (\ (x :: TigerTrans.BExp) ->
+                 Text.PrettyPrint.Annotated.HughesPJ.fullRenderAnn
+                   @ ()
+                   @ GHC.Base.String
+                   Text.PrettyPrint.Annotated.HughesPJ.PageMode
+                   Text.PrettyPrint.Annotated.HughesPJ.$fEqDoc3
+                   Text.PrettyPrint.Annotated.HughesPJ.$fEqDoc2
+                   TigerPrettyIr.renderBIr8
+                   (GHC.Types.[] @ GHC.Types.Char)
+                   (case x of wild {
+                      TigerTrans.Ex e
+                      -> case (TigerPrettyIr.prettyExp e)
+                                `cast`
+                              (Text.PrettyPrint.HughesPJ.N:Doc[0]) of wild1 {
+                           DEFAULT
+                           -> case TigerPrettyIr.renderBIr_p1 of wild2 {
+                                DEFAULT
+                                -> Text.PrettyPrint.Annotated.HughesPJ.Beside
+                                     @ ()
+                                     wild2
+                                     GHC.Types.True
+                                     wild1
+                                Text.PrettyPrint.Annotated.HughesPJ.Empty -> wild1 }
+                           Text.PrettyPrint.Annotated.HughesPJ.Empty
+                           -> TigerPrettyIr.renderBIr_p1 }
+                      TigerTrans.Nx s20
+                      -> case (TigerPrettyIr.prettyStm s20)
+                                `cast`
+                              (Text.PrettyPrint.HughesPJ.N:Doc[0]) of wild1 {
+                           DEFAULT
+                           -> case TigerPrettyIr.renderBIr_p of wild2 {
+                                DEFAULT
+                                -> Text.PrettyPrint.Annotated.HughesPJ.Beside
+                                     @ ()
+                                     wild2
+                                     GHC.Types.True
+                                     wild1
+                                Text.PrettyPrint.Annotated.HughesPJ.Empty -> wild1 }
+                           Text.PrettyPrint.Annotated.HughesPJ.Empty
+                           -> TigerPrettyIr.renderBIr_p }
+                      TigerTrans.Cx ipv
+                      -> TigerPrettyIr.renderBIr1
+                           `cast`
+                         (Text.PrettyPrint.HughesPJ.N:Doc[0]) })) -}
+bad1843b860b6f593d537b21cd548fc7
+  renderBIr1 :: Text.PrettyPrint.HughesPJ.Doc
+  {- Unfolding: (case GHC.List.$wlenAcc
+                        @ GHC.Types.Char
+                        TigerPrettyIr.renderBIr_s
+                        0# of ww2 { DEFAULT ->
+                 (Text.PrettyPrint.Annotated.HughesPJ.TextBeside
+                    @ ()
+                    (Text.PrettyPrint.Annotated.HughesPJ.NoAnnot
+                       @ ()
+                       TigerPrettyIr.renderBIr2
+                       ww2)
+                    (Text.PrettyPrint.Annotated.HughesPJ.Empty @ ()))
+                   `cast`
+                 (Sym (Text.PrettyPrint.HughesPJ.N:Doc[0])) }) -}
+9170ca6e8fd37cde0fbd02c3c5294d71
+  renderBIr2 :: Text.PrettyPrint.Annotated.HughesPJ.TextDetails
+  {- Strictness: m2,
+     Unfolding: (Text.PrettyPrint.Annotated.HughesPJ.Str
+                   TigerPrettyIr.renderBIr_s) -}
+4f0190de422de31abea9d66d6c03eb8d
+  renderBIr3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("WAT!"#) -}
+4fc5d7526cadef3eddfd5c6232418203
+  renderBIr4 :: Text.PrettyPrint.Annotated.HughesPJ.TextDetails
+  {- Strictness: m2,
+     Unfolding: (Text.PrettyPrint.Annotated.HughesPJ.Str
+                   TigerPrettyIr.renderBIr_s1) -}
+f4cd89016f59e0ae67dfbcf3fb21440a
+  renderBIr5 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Nx"#) -}
+a9340f7253ffd0517bd828a4bd90cde1
+  renderBIr6 :: Text.PrettyPrint.Annotated.HughesPJ.TextDetails
+  {- Strictness: m2,
+     Unfolding: (Text.PrettyPrint.Annotated.HughesPJ.Str
+                   TigerPrettyIr.renderBIr_s2) -}
+7ebc9657facbd0af85411cc6709aee7e
+  renderBIr7 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Ex"#) -}
+e3b2db83fa509ef1963780e594067795
+  renderBIr8 ::
+    Text.PrettyPrint.Annotated.HughesPJ.AnnotDetails ()
+    -> GHC.Base.String -> GHC.Base.String
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><L,U>,
+     Unfolding: (\ (ds :: Text.PrettyPrint.Annotated.HughesPJ.AnnotDetails
+                            ())
+                   (eta :: GHC.Base.String)[OneShot] ->
+                 case ds of wild {
+                   DEFAULT -> eta
+                   Text.PrettyPrint.Annotated.HughesPJ.NoAnnot s20 dt1
+                   -> case s20 of wild1 {
+                        Text.PrettyPrint.Annotated.HughesPJ.Chr dt
+                        -> GHC.Types.: @ GHC.Types.Char (GHC.Types.C# dt) eta
+                        Text.PrettyPrint.Annotated.HughesPJ.Str s21
+                        -> GHC.Base.++ @ GHC.Types.Char s21 eta
+                        Text.PrettyPrint.Annotated.HughesPJ.PStr s21
+                        -> GHC.Base.++ @ GHC.Types.Char s21 eta } }) -}
+2fa701789d377003cfae97089e5cf0df
+  renderBIr_p :: Text.PrettyPrint.Annotated.HughesPJ.Doc ()
+  {- Unfolding: (case GHC.List.$wlenAcc
+                        @ GHC.Types.Char
+                        TigerPrettyIr.renderBIr_s1
+                        0# of ww2 { DEFAULT ->
+                 Text.PrettyPrint.Annotated.HughesPJ.TextBeside
+                   @ ()
+                   (Text.PrettyPrint.Annotated.HughesPJ.NoAnnot
+                      @ ()
+                      TigerPrettyIr.renderBIr4
+                      ww2)
+                   (Text.PrettyPrint.Annotated.HughesPJ.Empty @ ()) }) -}
+8383c7ae4940d60629cbc04683825b57
+  renderBIr_p1 :: Text.PrettyPrint.Annotated.HughesPJ.Doc ()
+  {- Unfolding: (case GHC.List.$wlenAcc
+                        @ GHC.Types.Char
+                        TigerPrettyIr.renderBIr_s2
+                        0# of ww2 { DEFAULT ->
+                 Text.PrettyPrint.Annotated.HughesPJ.TextBeside
+                   @ ()
+                   (Text.PrettyPrint.Annotated.HughesPJ.NoAnnot
+                      @ ()
+                      TigerPrettyIr.renderBIr6
+                      ww2)
+                   (Text.PrettyPrint.Annotated.HughesPJ.Empty @ ()) }) -}
+1330a5f77896b2426ddf08f506802211
+  renderBIr_s :: GHC.Base.String
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerPrettyIr.renderBIr3) -}
+8cfa5107e776ba945920d612c518586c
+  renderBIr_s1 :: GHC.Base.String
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerPrettyIr.renderBIr5) -}
+1526d43f76fc05dc8c7bef1229f107b4
+  renderBIr_s2 :: GHC.Base.String
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerPrettyIr.renderBIr7) -}
+d76e70ff0eef1e30f3f55e8503dd614e
+  renderFrag :: TigerFrame.Frag -> GHC.Base.String
+  {- Arity: 1, Strictness: <L,1*U> -}
+e662b3f7693d5a61538aa4c322a4dcea
+  renderIr :: TigerTree.Exp -> GHC.Base.String
+  {- Arity: 1, Strictness: <L,1*U>,
+     Unfolding: (\ (x :: TigerTree.Exp) ->
+                 Text.PrettyPrint.Annotated.HughesPJ.fullRenderAnn
+                   @ ()
+                   @ GHC.Base.String
+                   Text.PrettyPrint.Annotated.HughesPJ.PageMode
+                   Text.PrettyPrint.Annotated.HughesPJ.$fEqDoc3
+                   Text.PrettyPrint.Annotated.HughesPJ.$fEqDoc2
+                   TigerPrettyIr.renderBIr8
+                   (GHC.Types.[] @ GHC.Types.Char)
+                   (TigerPrettyIr.prettyExp x)
+                     `cast`
+                   (Text.PrettyPrint.HughesPJ.N:Doc[0])) -}
+f8dfc80d0767b2a7cf3654bae5c72568
+  renderPCan ::
+    [TigerTree.Stm] -> TigerFrame.Frame -> GHC.Base.String
+  {- Arity: 2, Strictness: <L,1*U><L,1*U(1*U(U,U,U),A,A,A,A,A)> -}
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: none
+require own pkg trusted: False
+

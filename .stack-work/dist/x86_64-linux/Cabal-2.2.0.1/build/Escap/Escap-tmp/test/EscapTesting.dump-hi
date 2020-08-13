@@ -1,0 +1,797 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:23:48.90737756 UTC
+
+interface main:Main 8043
+  interface hash: 586e8d77dc98c1f052111bdff1676951
+  ABI hash: 4a3e72dcfa0e0ce6ac11d8acfb40f2a5
+  export-list hash: 459e7b0ca93c50babf08c7e033d6d678
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 8cc04622baeb8b3c093ea9406176e7a7
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: True
+  where
+exports:
+  Main.main
+module dependencies: Tools
+package dependencies: HaskTiger-0.1.0.0 ansi-terminal-0.8.0.4
+                      array-0.5.2.0 base-4.11.1.0 binary-0.8.5.1 bytestring-0.10.8.2
+                      colour-2.3.4 containers-0.5.11.0 deepseq-1.4.3.0 directory-1.3.1.5
+                      filepath-1.4.2 ghc-boot-th-8.4.3 ghc-prim-0.5.2.0
+                      integer-gmp-1.0.2.0 mtl-2.2.2 parsec-3.1.13.0 pretty-1.1.3.6
+                      syb-0.7 template-haskell-2.13.0.0 text-1.2.3.0 time-1.8.0.2
+                      transformers-0.5.5.0 unix-2.7.2.2
+orphans: text-1.2.3.0:Data.Text.Lazy
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         syb-0.7:Data.Generics.Instances text-1.2.3.0:Data.Text
+         binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show colour-2.3.4:Data.Colour
+         time-1.8.0.2:Data.Time.Format.Parse
+         time-1.8.0.2:Data.Time.LocalTime.Internal.ZonedTime
+         time-1.8.0.2:Data.Time.LocalTime.Internal.LocalTime
+         time-1.8.0.2:Data.Time.Calendar.Gregorian base-4.11.1.0:GHC.Float
+         base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         ghc-boot-th-8.4.3:GHC.ForeignSrcLang.Type
+                         ghc-boot-th-8.4.3:GHC.LanguageExtensions.Type
+                         pretty-1.1.3.6:Text.PrettyPrint.Annotated.HughesPJ
+                         pretty-1.1.3.6:Text.PrettyPrint.HughesPJ
+                         template-haskell-2.13.0.0:Language.Haskell.TH.Syntax
+                         text-1.2.3.0:Data.Text text-1.2.3.0:Data.Text.Lazy
+import  -/  HaskTiger-0.1.0.0:TigerAbs 039cda3126c7cc999dbdd3c9a8fcaa0d
+import  -/  HaskTiger-0.1.0.0:TigerEscap 6f0733cf91b628a8a62e59a640d5c23b
+import  -/  HaskTiger-0.1.0.0:TigerParser 08ee935ede5b6811b1d06e65a545d374
+import  -/  HaskTiger-0.1.0.0:TigerQQ 0238a0ec4a48e3277140968190816d31
+import  -/  HaskTiger-0.1.0.0:TigerSymbol 4628943ae21548f9838cca1c81589f49
+import  -/  base-4.11.1.0:Data.Either 39d922b371c4c52d426e9ee66de8371a
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  base-4.11.1.0:System.IO 1c239be44126f7b1ba512ea61300f4dc
+import  -/  ghc-prim-0.5.2.0:GHC.Types d9b3023de7feae4a5308d643da5543f7
+import  -/  Tools ceb198a2552119ca60174c749e3e116c
+  exports: ce2886b4affc9469698c1f25ad3a0cef
+  bluefail b1df5358adf7e267ff75d1302fb32cce
+  bluenice ecff1ef90182987d68c9238fa9682244
+  good_loc 383de2ef1e1dbb6bc40ade065a74c2b7
+  redfail ca2135529453757e55997166e1309abb
+  rednice e55261304d37c4e82115f0eee6939f6c
+  test b54f793be0a1e5441804fc0075391609
+  testDir f782a0902898d71d1b0945297b19c0c8
+  testGood 82d65aa70bc6bd0631577a02181633e3
+  testSTDGood 9cf0deb47fa2807e4e7706559284f14a
+  type_loc f87f36c960609303ec87fbea5d4c2ddf
+import  -/  text-1.2.3.0:Data.Text 4f359e32d6f1c9011b171e00ff8fb023
+be86c9d078d3acbf19ba91fe74a24273
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module Main.$trModule3 Main.$trModule1) -}
+b09d86f2c49dd5176b544d8d13ddb6c5
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS Main.$trModule2) -}
+e5875966b74dad2d29772660b8a75e33
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Main"#) -}
+23b03bd7d075a00f5ad1ee10e6add7b8
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS Main.$trModule4) -}
+d026be77cb9ced20e35a61514e0458aa
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("main"#) -}
+3605ccdfc7012e0907532ff98fd8e120
+  $w$j ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U>, Inline: [0],
+     Unfolding: (\ (w :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case ((TigerEscap.calcularEEsc_$stravExp Main.main70)
+                         `cast`
+                       (Control.Monad.Trans.Except.N:ExceptT[0]
+                            <TigerSymbol.Symbol>_N
+                            <Control.Monad.Trans.State.Lazy.StateT
+                               TigerEscap.Estado Data.Functor.Identity.Identity>_R
+                            <TigerAbs.Exp>_N ; Control.Monad.Trans.State.Lazy.N:StateT[0]
+                                                   <TigerEscap.Estado>_N
+                                                   <Data.Functor.Identity.Identity>_R
+                                                   <Data.Either.Either
+                                                      TigerSymbol.Symbol TigerAbs.Exp>_N)
+                         TigerEscap.initSt)
+                        `cast`
+                      (Data.Functor.Identity.N:Identity[0]
+                           <(Data.Either.Either TigerSymbol.Symbol TigerAbs.Exp,
+                             TigerEscap.Estado)>_R) of wild { (,) x ds1 ->
+                 case x of wild1 {
+                   Data.Either.Left x1
+                   -> case Tools.redfail1 w of ds2 { (#,#) ipv ipv1 ->
+                      Main.$w$j1 ipv }
+                   Data.Either.Right y
+                   -> case Tools.bluenice1 w of ds2 { (#,#) ipv ipv1 ->
+                      Main.$w$j1 ipv } } }) -}
+99a0fad74424e6ec4311ee53a324210c
+  $w$j1 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U>, Inline: [0],
+     Unfolding: (\ (w :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main68
+                        GHC.Types.True
+                        w of ds1 { (#,#) ipv ipv1 ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main23
+                        GHC.Types.True
+                        ipv of ds2 { (#,#) ipv2 ipv3 ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main21
+                        GHC.Types.True
+                        ipv2 of ds3 { (#,#) ipv4 ipv5 ->
+                 case GHC.IO.Handle.FD.openFile1
+                        Main.main19
+                        GHC.IO.IOMode.ReadMode
+                        ipv4 of ds4 { (#,#) ipv6 ipv7 ->
+                 case GHC.IO.Handle.Text.hGetContents1
+                        ipv7
+                        ipv6 of ds5 { (#,#) ipv8 ipv9 ->
+                 case Main.tester ipv9 of wild {
+                   Data.Either.Left x
+                   -> case GHC.IO.Handle.Text.hPutStr2
+                             GHC.IO.Handle.FD.stdout
+                             Main.main16
+                             GHC.Types.True
+                             ipv8 of ds6 { (#,#) ipv10 ipv11 ->
+                      case Tools.bluefail1 ipv10 of ds7 { (#,#) ipv12 ipv13 ->
+                      Main.$w$j2 ipv12 } }
+                   Data.Either.Right y
+                   -> case Tools.rednice1 ipv8 of ds6 { (#,#) ipv10 ipv11 ->
+                      Main.$w$j2 ipv10 } } } } } } }) -}
+b831063e57bf94bc19a5ba5c64535527
+  $w$j2 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U>, Inline: [0],
+     Unfolding: (\ (w :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.IO.Handle.FD.openFile1
+                        Main.main13
+                        GHC.IO.IOMode.ReadMode
+                        w of ds1 { (#,#) ipv ipv1 ->
+                 case GHC.IO.Handle.Text.hGetContents1
+                        ipv1
+                        ipv of ds2 { (#,#) ipv2 ipv3 ->
+                 case Main.tester ipv3 of wild {
+                   Data.Either.Left x
+                   -> case GHC.IO.Handle.Text.hPutStr2
+                             GHC.IO.Handle.FD.stdout
+                             Main.main10
+                             GHC.Types.True
+                             ipv2 of ds3 { (#,#) ipv4 ipv5 ->
+                      case Tools.redfail1 ipv4 of ds4 { (#,#) ipv7 ipv8 ->
+                      Main.$w$j3 ipv7 } }
+                   Data.Either.Right y
+                   -> case Tools.bluenice1 ipv2 of ds4 { (#,#) ipv4 ipv5 ->
+                      Main.$w$j3 ipv4 } } } }) -}
+2b6dd973dab72d604594b31c01f502fa
+  $w$j3 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U>, Inline: [0],
+     Unfolding: (\ (w :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main8
+                        GHC.Types.True
+                        w of ds1 { (#,#) ipv ipv1 ->
+                 case Tools.testDir1
+                        Tools.good_loc
+                        Main.main7
+                          `cast`
+                        (<GHC.Base.String>_R ->_R Sym (GHC.Types.N:IO[0] <()>_R))
+                        ipv of ds2 { (#,#) ipv2 ipv3 ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main5
+                        GHC.Types.True
+                        ipv2 of ds3 { (#,#) ipv4 ipv5 ->
+                 case Tools.testDir1
+                        Tools.type_loc
+                        Main.main4
+                          `cast`
+                        (<GHC.Base.String>_R ->_R Sym (GHC.Types.N:IO[0] <()>_R))
+                        ipv4 of ds4 { (#,#) ipv6 ipv7 ->
+                 GHC.IO.Handle.Text.hPutStr2
+                   GHC.IO.Handle.FD.stdout
+                   Main.main2
+                   GHC.Types.True
+                   ipv6 } } } }) -}
+d1fa629fe8b96bc660dacf12a75b2aa0
+  ejemplo1 :: TigerAbs.Exp
+  {- Strictness: m15,
+     Unfolding: (TigerAbs.LetExp Main.main43 Main.main30 Main.main24) -}
+00d928d96b8b83ecc4eb79d17758c28c
+  main :: GHC.Types.IO ()
+  {- Arity: 1, Strictness: <S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.main1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R)) -}
+913931ee7c4bf6d29e0d6a6f8140ed9d
+  main1 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U>,
+     Unfolding: (\ (s :: GHC.Prim.State# GHC.Prim.RealWorld) ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        Main.main95
+                        GHC.Types.True
+                        s of ds1 { (#,#) ipv ipv1 ->
+                 case ((TigerEscap.calcularEEsc_$stravExp Main.ejemplo1)
+                         `cast`
+                       (Control.Monad.Trans.Except.N:ExceptT[0]
+                            <TigerSymbol.Symbol>_N
+                            <Control.Monad.Trans.State.Lazy.StateT
+                               TigerEscap.Estado Data.Functor.Identity.Identity>_R
+                            <TigerAbs.Exp>_N ; Control.Monad.Trans.State.Lazy.N:StateT[0]
+                                                   <TigerEscap.Estado>_N
+                                                   <Data.Functor.Identity.Identity>_R
+                                                   <Data.Either.Either
+                                                      TigerSymbol.Symbol TigerAbs.Exp>_N)
+                         TigerEscap.initSt)
+                        `cast`
+                      (Data.Functor.Identity.N:Identity[0]
+                           <(Data.Either.Either TigerSymbol.Symbol TigerAbs.Exp,
+                             TigerEscap.Estado)>_R) of wild { (,) x ds2 ->
+                 case x of wild1 {
+                   Data.Either.Left x1
+                   -> case Tools.rednice1 ipv of ds3 { (#,#) ipv2 ipv3 ->
+                      Main.$w$j ipv2 }
+                   Data.Either.Right y
+                   -> case Tools.bluefail1 ipv of ds3 { (#,#) ipv2 ipv3 ->
+                      Main.$w$j ipv2 } } } }) -}
+6fbff365d74d6cdab3e9dcdb2eefcbbb
+  main10 :: [GHC.Types.Char]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Char
+                   GHC.Show.$fShow(,)3
+                   Main.main11) -}
+a42be50f892ae5c58b4554e2abb3c1ef
+  main11 :: GHC.Base.String
+  {- Unfolding: (GHC.Show.showLitString
+                   (GHC.CString.unpackAppendCString# Tools.test2 Main.main_s)
+                   GHC.Show.$fShow[]1) -}
+5363164c50a7a36309f1e8398ce51dae
+  main12 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("intro.tig"#) -}
+5b0b1c58f26d02aee9eabe675ac2ede3
+  main13 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackAppendCString#
+                   Main.main15
+                   Main.main14) -}
+98986de7b5da7ce1d4310c80e39744a0
+  main14 :: [GHC.Types.Char]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Char
+                   Tools.test3
+                   Main.main_s) -}
+a840934747cacd1631dc3ba3c12cffcd
+  main15 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("./test/test_code"#) -}
+214da377c5d07f1e34c761452e256525
+  main16 :: [GHC.Types.Char]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Char
+                   GHC.Show.$fShow(,)3
+                   Main.main17) -}
+39f58c93e4abb3636271f4fe09c94164
+  main17 :: GHC.Base.String
+  {- Unfolding: (GHC.Show.showLitString
+                   (GHC.CString.unpackAppendCString# Tools.test2 Main.main_s1)
+                   GHC.Show.$fShow[]1) -}
+6d3dac6d5dfa0d0f5413f9b5a21b9e3a
+  main18 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("escapa.tig"#) -}
+8ba7a0bac11a9c16a83a72435c72b991
+  main19 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackAppendCString#
+                   Main.main15
+                   Main.main20) -}
+369033349bceae9838633a1eac0beefe
+  main2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.main3) -}
+f81b0be27fd66d53c2d096e538003aec
+  main20 :: [GHC.Types.Char]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Char
+                   Tools.test3
+                   Main.main_s1) -}
+2e6f94c79268375a32329756d5b1afe5
+  main21 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.main22) -}
+5c3aa0d3db03c1c1fa5a39d8e2e500b0
+  main22 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \==== [escapa.tig, intro.tig] ===="#) -}
+a3f7e08ce5cc754c57e74c716e90e463
+  main23 :: GHC.Base.String
+  {- Unfolding: (case ((TigerEscap.calcularEEsc_$stravExp
+                          Main.ejemplo1)
+                         `cast`
+                       (Control.Monad.Trans.Except.N:ExceptT[0]
+                            <TigerSymbol.Symbol>_N
+                            <Control.Monad.Trans.State.Lazy.StateT
+                               TigerEscap.Estado Data.Functor.Identity.Identity>_R
+                            <TigerAbs.Exp>_N ; Control.Monad.Trans.State.Lazy.N:StateT[0]
+                                                   <TigerEscap.Estado>_N
+                                                   <Data.Functor.Identity.Identity>_R
+                                                   <Data.Either.Either
+                                                      TigerSymbol.Symbol TigerAbs.Exp>_N)
+                         TigerEscap.initSt)
+                        `cast`
+                      (Data.Functor.Identity.N:Identity[0]
+                           <(Data.Either.Either TigerSymbol.Symbol TigerAbs.Exp,
+                             TigerEscap.Estado)>_R) of wild { (,) x ds1 ->
+                 case x of wild1 {
+                   Data.Either.Left b1
+                   -> GHC.Base.++
+                        @ GHC.Types.Char
+                        Data.Either.$fShowEither4
+                        (case Data.Text.Show.$w$cshowsPrec
+                                b1
+                                (GHC.Types.[] @ GHC.Types.Char) of ww { (#,#) ww1 ww2 ->
+                         GHC.Types.: @ GHC.Types.Char ww1 ww2 })
+                   Data.Either.Right b1
+                   -> GHC.Base.++
+                        @ GHC.Types.Char
+                        Data.Either.$fShowEither2
+                        (TigerAbs.$w$cshowsPrec1
+                           11#
+                           b1
+                           (GHC.Types.[] @ GHC.Types.Char)) } }) -}
+c932f9ef00cdefb9b28e690baf111e72
+  main24 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m2,
+     Unfolding: (TigerAbs.Range Main.main28 Main.main25) -}
+5c33abe5e910d43d83956cd4bd648eaa
+  main25 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main27 Main.main26) -}
+fedd6024be82e94cade6ab71d0a2451b
+  main26 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 17#) -}
+d4814b7805a4d47e602a488efd10781d
+  main27 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 54#) -}
+854f1da0df50651f4d2ed0e24ee9c51e
+  main28 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main29 Main.main26) -}
+4696b9386da559a5111da9391c80138e
+  main29 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 49#) -}
+93a24d05da5a12610ea1b8e02d197ae2
+  main3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \======= Test ESCAPES FIN ======="#) -}
+bf4240f1692db5d20d604d418de93f68
+  main30 :: TigerAbs.Exp
+  {- Strictness: m7,
+     Unfolding: (TigerAbs.CallExp
+                   Main.main41
+                   Main.main34
+                   Main.main31) -}
+ffe050f231b89b0d29f23eaec121f007
+  main31 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main33 Main.main32) -}
+977d92027b8817882a908cdfc2a61a69
+  main32 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 19#) -}
+4e184fbe684b437b3d3bf924ee1df574
+  main33 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 53#) -}
+bbd8254e6675818fa19564f84805b699
+  main34 :: [TigerAbs.Exp]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ TigerAbs.Exp
+                   Main.main35
+                   (GHC.Types.[] @ TigerAbs.Exp)) -}
+58aef17d3b91b741bcfbb83bed39354a
+  main35 :: TigerAbs.Exp
+  {- Strictness: m1,
+     Unfolding: (TigerAbs.VarExp Main.main38 Main.main36) -}
+37e705e53fffdea019630a88aaf2bc4e
+  main36 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main33 Main.main37) -}
+29266d4905221d653de1e7203f4558f7
+  main37 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 22#) -}
+14f0e01cf354673c21aeaae64bbfec1e
+  main38 :: TigerAbs.Var
+  {- Strictness: m1, Unfolding: (TigerAbs.SimpleVar Main.main39) -}
+3f907978c219b9f70dd3368896fdc972
+  main39 :: Data.Text.Internal.Text
+  {- Unfolding: (Data.Text.Show.unpackCString# Main.main40) -}
+c6ef9ea611571d6f36d8336c1b052346
+  main4 ::
+    GHC.Base.String
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 2,
+     Unfolding: (Tools.testGood1
+                   @ TigerSymbol.Symbol
+                   @ TigerAbs.Exp
+                   Data.Text.Show.$fShowText
+                   Tools.type_loc
+                   Main.tester) -}
+2186d96163013d0e4007177e8fe611c3
+  main40 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("a"#) -}
+b1bbf5d59f5b6732d9b76aa7f01dbb4d
+  main41 :: Data.Text.Internal.Text
+  {- Unfolding: (Data.Text.Show.unpackCString# Main.main42) -}
+b8d38816cf5c3514908db83ba406b9aa
+  main42 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("f1"#) -}
+15df04824a20b5d1d4ff61ca045afcef
+  main43 :: [TigerAbs.Dec]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.: @ TigerAbs.Dec Main.main60 Main.main44) -}
+020d2bf46de67399cce55f38ad5b893d
+  main44 :: [TigerAbs.Dec]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ TigerAbs.Dec
+                   Main.main45
+                   (GHC.Types.[] @ TigerAbs.Dec)) -}
+7fdd07ee44d0ed5145048bde6dfc0957
+  main45 :: TigerAbs.Dec
+  {- Strictness: m1, Unfolding: (TigerAbs.FunctionDec Main.main46) -}
+c3ae76fb2aea1625b2edd7de42e0f056
+  main46 ::
+    [(Data.Text.Internal.Text,
+      [(Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)],
+      GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos)]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ (Data.Text.Internal.Text,
+                      [(Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)],
+                      GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos)
+                   Main.main47
+                   (GHC.Types.[]
+                      @ (Data.Text.Internal.Text,
+                         [(Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)],
+                         GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos))) -}
+26a1c585448a65f4b37dc7d55923d5ba
+  main47 ::
+    (Data.Text.Internal.Text,
+     [(Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)],
+     GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos)
+  {- Strictness: m,
+     Unfolding: ((Main.main41, Main.main53,
+                  GHC.Base.Nothing @ TigerSymbol.Symbol, Main.main50,
+                  Main.main48)) -}
+5897736230a16b114bfe043af387e460
+  main48 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main49 Main.main32) -}
+284937ce69393d2dba882fde6b3a35b0
+  main49 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 51#) -}
+126508121b6c61497f0960ec9e58b642
+  main5 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.main6) -}
+841fd4e71cd24b0f4d5170062846847f
+  main50 :: TigerAbs.Exp
+  {- Strictness: m1,
+     Unfolding: (TigerAbs.VarExp Main.main38 Main.main51) -}
+211ffaff49026b4f9e89a284d42eb052
+  main51 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main49 Main.main52) -}
+36219e7d4a7593fb310b7a86e7dae399
+  main52 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 42#) -}
+4f6611dcdfe1c0c0191fc806aaeaaa78
+  main53 :: [(Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ (Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)
+                   Main.main54
+                   (GHC.Types.[]
+                      @ (Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty))) -}
+8dde717361aff4ffc2cedfe2d3e09251
+  main54 :: (Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)
+  {- Strictness: m,
+     Unfolding: ((Main.main58, TigerAbs.NoEscapa, Main.main55)) -}
+ec10fa06247f0c2bf1fdb26495280bee
+  main55 :: TigerAbs.Ty
+  {- Strictness: m1, Unfolding: (TigerAbs.NameTy Main.main56) -}
+109050a6307788c2a5f72fc7a3b9cf6a
+  main56 :: Data.Text.Internal.Text
+  {- Unfolding: (Data.Text.Show.unpackCString# Main.main57) -}
+301e402ac4a1b53597b7682b50f9a829
+  main57 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("int"#) -}
+f5bc0bc858e0c4d0a26f6ea4490c02bc
+  main58 :: Data.Text.Internal.Text
+  {- Unfolding: (Data.Text.Show.unpackCString# Main.main59) -}
+1fdc8017a72e6e44a924448082dc5082
+  main59 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("b"#) -}
+fde0e6a322c83b0012560110b39b2630
+  main6 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \==== Type Loc ===="#) -}
+a98f1192d9d78a6415882fdc7e2a183c
+  main60 :: TigerAbs.Dec
+  {- Strictness: m2,
+     Unfolding: (TigerAbs.VarDec
+                   Main.main39
+                   TigerAbs.NoEscapa
+                   Main.main67
+                   Main.main63
+                   Main.main61) -}
+3e8c1d323c7c3c2e7bb9f982e515a89b
+  main61 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main62 Main.main32) -}
+3da860852f7dae66cbc1b44fda8d09ee
+  main62 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 50#) -}
+453608369e5a1235ee7c798d482add7c
+  main63 :: TigerAbs.Exp
+  {- HasNoCafRefs, Strictness: m5,
+     Unfolding: (TigerAbs.IntExp Main.main66 Main.main64) -}
+2d4698bff7c6697d2ce92c6cf990124d
+  main64 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main62 Main.main65) -}
+6929dece74c13be4f7adcf191b78e04c
+  main65 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 34#) -}
+fc9296201ca5c6881f1276eddd94f1a7
+  main66 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 1#) -}
+2a041b02df2400e1bb228251d6bcff13
+  main67 :: GHC.Base.Maybe Data.Text.Internal.Text
+  {- Strictness: m2,
+     Unfolding: (GHC.Base.Just @ Data.Text.Internal.Text Main.main56) -}
+f47cc368043d02d30618d3e4daad530b
+  main68 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.main69) -}
+75cf3d738c628561affedf51967bce0d
+  main69 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \======= Test Ejemplo1 ======="#) -}
+97225e8f4a57ceb175c9de883b3e6230
+  main7 ::
+    GHC.Base.String
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 2,
+     Unfolding: (Tools.testGood1
+                   @ TigerSymbol.Symbol
+                   @ TigerAbs.Exp
+                   Data.Text.Show.$fShowText
+                   Tools.good_loc
+                   Main.tester) -}
+fe889f40d370541f29d247b636d7157e
+  main70 :: TigerAbs.Exp
+  {- Strictness: m15,
+     Unfolding: (TigerAbs.LetExp Main.main76 Main.main73 Main.main71) -}
+6f709ee573ac74b915a3b313c8f60de9
+  main71 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main66 Main.main72) -}
+6febad184061aa16684b2416d4b17a94
+  main72 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 0#) -}
+267f80d9f79eefdbd9b6847d29db7b5e
+  main73 :: TigerAbs.Exp
+  {- HasNoCafRefs, Strictness: m5,
+     Unfolding: (TigerAbs.IntExp Main.main52 Main.main74) -}
+6ad227bf18957ab6c4a425ee8158d78d
+  main74 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main75 Main.main66) -}
+282f61cee292aeca0b23ef38d1f47b60
+  main75 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 8#) -}
+79963bc4215524da85c0922ac02f641f
+  main76 :: [TigerAbs.Dec]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.: @ TigerAbs.Dec Main.main91 Main.main77) -}
+a21c599c705c3b7b1b930f47cfd40d10
+  main77 :: [TigerAbs.Dec]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ TigerAbs.Dec
+                   Main.main78
+                   (GHC.Types.[] @ TigerAbs.Dec)) -}
+5d1d9ef1e35c437a6372d289b29e5ca2
+  main78 :: TigerAbs.Dec
+  {- Strictness: m1, Unfolding: (TigerAbs.FunctionDec Main.main79) -}
+60ec61c2e05ad3f5753bdf7d66bd5e14
+  main79 ::
+    [(TigerSymbol.Symbol,
+      [(TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty)],
+      GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos)]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ (TigerSymbol.Symbol,
+                      [(TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty)],
+                      GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos)
+                   Main.main80
+                   (GHC.Types.[]
+                      @ (TigerSymbol.Symbol,
+                         [(TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty)],
+                         GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos))) -}
+88cb4a7c3a961e9b55001a8a4e046b0c
+  main8 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.main9) -}
+d158eeff31a864726e353bebded97de2
+  main80 ::
+    (Data.Text.Internal.Text,
+     [(TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty)],
+     GHC.Base.Maybe TigerSymbol.Symbol, TigerAbs.Exp, TigerAbs.Pos)
+  {- Strictness: m,
+     Unfolding: ((Main.main41, Main.main87, Main.main67, Main.main84,
+                  Main.main81)) -}
+f383d7eb9642822025eebd967354212d
+  main81 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main83 Main.main82) -}
+ed6538b66252a4884ebf3945d717bfe3
+  main82 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 6#) -}
+e69b56e0f45b5ca5fc06db28c9550e0c
+  main83 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 5#) -}
+51f4c375ea2a81699adb469d8ab43445
+  main84 :: TigerAbs.Exp
+  {- Strictness: m1,
+     Unfolding: (TigerAbs.VarExp Main.main86 Main.main85) -}
+3ca2d3a25261984d25b3f9fb1718cbd2
+  main85 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main83 Main.main83) -}
+2f743b427dd137bd4a2e321fcf913e8c
+  main86 :: TigerAbs.Var
+  {- Strictness: m1, Unfolding: (TigerAbs.SimpleVar Main.main58) -}
+13eb53d5686347893d807f8c9a72ed61
+  main87 :: [(TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty)]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ (TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty)
+                   Main.main88
+                   (GHC.Types.[]
+                      @ (TigerSymbol.Symbol, TigerAbs.Escapa, TigerAbs.Ty))) -}
+db7fa229adbbbf7960132353af26560b
+  main88 :: (Data.Text.Internal.Text, TigerAbs.Escapa, TigerAbs.Ty)
+  {- Strictness: m,
+     Unfolding: ((Main.main89, TigerAbs.NoEscapa, Main.main55)) -}
+6730b5a0e59b084cc09fdd4a81163bc0
+  main89 :: Data.Text.Internal.Text
+  {- Unfolding: (Data.Text.Show.unpackCString# Main.main90) -}
+f9dc3b7f5e9539412626d5b1274a4070
+  main9 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \==== Good loc ===="#) -}
+a72876a9c0db5669ef2bc9a7b2f8824a
+  main90 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("a1"#) -}
+b2048736a46118736b096b60a0ab1028
+  main91 :: TigerAbs.Dec
+  {- Strictness: m2,
+     Unfolding: (TigerAbs.VarDec
+                   Main.main39
+                   TigerAbs.NoEscapa
+                   (GHC.Base.Nothing @ TigerSymbol.Symbol)
+                   Main.main94
+                   Main.main92) -}
+4c51ab109bfa556355234166129dd9c7
+  main92 :: TigerAbs.Pos
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (TigerAbs.Simple Main.main66 Main.main93) -}
+69306a0e9ef855c9b9f506a0221e8e37
+  main93 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 2#) -}
+b1f9e98a3c2b91d587289eb6dddc5da6
+  main94 :: TigerAbs.Exp
+  {- HasNoCafRefs, Strictness: m5,
+     Unfolding: (TigerAbs.IntExp Main.main66 Main.main92) -}
+2494eac6abbcf86e7fcd9a97cd03ebe1
+  main95 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# Main.main96) -}
+75f068c64ac454db75ef25defdca991d
+  main96 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("\n\
+                 \======= Test ESCAPES in progress ======="#) -}
+2fff5996cf8197a77cced925db1cbde8
+  main97 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1,
+     Unfolding: (GHC.TopHandler.runMainIO1
+                   @ ()
+                   Main.main1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R))) -}
+2befcdb6682c99eada432a625e674ed6
+  main_f ::
+    Text.Parsec.Error.ParseError
+    -> Data.Either.Either TigerSymbol.Symbol TigerAbs.Exp
+  {- Strictness: x -}
+a455ad59b5b3e2749c8dc40856759d57
+  main_s :: GHC.Base.String
+  {- Unfolding: (GHC.CString.unpackCString# Main.main12) -}
+bd37e4402e3640541ad60e47abc30e06
+  main_s1 :: GHC.Base.String
+  {- Unfolding: (GHC.CString.unpackCString# Main.main18) -}
+2d150d4b3277a7c4cf50d7bacc30bf70
+  tester ::
+    GHC.Base.String
+    -> Data.Either.Either TigerSymbol.Symbol TigerAbs.Exp
+  {- Arity: 1, Strictness: <L,U>,
+     Unfolding: (\ (x :: GHC.Base.String) ->
+                 case (Text.Parsec.Prim.runPT
+                         @ GHC.Base.String
+                         @ Data.Functor.Identity.Identity
+                         @ GHC.Types.Char
+                         @ ()
+                         @ TigerAbs.Exp
+                         (TigerParser.$s$fStream[]mtok @ GHC.Types.Char)
+                         TigerParser.expression1
+                           `cast`
+                         (Sym (Text.Parsec.Prim.N:ParsecT[0]
+                                   <[GHC.Types.Char]>_R
+                                   <()>_R
+                                   <Data.Functor.Identity.Identity>_R
+                                   <TigerAbs.Exp>_R))
+                         GHC.Tuple.()
+                         x
+                         x)
+                        `cast`
+                      (Data.Functor.Identity.N:Identity[0]
+                           <Data.Either.Either
+                              Text.Parsec.Error.ParseError TigerAbs.Exp>_R) of wild {
+                   Data.Either.Left x1
+                   -> case Main.main_f
+                      ret_ty (Data.Either.Either TigerSymbol.Symbol TigerAbs.Exp)
+                      of {}
+                   Data.Either.Right y -> TigerEscap.calcularEEsc y }) -}
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: none
+require own pkg trusted: False
+

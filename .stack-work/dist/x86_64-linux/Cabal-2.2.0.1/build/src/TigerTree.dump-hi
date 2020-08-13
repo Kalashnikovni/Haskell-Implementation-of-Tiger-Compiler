@@ -1,0 +1,1161 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:18:31.924188325 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerTree 8043
+  interface hash: bf76fd3ceada0d698e65aefaf5294fef
+  ABI hash: 7948b47c28cc775bb6841a6d0b3c4ee5
+  export-list hash: 575bc60858dbed47a8fffd063cdf6ddc
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 84a707957232ceed2ddebd5ca4ca265a
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  TigerTree.notRel
+  TigerTree.BOp{TigerTree.ARShift TigerTree.And TigerTree.Div TigerTree.LShift TigerTree.Minus TigerTree.Mul TigerTree.Or TigerTree.Plus TigerTree.RShift TigerTree.XOr}
+  TigerTree.Exp{TigerTree.Binop TigerTree.Call TigerTree.Const TigerTree.Eseq TigerTree.Mem TigerTree.Name TigerTree.Temp}
+  TigerTree.Relop{TigerTree.EQ TigerTree.GE TigerTree.GT TigerTree.LE TigerTree.LT TigerTree.NE TigerTree.UGE TigerTree.UGT TigerTree.ULE TigerTree.ULT}
+  TigerTree.Stm{TigerTree.CJump TigerTree.ExpS TigerTree.Jump TigerTree.Label TigerTree.Move TigerTree.Seq}
+module dependencies: State TigerSymbol TigerTemp TigerUnique
+package dependencies: array-0.5.2.0 base-4.11.1.0* binary-0.8.5.1
+                      bytestring-0.10.8.2 containers-0.5.11.0 deepseq-1.4.3.0
+                      ghc-prim-0.5.2.0 integer-gmp-1.0.2.0 mtl-2.2.2 text-1.2.3.0
+                      transformers-0.5.5.0
+orphans: text-1.2.3.0:Data.Text binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show
+         HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerUnique
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         text-1.2.3.0:Data.Text
+import  -/  TigerTemp de3b8ff373a73b9b291ae6f59a678eef
+  exports: 2391c2332908a7f3d5d168a67d1d057d
+  Label 810eccfebde2d22bfef77a99189c28f8
+  Temp f852c724a423eccf145b757fe1ec3232
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:GHC.Show 73be67392447c974f19c3befd83c46c0
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  ghc-prim-0.5.2.0:GHC.Classes 122abfcd7450c6c11602933c9ca5f80d
+3bb3d5196dfecef9f6e8dd771ec42a5a
+  $fShowBOp :: GHC.Show.Show TigerTree.BOp
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTree.BOp
+                  TigerTree.$fShowBOp_$cshowsPrec
+                  TigerTree.$fShowBOp_$cshow
+                  TigerTree.$fShowBOp_$cshowList -}
+9c7a224b8cd2fe67b5ec978804009011
+  $fShowBOp1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp2) -}
+45c0198258a9e5824452ec29f2549087
+  $fShowBOp10 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Or"#) -}
+0f1de1c8a1f8e9234a56ba864c673cdf
+  $fShowBOp11 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp12) -}
+d94978d009f5be1647db023da0d518a5
+  $fShowBOp12 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("And"#) -}
+ad5b66e3e306d439a79fddb768614841
+  $fShowBOp13 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp14) -}
+6e291d4af7b5e8fe0e29b3afbe416659
+  $fShowBOp14 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Div"#) -}
+e05b668017892a7bb44f7a81def94ff5
+  $fShowBOp15 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp16) -}
+32d12b65570e515522f8dac0c2b41d9e
+  $fShowBOp16 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Mul"#) -}
+d44db80f98b0f46be7484a8caf3711c9
+  $fShowBOp17 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp18) -}
+f370bbc153c3577c867009ae6bc9c0a2
+  $fShowBOp18 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Minus"#) -}
+c416d098f830fb42184a02dd5d6d76df
+  $fShowBOp19 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp20) -}
+598660ebc1786f3730104a38cea97d1d
+  $fShowBOp2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("XOr"#) -}
+d7a0b7fa9db964616846fac92c420150
+  $fShowBOp20 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Plus"#) -}
+9fca5d30957844ab796cb22fe5c10e1e
+  $fShowBOp3 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp4) -}
+7b820b68ac62eca13a661742802ecfc1
+  $fShowBOp4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("ARShift"#) -}
+bda52fd4c4af20911bda0a90a2ae74c5
+  $fShowBOp5 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp6) -}
+0917d8790be8096ed09dec8ad7f5faef
+  $fShowBOp6 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("RShift"#) -}
+cf5b978d9affaf01f5b497edccf095de
+  $fShowBOp7 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp8) -}
+622ee9f1db4c234b2678e32c38851f16
+  $fShowBOp8 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("LShift"#) -}
+df19b78120931bae8bd536a09eeb3e36
+  $fShowBOp9 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTree.$fShowBOp10) -}
+3bb3d5196dfecef9f6e8dd771ec42a5a
+  $fShowBOp_$cshow :: TigerTree.BOp -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: (\ (x :: TigerTree.BOp) ->
+                 case x of wild {
+                   TigerTree.Plus -> TigerTree.$fShowBOp19
+                   TigerTree.Minus -> TigerTree.$fShowBOp17
+                   TigerTree.Mul -> TigerTree.$fShowBOp15
+                   TigerTree.Div -> TigerTree.$fShowBOp13
+                   TigerTree.And -> TigerTree.$fShowBOp11
+                   TigerTree.Or -> TigerTree.$fShowBOp9
+                   TigerTree.LShift -> TigerTree.$fShowBOp7
+                   TigerTree.RShift -> TigerTree.$fShowBOp5
+                   TigerTree.ARShift -> TigerTree.$fShowBOp3
+                   TigerTree.XOr -> TigerTree.$fShowBOp1 }) -}
+3bb3d5196dfecef9f6e8dd771ec42a5a
+  $fShowBOp_$cshowList :: [TigerTree.BOp] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerTree.BOp]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__
+                   @ TigerTree.BOp
+                   TigerTree.$w$cshowsPrec
+                   ls
+                   s) -}
+3bb3d5196dfecef9f6e8dd771ec42a5a
+  $fShowBOp_$cshowsPrec ::
+    GHC.Types.Int -> TigerTree.BOp -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <L,A><S,1*U><L,1*U>, Inline: [0],
+     Unfolding: InlineRule (3, True, True)
+                (\ (w :: GHC.Types.Int)
+                   (w1 :: TigerTree.BOp)
+                   (w2 :: GHC.Base.String) ->
+                 TigerTree.$w$cshowsPrec w1 w2) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowExp :: GHC.Show.Show TigerTree.Exp
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTree.Exp
+                  TigerTree.$fShowExp_$cshowsPrec
+                  TigerTree.$fShowExp_$cshow
+                  TigerTree.$fShowExp_$cshowList -}
+a27a57fa78085f075826b7b43c634615
+  $fShowExp1 :: TigerTree.Exp -> GHC.Show.ShowS
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: (\ (w :: TigerTree.Exp) ->
+                 TigerTree.$w$cshowsPrec1 0# w) -}
+682905ec6fa797baebe291f8f0a274fd
+  $fShowExp2 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 0#) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowExp_$cshow :: TigerTree.Exp -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: TigerTree.Exp) ->
+                 TigerTree.$fShowExp_$cshowsPrec
+                   TigerTree.$fShowExp2
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowExp_$cshowList :: [TigerTree.Exp] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerTree.Exp]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__ @ TigerTree.Exp TigerTree.$fShowExp1 ls s) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowExp_$cshowsPrec ::
+    GHC.Types.Int -> TigerTree.Exp -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S(S),1*U(U)><S,1*U>, Inline: [0],
+     Unfolding: InlineRule (2, True, False)
+                (\ (w :: GHC.Types.Int) (w1 :: TigerTree.Exp) ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 TigerTree.$w$cshowsPrec1 ww1 w1 }) -}
+b5b59ac70dd65132dbdca917dfa76616
+  $fShowRelop :: GHC.Show.Show TigerTree.Relop
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTree.Relop
+                  TigerTree.$fShowRelop_$cshowsPrec
+                  TigerTree.$fShowRelop_$cshow
+                  TigerTree.$fShowRelop_$cshowList -}
+07c3885f40d6a3fb779c92917fd49682
+  $fShowRelop1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop2) -}
+cfba498d4c7c66bcc7b3abf221108e3c
+  $fShowRelop10 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("GE"#) -}
+1acc4378bbac9d29d063c200f8a4336a
+  $fShowRelop11 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop12) -}
+7549074dde1fc6711c2483424f59192b
+  $fShowRelop12 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("LE"#) -}
+ad9fd3999fa25057b8df0a28d46e985b
+  $fShowRelop13 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop14) -}
+908a0c841285a9cf601acb8610bc0f08
+  $fShowRelop14 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("GT"#) -}
+dc927d8ef2b3b80c2f928d1385bd4743
+  $fShowRelop15 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop16) -}
+84b950efe164213503e64c208721c6a2
+  $fShowRelop16 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("LT"#) -}
+fe39ffd093430198ffff66ea95941d55
+  $fShowRelop17 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop18) -}
+3d6558015024ba859bcc7f6218b3c9d8
+  $fShowRelop18 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("NE"#) -}
+8a7faed17f10a0dd0adbf42702ede124
+  $fShowRelop19 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop20) -}
+5f9a3adfd137497cd2bff0a3abd8b4b7
+  $fShowRelop2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("UGE"#) -}
+20c76478b1f9b05e6921d63e22769a0f
+  $fShowRelop20 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("EQ"#) -}
+ae2f77f6c6e08611e57713591ce44250
+  $fShowRelop3 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop4) -}
+63791bab7e6a61c588e6acae2b5bf3b6
+  $fShowRelop4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("UGT"#) -}
+716bfb358b2066829188b5c6898e79dd
+  $fShowRelop5 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop6) -}
+cad41238720cc6e78ab5ed011dadb205
+  $fShowRelop6 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("ULE"#) -}
+bbf5335a10c7463990d28871dfb08423
+  $fShowRelop7 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop8) -}
+93c777d90c7a6a24ebb5b027ecc4e046
+  $fShowRelop8 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("ULT"#) -}
+f2e67401a2fef9ab61b07a2cec767cde
+  $fShowRelop9 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerTree.$fShowRelop10) -}
+b5b59ac70dd65132dbdca917dfa76616
+  $fShowRelop_$cshow :: TigerTree.Relop -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: (\ (x :: TigerTree.Relop) ->
+                 case x of wild {
+                   TigerTree.EQ -> TigerTree.$fShowRelop19
+                   TigerTree.NE -> TigerTree.$fShowRelop17
+                   TigerTree.LT -> TigerTree.$fShowRelop15
+                   TigerTree.GT -> TigerTree.$fShowRelop13
+                   TigerTree.LE -> TigerTree.$fShowRelop11
+                   TigerTree.GE -> TigerTree.$fShowRelop9
+                   TigerTree.ULT -> TigerTree.$fShowRelop7
+                   TigerTree.ULE -> TigerTree.$fShowRelop5
+                   TigerTree.UGT -> TigerTree.$fShowRelop3
+                   TigerTree.UGE -> TigerTree.$fShowRelop1 }) -}
+b5b59ac70dd65132dbdca917dfa76616
+  $fShowRelop_$cshowList :: [TigerTree.Relop] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerTree.Relop]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__
+                   @ TigerTree.Relop
+                   TigerTree.$w$cshowsPrec2
+                   ls
+                   s) -}
+b5b59ac70dd65132dbdca917dfa76616
+  $fShowRelop_$cshowsPrec ::
+    GHC.Types.Int -> TigerTree.Relop -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <L,A><S,1*U><L,1*U>, Inline: [0],
+     Unfolding: InlineRule (3, True, True)
+                (\ (w :: GHC.Types.Int)
+                   (w1 :: TigerTree.Relop)
+                   (w2 :: GHC.Base.String) ->
+                 TigerTree.$w$cshowsPrec2 w1 w2) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowStm :: GHC.Show.Show TigerTree.Stm
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTree.Stm
+                  TigerTree.$fShowStm_$cshowsPrec
+                  TigerTree.$fShowStm_$cshow
+                  TigerTree.$fShowStm_$cshowList -}
+a27a57fa78085f075826b7b43c634615
+  $fShowStm1 :: TigerTree.Stm -> GHC.Show.ShowS
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: (\ (w :: TigerTree.Stm) ->
+                 TigerTree.$w$cshowsPrec3 0# w) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowStm_$cshow :: TigerTree.Stm -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: TigerTree.Stm) ->
+                 TigerTree.$fShowStm_$cshowsPrec
+                   TigerTree.$fShowExp2
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowStm_$cshowList :: [TigerTree.Stm] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerTree.Stm]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__ @ TigerTree.Stm TigerTree.$fShowStm1 ls s) -}
+a27a57fa78085f075826b7b43c634615
+  $fShowStm_$cshowsPrec ::
+    GHC.Types.Int -> TigerTree.Stm -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S(S),1*U(U)><S,1*U>, Inline: [0],
+     Unfolding: InlineRule (2, True, False)
+                (\ (w :: GHC.Types.Int) (w1 :: TigerTree.Stm) ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 TigerTree.$w$cshowsPrec3 ww1 w1 }) -}
+4daedab1507ec859af5c59e6fe553738
+  $tc'ARShift :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   9433186372481160538##
+                   16920070117534139688##
+                   TigerTree.$trModule
+                   TigerTree.$tc'ARShift2
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+1dd595918537e987e14ccfa55b130f8c
+  $tc'ARShift1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m1, Inline: [~] -}
+fd69fb827b5d2424a9930f7ea2a81349
+  $tc'ARShift2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'ARShift3) -}
+14d3123c8cc44cec4d7155fdcd84603d
+  $tc'ARShift3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'ARShift"#) -}
+4830a1612b5614b54adeaf8dd7fd574a
+  $tc'And :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4388858639370302312##
+                   9327520684706358713##
+                   TigerTree.$trModule
+                   TigerTree.$tc'And1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+7d976b0c9ff1f799fdf02a56783ec644
+  $tc'And1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'And2) -}
+b9ac1444ad8b813b25c255c87a49a3be
+  $tc'And2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'And"#) -}
+40e59991e87e836a3107fb5df18b88b9
+  $tc'Binop :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   2625444622807851614##
+                   15138173715181781133##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Binop2
+                   0#
+                   TigerTree.$tc'Binop1) -}
+bdfe13003cbb3b1e4b379c17e42fa7d6
+  $tc'Binop1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+dbdfe60bc4d3b436344e60943101469f
+  $tc'Binop2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Binop3) -}
+eeaf7fcc22bcfff15bc17a409801833f
+  $tc'Binop3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Binop"#) -}
+50c0ad42a3ae8456d32e5cc1f5baac48
+  $tc'CJump :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   13237164969058336630##
+                   9255096245576111105##
+                   TigerTree.$trModule
+                   TigerTree.$tc'CJump2
+                   0#
+                   TigerTree.$tc'CJump1) -}
+6c7d7f14829df4b64269762a37e23d96
+  $tc'CJump1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+086cc2e23adc0d81c7cb50f1dabf14b3
+  $tc'CJump2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'CJump3) -}
+0431270315c2cd618ad8558a278fd05e
+  $tc'CJump3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'CJump"#) -}
+4d7282e11853fa9c02fa52d142bafb49
+  $tc'Call :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   1188976684904471886##
+                   2010894799266873286##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Call2
+                   0#
+                   TigerTree.$tc'Call1) -}
+dccafb6833ea35ff843b2a742fc6b998
+  $tc'Call1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+85326a4246cd407dccf00a08254e2c42
+  $tc'Call2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Call3) -}
+95b03fdf0bdc920171a61ff511c52217
+  $tc'Call3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Call"#) -}
+c503c061b59c6bc4c4f368e3297518c8
+  $tc'Const :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   9438249017867296947##
+                   10633384768634370233##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Const2
+                   0#
+                   TigerTree.$tc'Const1) -}
+bd235cb9f8c373f242bbab464df55c9f
+  $tc'Const1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+e86ed075a9c802cabd4b1cb42ad8bee6
+  $tc'Const2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Const3) -}
+238a92a8a2be64451ddad50d0c4fe398
+  $tc'Const3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Const"#) -}
+2c0e0a5b5e5ec70e9eb78d495c6bc601
+  $tc'Div :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   18150711806567711388##
+                   14955123996836833863##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Div1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+4dff27d92c6c0939a709de6bb8aeb3cd
+  $tc'Div1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Div2) -}
+7462452a58b89a70b55624ea4cd85194
+  $tc'Div2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Div"#) -}
+2e2878ff1067cdf58dae18440454be41
+  $tc'EQ :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   2356027419960204362##
+                   16388657505069897794##
+                   TigerTree.$trModule
+                   TigerTree.$tc'EQ2
+                   0#
+                   TigerTree.$tc'EQ1) -}
+014f93c01a3d938e11dd0bef4925e859
+  $tc'EQ1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m1, Inline: [~] -}
+7ba667929ae994c9c6e8629210f8880e
+  $tc'EQ2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'EQ3) -}
+cbac0d88fe41efbe5b4a54c9fc02ae09
+  $tc'EQ3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'EQ"#) -}
+bf07084a256fd3b0ef02b747d333aa43
+  $tc'Eseq :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   14140015492371022247##
+                   9316529020652143747##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Eseq2
+                   0#
+                   TigerTree.$tc'Eseq1) -}
+9422222335451b187c25f1eabfb9c8d2
+  $tc'Eseq1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+4849986be1ca4795e73456516f5c200d
+  $tc'Eseq2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Eseq3) -}
+e6068ea0e9ca2d800f4b99b6c1d46536
+  $tc'Eseq3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Eseq"#) -}
+9bc55edee06544e82edfcd3c5dfeaa9a
+  $tc'ExpS :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4734098824868188335##
+                   8182552971138435841##
+                   TigerTree.$trModule
+                   TigerTree.$tc'ExpS2
+                   0#
+                   TigerTree.$tc'ExpS1) -}
+d59411d2ddefc8caa3b76c6b30e23e28
+  $tc'ExpS1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+9aa139d6eeb9065fd30ee158b6aa74d8
+  $tc'ExpS2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'ExpS3) -}
+f10e5fbbb820fbd5fb04d2e325e6b2d4
+  $tc'ExpS3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'ExpS"#) -}
+356b6485e07ab8f544c14d5ecb57a760
+  $tc'GE :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   13893807252514566476##
+                   9038811864803674302##
+                   TigerTree.$trModule
+                   TigerTree.$tc'GE1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+41e1a08804f1ddacb4a3d99e2daa9f57
+  $tc'GE1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'GE2) -}
+eed20b64e41af84c00b7ea57cf963eb5
+  $tc'GE2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'GE"#) -}
+ce954fbd339a788f336eec05ae93e251
+  $tc'GT :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11582002817399098258##
+                   9323247741713962041##
+                   TigerTree.$trModule
+                   TigerTree.$tc'GT1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+f423cb090309d43ba54594a38be4e231
+  $tc'GT1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'GT2) -}
+e1498274d4f8ad4d769c6e68a19c0684
+  $tc'GT2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'GT"#) -}
+91ce99736044463eba97392dd32ad093
+  $tc'Jump :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8529091367206003645##
+                   3589627120559998018##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Jump2
+                   0#
+                   TigerTree.$tc'Jump1) -}
+51b5e1e7583736bf318992e6f2d6d160
+  $tc'Jump1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+d086d13350fe77c70d9da25d79ef5a29
+  $tc'Jump2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Jump3) -}
+811411953046a2964f2d62567731b3f6
+  $tc'Jump3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Jump"#) -}
+e12ed8e6f38b0582a961c841be7c4957
+  $tc'LE :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6870799683887250078##
+                   2212428316563277038##
+                   TigerTree.$trModule
+                   TigerTree.$tc'LE1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+37201b0a24c43cf94e7e22ca3f6ff36b
+  $tc'LE1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'LE2) -}
+44c305412779ee2ced1cf743c1e336bd
+  $tc'LE2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'LE"#) -}
+1672ead89b87e43a0a361aea763a26f3
+  $tc'LShift :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   2180904949681919868##
+                   7580965292727837527##
+                   TigerTree.$trModule
+                   TigerTree.$tc'LShift1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+a74071a0d91fa540b10ca4675bddaf71
+  $tc'LShift1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'LShift2) -}
+93a7cb4e863dfb5670d2e7aa183b0dda
+  $tc'LShift2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'LShift"#) -}
+f0eddfd1c98be77a37947256654f9fd5
+  $tc'LT :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   15662372181344193409##
+                   4409143697691776323##
+                   TigerTree.$trModule
+                   TigerTree.$tc'LT1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+e49d12119ba9cda6435446be9269eb22
+  $tc'LT1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'LT2) -}
+850749845922b6dbdc08d3f6f2480e42
+  $tc'LT2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'LT"#) -}
+eddc37a76669a00144a30140b46b4437
+  $tc'Label :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   3716538694224776513##
+                   4761530532312334011##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Label2
+                   0#
+                   TigerTree.$tc'Label1) -}
+8d8458daf35bae83b2a6d6d3aabf642b
+  $tc'Label1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+145fc466e7f0ddbe137dc28b69e3f790
+  $tc'Label2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Label3) -}
+c0af5606c0f3c5d35574a1b024c2c436
+  $tc'Label3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Label"#) -}
+576c81966270a5039aa756baf20eb2e5
+  $tc'Mem :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   15083755095120614037##
+                   8550352057995180235##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Mem2
+                   0#
+                   TigerTree.$tc'Mem1) -}
+3fadea09fd41ca4dfd310e0e6ec58876
+  $tc'Mem1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+e87afa1fbbeb846847259371184b49f0
+  $tc'Mem2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Mem3) -}
+eb191693067776e5a2a58923b3ff6f5a
+  $tc'Mem3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Mem"#) -}
+8399cdbdb039176edfc4b787e86d1161
+  $tc'Minus :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   17647407020955588918##
+                   2770624815093852101##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Minus1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+c6f3957eac4a9e22103232a070110b35
+  $tc'Minus1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Minus2) -}
+ccf81148a96e6257b06cc9e5473751da
+  $tc'Minus2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Minus"#) -}
+77311a55a1e6c911cd97edace92beb16
+  $tc'Move :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   15515138286796252089##
+                   17727401611143362888##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Move2
+                   0#
+                   TigerTree.$tc'Move1) -}
+4088e0f00f007a6daae97a580b0e926c
+  $tc'Move1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+f32ba5a30f87b6aa608d4dbb74665c40
+  $tc'Move2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Move3) -}
+f68220569da5e286b6a0c7d98e67daae
+  $tc'Move3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Move"#) -}
+78d2dbf39ae8934466b3984f80b65018
+  $tc'Mul :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   1359569700295482251##
+                   2644396275171692768##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Mul1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+14ee7f8195d8a3f628ceb76d9f624824
+  $tc'Mul1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Mul2) -}
+f3f0be346e986f2e763ddce18c24f97a
+  $tc'Mul2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Mul"#) -}
+d1d839d3d5eb71a0dcdcfff77bf8865c
+  $tc'NE :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4643783906904018825##
+                   9793694644908138517##
+                   TigerTree.$trModule
+                   TigerTree.$tc'NE1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+19deca6cf451e3ac5b75449fd8363851
+  $tc'NE1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'NE2) -}
+b6ec58bba7fd7007cd691acfc6e20213
+  $tc'NE2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'NE"#) -}
+eeff74c2277cb218d5950a44a15be9a2
+  $tc'Name :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   10436794548759826964##
+                   7055144515810012073##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Name2
+                   0#
+                   TigerTree.$tc'Name1) -}
+2bd65c1753c2c4d0e84a7df7ecc7eb7a
+  $tc'Name1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+7a476d3ee0ea3f53a1d46f93e4b7cf85
+  $tc'Name2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Name3) -}
+0f87f802b38f876067bea9420d3d2602
+  $tc'Name3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Name"#) -}
+968f2d25b5d6100da392c46fc50aa3c3
+  $tc'Or :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8043062549599680184##
+                   2296735676948846577##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Or1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+54d0d158a275889079aed6ce291d67c3
+  $tc'Or1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Or2) -}
+f1bb16d29473564cfe3633b21dfb92a7
+  $tc'Or2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Or"#) -}
+0c537908e5ad6b3ea0b024a50a488b30
+  $tc'Plus :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8853137447315891288##
+                   6157505249570638506##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Plus1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+de8b2f6ed74258eac8e55484599f01af
+  $tc'Plus1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Plus2) -}
+f3feb9d95efb50d533a0d60693e35673
+  $tc'Plus2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Plus"#) -}
+8403e71eda920717b5d30995c4faffd2
+  $tc'RShift :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11391508658905487212##
+                   15438046376688812742##
+                   TigerTree.$trModule
+                   TigerTree.$tc'RShift1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+63a8b1fd06305a3f75f270362353513f
+  $tc'RShift1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'RShift2) -}
+090198cb221923f6940861593d2a53b1
+  $tc'RShift2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'RShift"#) -}
+52f4ace45a1dc3d843533aafae12ab0e
+  $tc'Seq :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6046940592415506323##
+                   5476102393162254406##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Seq2
+                   0#
+                   TigerTree.$tc'Seq1) -}
+5397b855279a051b87e3407ebfadd3be
+  $tc'Seq1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+1b438a85fe8684ee8db90bee9a302c04
+  $tc'Seq2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Seq3) -}
+2d4c72b15a8fee62ff65df9643255731
+  $tc'Seq3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Seq"#) -}
+f4bba9aae119b23eed401c783050bec1
+  $tc'Temp :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   17301491765286814376##
+                   12086792968705709158##
+                   TigerTree.$trModule
+                   TigerTree.$tc'Temp1
+                   0#
+                   TigerTree.$tc'Name1) -}
+1c459fa65bbb07cde547a378674aeff5
+  $tc'Temp1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'Temp2) -}
+a04616cf5692be1c7908e72009b114c5
+  $tc'Temp2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Temp"#) -}
+ae04402bad61804b608be3d1ec81c315
+  $tc'UGE :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   12006137056639992817##
+                   3416157521568150466##
+                   TigerTree.$trModule
+                   TigerTree.$tc'UGE1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+ec8d889ee05f9822324f2ff7fe0e453b
+  $tc'UGE1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'UGE2) -}
+3d4f66a242e7e6d0facbf0bceb5e8b83
+  $tc'UGE2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'UGE"#) -}
+c5792cb967f2d74c9efc01a8f653d46a
+  $tc'UGT :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   129271702403351782##
+                   3534364222079079100##
+                   TigerTree.$trModule
+                   TigerTree.$tc'UGT1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+f53c6922470c3bbda3aa77b71fe8e172
+  $tc'UGT1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'UGT2) -}
+9574c9c81f4fde80b58660513d558339
+  $tc'UGT2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'UGT"#) -}
+69f1423efa1b1d8bfe4d57a4e12d1335
+  $tc'ULE :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   105150764402682747##
+                   14662088684983007893##
+                   TigerTree.$trModule
+                   TigerTree.$tc'ULE1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+88e24202faa403081a46e8f2b50958b1
+  $tc'ULE1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'ULE2) -}
+0117defd77275be657f91f2260782d35
+  $tc'ULE2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'ULE"#) -}
+2779e68820cd73c95c9b7af1da51d428
+  $tc'ULT :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11207820287803476509##
+                   17565320835745025365##
+                   TigerTree.$trModule
+                   TigerTree.$tc'ULT1
+                   0#
+                   TigerTree.$tc'EQ1) -}
+ed516667404342e506a538abc6d8f840
+  $tc'ULT1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'ULT2) -}
+d9db7d93f0508ed0ac13542601eb7da0
+  $tc'ULT2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'ULT"#) -}
+928a5556a6129865bab892a73f145865
+  $tc'XOr :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6244615318749084693##
+                   3203614385817760831##
+                   TigerTree.$trModule
+                   TigerTree.$tc'XOr1
+                   0#
+                   TigerTree.$tc'ARShift1) -}
+40c93792fce7b5c4aa2c9c0f5acafa9e
+  $tc'XOr1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tc'XOr2) -}
+bb282313f1135c5539db6b9cb05a174c
+  $tc'XOr2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'XOr"#) -}
+b85fa5c39c35276e7eee52a4ba61a571
+  $tcBOp :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   15317141499234948015##
+                   15535648596451749417##
+                   TigerTree.$trModule
+                   TigerTree.$tcBOp1
+                   0#
+                   GHC.Types.krep$*) -}
+41d53d56d26e6c526bda287d5232a7ba
+  $tcBOp1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tcBOp2) -}
+7a0d27523b542a55235c00a1009ee838
+  $tcBOp2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("BOp"#) -}
+109ad2dac0c37a255ce36fcb1dc1ba14
+  $tcExp :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6104551833969290800##
+                   11713989204848429118##
+                   TigerTree.$trModule
+                   TigerTree.$tcExp1
+                   0#
+                   GHC.Types.krep$*) -}
+648cd37411c42f7ddaf35a65c5ec020d
+  $tcExp1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tcExp2) -}
+dc283f2ab28c26cc28e022cc1caa7d89
+  $tcExp2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Exp"#) -}
+0a2f34c660e31bbdc58297b1a0250af5
+  $tcRelop :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   17950819362765843717##
+                   17482533673063213744##
+                   TigerTree.$trModule
+                   TigerTree.$tcRelop1
+                   0#
+                   GHC.Types.krep$*) -}
+221e42e4e22c5eb2feb7c7da29c0cdee
+  $tcRelop1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tcRelop2) -}
+e3cd10311ea14ca37aefdcf1ff6bafe7
+  $tcRelop2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Relop"#) -}
+978fab69d7f886f41b31a81980e5f2ce
+  $tcStm :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   1988489940386886313##
+                   477601289988260300##
+                   TigerTree.$trModule
+                   TigerTree.$tcStm1
+                   0#
+                   GHC.Types.krep$*) -}
+0ccc0a9b0a522cae96dc86c4c349b278
+  $tcStm1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$tcStm2) -}
+3b5013f92d792c967ff4d6b2a41d0924
+  $tcStm2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Stm"#) -}
+43deb4736022b0488656ce2c676a76f7
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module
+                   TigerTree.$trModule3
+                   TigerTree.$trModule1) -}
+e8455b18ae00ee4a7a9c9a883ea76a65
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$trModule2) -}
+29249089e9bf89b1c1b770dbec39e8ae
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("TigerTree"#) -}
+b793df9c829cae4a3a18741ae590e276
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTree.$trModule4) -}
+85d756abc8f9f1a3309dcfe392dd0ce6
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+3bb3d5196dfecef9f6e8dd771ec42a5a
+  $w$cshowsPrec ::
+    TigerTree.BOp -> GHC.Base.String -> GHC.Base.String
+  {- Arity: 2, Strictness: <S,1*U><L,1*U>, Inline: [0],
+     Unfolding: (\ (w :: TigerTree.BOp) (w1 :: GHC.Base.String) ->
+                 case w of wild {
+                   TigerTree.Plus
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp19 w1
+                   TigerTree.Minus
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp17 w1
+                   TigerTree.Mul
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp15 w1
+                   TigerTree.Div
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp13 w1
+                   TigerTree.And
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp11 w1
+                   TigerTree.Or
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp9 w1
+                   TigerTree.LShift
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp7 w1
+                   TigerTree.RShift
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp5 w1
+                   TigerTree.ARShift
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp3 w1
+                   TigerTree.XOr
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowBOp1 w1 }) -}
+a27a57fa78085f075826b7b43c634615
+  $w$cshowsPrec1 :: GHC.Prim.Int# -> TigerTree.Exp -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,U><S,1*U>, Inline: [0] -}
+b5b59ac70dd65132dbdca917dfa76616
+  $w$cshowsPrec2 ::
+    TigerTree.Relop -> GHC.Base.String -> GHC.Base.String
+  {- Arity: 2, Strictness: <S,1*U><L,1*U>, Inline: [0],
+     Unfolding: (\ (w :: TigerTree.Relop) (w1 :: GHC.Base.String) ->
+                 case w of wild {
+                   TigerTree.EQ
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop19 w1
+                   TigerTree.NE
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop17 w1
+                   TigerTree.LT
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop15 w1
+                   TigerTree.GT
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop13 w1
+                   TigerTree.LE
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop11 w1
+                   TigerTree.GE
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop9 w1
+                   TigerTree.ULT
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop7 w1
+                   TigerTree.ULE
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop5 w1
+                   TigerTree.UGT
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop3 w1
+                   TigerTree.UGE
+                   -> GHC.Base.++ @ GHC.Types.Char TigerTree.$fShowRelop1 w1 }) -}
+a27a57fa78085f075826b7b43c634615
+  $w$cshowsPrec3 :: GHC.Prim.Int# -> TigerTree.Stm -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,U><S,1*U>, Inline: [0] -}
+3bb3d5196dfecef9f6e8dd771ec42a5a
+  data BOp
+    = Plus
+    | Minus
+    | Mul
+    | Div
+    | And
+    | Or
+    | LShift
+    | RShift
+    | ARShift
+    | XOr
+a27a57fa78085f075826b7b43c634615
+  data Exp
+    = Const GHC.Types.Int
+    | Name TigerTemp.Label
+    | Temp TigerTemp.Temp
+    | Binop TigerTree.BOp TigerTree.Exp TigerTree.Exp
+    | Mem TigerTree.Exp
+    | Call TigerTree.Exp [TigerTree.Exp]
+    | Eseq TigerTree.Stm TigerTree.Exp
+b5b59ac70dd65132dbdca917dfa76616
+  data Relop = EQ | NE | LT | GT | LE | GE | ULT | ULE | UGT | UGE
+a27a57fa78085f075826b7b43c634615
+  data Stm
+    = Move TigerTree.Exp TigerTree.Exp
+    | ExpS TigerTree.Exp
+    | Jump TigerTree.Exp TigerTemp.Label
+    | CJump TigerTree.Relop
+            TigerTree.Exp
+            TigerTree.Exp
+            TigerTemp.Label
+            TigerTemp.Label
+    | Seq TigerTree.Stm TigerTree.Stm
+    | Label TigerTemp.Label
+36cc2cedc5c90705d59580af591a3b47
+  notRel :: TigerTree.Relop -> TigerTree.Relop
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>,
+     Unfolding: (\ (ds :: TigerTree.Relop) ->
+                 case ds of wild {
+                   TigerTree.EQ -> TigerTree.NE
+                   TigerTree.NE -> TigerTree.EQ
+                   TigerTree.LT -> TigerTree.GE
+                   TigerTree.GT -> TigerTree.LE
+                   TigerTree.LE -> TigerTree.GT
+                   TigerTree.GE -> TigerTree.LT
+                   TigerTree.ULT -> TigerTree.UGE
+                   TigerTree.ULE -> TigerTree.UGT
+                   TigerTree.UGT -> TigerTree.ULE
+                   TigerTree.UGE -> TigerTree.ULT }) -}
+instance [safe] GHC.Show.Show [TigerTree.BOp] = TigerTree.$fShowBOp
+instance [safe] GHC.Show.Show [TigerTree.Exp] = TigerTree.$fShowExp
+instance [safe] GHC.Show.Show [TigerTree.Relop]
+  = TigerTree.$fShowRelop
+instance [safe] GHC.Show.Show [TigerTree.Stm] = TigerTree.$fShowStm
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

@@ -1,0 +1,116 @@
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerUnique.hs:
+  hash: 838f60ad1440b24c117441f27d74eca27259694240c9e496cf1b01c69df6351f
+  size: 1760
+  modtime: 1574370419
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/README.md:
+  hash: 3bc177e4015e8c8eddc5e41ddfc3e17666120d990056a6e5b23778221ccd4c8c
+  size: 10516
+  modtime: 1589147361
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerQQ.hs:
+  hash: c451060ce7be51eb9c93bbd672df494a642d232d048c1e3066f53e012aee7d51
+  size: 1555
+  modtime: 1564848265
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerMunch.hs:
+  hash: f006baf22125c25cf116737708f9474630a9a3934d19891f5e248839bd900d18
+  size: 17256
+  modtime: 1596918681
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerCanon.hs:
+  hash: c540cfd4f6d1140ba92a5bb7ba8a9e11d0a08248a7ef4a320c6f22759126783b
+  size: 6948
+  modtime: 1587246993
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerColor.hs:
+  hash: a334984608f8b9f7b8e4ba4dd8e242fe9114e9278e2368c33d3b780b2a9d884e
+  size: 34666
+  modtime: 1596922188
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/MonadsInstances.hs:
+  hash: 58398adc3d89d8c26532168ecb9b55f743964c1c72cbd454de17277a95fb9575
+  size: 8082
+  modtime: 1583018847
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/HaskTiger.cabal:
+  hash: 6493a4239bb6ca80657fbc3144e3c3e3af3eb45901304e2a3203c6ca97e794a0
+  size: 7432
+  modtime: 1597331125
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerSres.hs:
+  hash: 2333517a46bf2d3f45778323eaf56d249b7948c42e34bdcf4b4ad2ac7772c688
+  size: 452
+  modtime: 1570742283
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerTemp.hs:
+  hash: d52cf591ed17eccd5ac7f42c132f351c4286fb9c6213656a9ee06a7a690849f6
+  size: 782
+  modtime: 1576970429
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerSeman.hs:
+  hash: 3532963004fb96e116a94a89d6e91b8ae1859b211459fcb28fed93b98ed23c7b
+  size: 23831
+  modtime: 1597331315
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerEscap.hs:
+  hash: 633dd678651aa7bb2ab669544b46da03fe55c6b5883eedff0227d5105dbfc260
+  size: 7432
+  modtime: 1581037578
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerAssem.hs:
+  hash: 28071bf86e1283b6fc2cef53a3d16b52fd751fead8393d33caf8e08a9b79f749
+  size: 512
+  modtime: 1586553576
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerMakeGraph.hs:
+  hash: 4a2ef960d7aa41e0b052c2e39f6e40c022730d5acc9d0aab4efb0d3f0ddbb5ef
+  size: 5749
+  modtime: 1595596674
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerTree.hs:
+  hash: 42e6d5ffd1622a6a69af2c6aa10fbbd03e5f103ed46c1c3761b067d4780f575d
+  size: 869
+  modtime: 1587683248
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerErrores.hs:
+  hash: c5dec823929fd376a47b0053e01d78992cf83635efd7fdc35968c913df87e572
+  size: 1290
+  modtime: 1573242272
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerTips.hs:
+  hash: 4800c1cc9f8aca166efd25a157697ff728709e7e29dfe515e5340ac23186346a
+  size: 2334
+  modtime: 1574370426
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerSymbol.hs:
+  hash: f30b43f1ebd552afcd7462016c540fb4f545155239e1a5fdd17f843007866353
+  size: 468
+  modtime: 1595260505
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerAbs.hs:
+  hash: 2307f035067efab90d43abe058a41cf47120f7b3404a72e30fee18d7f8312b88
+  size: 5568
+  modtime: 1595266486
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerPrettyIr.hs:
+  hash: 14e48854f68f271133c80baa0bbddbef83f62c440e83e6ca7ec48214c9bbc271
+  size: 2244
+  modtime: 1585699646
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerLiveness.hs:
+  hash: a6be2a5da5258328ee33f2ba129857b3e29e82a82d59273076337351048f7a2f
+  size: 3493
+  modtime: 1595596454
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerFrame.hs:
+  hash: 640c4d9734d93155991236758338ba03d1800fc838496084c6b2e28ad097f8a3
+  size: 9290
+  modtime: 1596475978
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/State.hs:
+  hash: 84ae6e437c97a8ffdfba3bb776f41d4cc410fb638f67d2290a98a00e42fd6e18
+  size: 706
+  modtime: 1564848194
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerTrans.hs:
+  hash: 6ff2eed7f280ee99231616f25f4e12256e4693bcc1912c81f0bbcfb20710989c
+  size: 19787
+  modtime: 1596834751
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerParser.hs:
+  hash: 7fac07e9cb4df0a3c12bbb2c09d9ae0d96250a07fe74f7fbcf9d19233d4d74c4
+  size: 7526
+  modtime: 1564848265
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/app/Stages.hs:
+  hash: 0ba917c13efe7cca793ff8db5126dee05d05d2136e35bc14e63bb38859842fbe
+  size: 3916
+  modtime: 1596411180
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerTopSort.hs:
+  hash: 0000c8f7285964840d0c3dd3da359219eed1aee615f3915b7f501044f904ecef
+  size: 2118
+  modtime: 1574371076
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerPretty.hs:
+  hash: b197ffc374fbd3f891709af9d255fd42a8515b6752e04ccb1db4f42acea38f8f
+  size: 3894
+  modtime: 1594760279
+/home/kalashnikov/Materias/2017/Compiladores/Haskell-Implementation-of-Tiger-Compiler/src/TigerLexer.hs:
+  hash: 24b8af49a1d5c91f7e70b23a834e3719f7be45998609be3af20bf09bdabc636b
+  size: 2368
+  modtime: 1564848265

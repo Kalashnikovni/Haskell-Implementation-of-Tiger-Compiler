@@ -1,0 +1,1088 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:18:24.142964338 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerLexer 8043
+  interface hash: 5ca574bd6ad6da60bb4a51f54cae6125
+  ABI hash: aecd5fe9390fa7876dbccaaf327a2bb9
+  export-list hash: be1417a7f59cd11ba2c2488527a0e3de
+  orphan hash: 13383867eaab69151acea06854382356
+  flag hash: 84a707957232ceed2ddebd5ca4ca265a
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  TigerLexer.braces
+  TigerLexer.brackets
+  TigerLexer.colon
+  TigerLexer.commaSep
+  TigerLexer.commaSep1
+  TigerLexer.dot
+  TigerLexer.identifier
+  TigerLexer.lexer
+  TigerLexer.number
+  TigerLexer.parens
+  TigerLexer.reserved
+  TigerLexer.reservedOp
+  TigerLexer.semiSep
+  TigerLexer.semiSep1
+  TigerLexer.stringLiteral
+  TigerLexer.symbol
+  TigerLexer.toInt
+  TigerLexer.whiteSpace
+module dependencies: TigerAbs TigerSymbol
+package dependencies: array-0.5.2.0 base-4.11.1.0 binary-0.8.5.1
+                      bytestring-0.10.8.2 containers-0.5.11.0 deepseq-1.4.3.0
+                      ghc-prim-0.5.2.0 integer-gmp-1.0.2.0 mtl-2.2.2 parsec-3.1.13.0
+                      syb-0.7 text-1.2.3.0 transformers-0.5.5.0
+orphans: syb-0.7:Data.Generics.Instances
+         text-1.2.3.0:Data.Text.Lazy text-1.2.3.0:Data.Text
+         binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         text-1.2.3.0:Data.Text text-1.2.3.0:Data.Text.Lazy
+import  -/  TigerAbs 039cda3126c7cc999dbdd3c9a8fcaa0d
+  exports: 7916be92b0d3730e8979910ab1e541e2
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:GHC.Num 8e54b26dce4495382dc4b50cf36ab754
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  integer-gmp-1.0.2.0:GHC.Integer.Type f3d5169c3d3830854b19f6565b265403
+import  -/  parsec-3.1.13.0:Text.Parsec 8698ecc486e7a2a7bdc9500cd29ef6f2
+import  -/  parsec-3.1.13.0:Text.Parsec.Char ba652f10f2db2d657f224e91ed53fce9
+import  -/  parsec-3.1.13.0:Text.Parsec.Prim 48929b84b5d30b299edcfed21f9bf40e
+import  -/  parsec-3.1.13.0:Text.Parsec.Text cc49313bb9f3f2ae47585005551e7b55
+import  -/  parsec-3.1.13.0:Text.Parsec.Token 5ff1253a33e9911f5f6e7391fc9dc21b
+import  -/  text-1.2.3.0:Data.Text 4f359e32d6f1c9011b171e00ff8fb023
+116c819de1d94501a41dc288c6c79956
+  $s$fStream[]mtok ::
+    Text.Parsec.Prim.Stream [tok] Data.Functor.Identity.Identity tok
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun: @ tok.
+                  @ [tok]
+                  @ Data.Functor.Identity.Identity
+                  @ tok
+                  Data.Functor.Identity.$fMonadIdentity
+                  (TigerLexer.$s$fStream[]mtok_$s$fStream[]mtok_$cuncons @ tok) -}
+1d510d711cbacc2b740438ac14892401
+  $s$fStream[]mtok_$s$fStream[]mtok_$cuncons ::
+    [tok]
+    -> Data.Functor.Identity.Identity (GHC.Base.Maybe (tok, [tok]))
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>,
+     Inline: (sat-args=1),
+     Unfolding: InlineRule (1, False, False)
+                (\ @ tok (ds :: [tok]) ->
+                 case ds of wild {
+                   []
+                   -> (GHC.Base.Nothing @ (tok, [tok]))
+                        `cast`
+                      (Sym (Data.Functor.Identity.N:Identity[0]
+                                <GHC.Base.Maybe (tok, [tok])>_R))
+                   : t ts
+                   -> (GHC.Base.Just @ (tok, [tok]) (t, ts))
+                        `cast`
+                      (Sym (Data.Functor.Identity.N:Identity[0]
+                                <GHC.Base.Maybe (tok, [tok])>_R)) }) -}
+8320ff525d13145096fb2f93c0c2eb3b
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module
+                   TigerLexer.$trModule3
+                   TigerLexer.$trModule1) -}
+3b2816e427841552059a8d048b7ae24c
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerLexer.$trModule2) -}
+be15a11bf728beffd90e796716825d72
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("TigerLexer"#) -}
+3412cb13ce62785315d23eeecf771561
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerLexer.$trModule4) -}
+f12b3de3f5036a596330c272a12f685b
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+6ffdad4875409409dc01c81234067df4
+  braces ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity a
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds17 @ a }) -}
+7055e122943386b0b997e42c29f64968
+  brackets ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity a
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds19 @ a }) -}
+ee2923322ff9bf84bf046821b9a4d742
+  colon ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Base.String
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds24 }) -}
+a37864db8cd1b71467c1f2dff70ad8a1
+  commaSep ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity [a]
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds27 @ a }) -}
+04ff0a618b0592edd025509d0a128932
+  commaSep1 ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity [a]
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds28 @ a }) -}
+3ecceeb7a1d226c35f3ca9175d319312
+  dot ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Base.String
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds25 }) -}
+4806b4f4a9e1678af0a30ccad581cb35
+  identifier ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Base.String
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds1 }) -}
+14c52f9bb56b71c81eae60d4c2ae90c9
+  lexer :: Text.Parsec.Token.TokenParser ()
+  {- Unfolding: (Text.Parsec.Token.makeTokenParser
+                   @ GHC.Base.String
+                   @ Data.Functor.Identity.Identity
+                   @ ()
+                   (TigerLexer.$s$fStream[]mtok @ GHC.Types.Char)
+                   TigerLexer.lexer1) -}
+45e4004369a5e017ac80bfa4e37ca6a9
+  lexer1 ::
+    Text.Parsec.Token.GenLanguageDef
+      GHC.Base.String () Data.Functor.Identity.Identity
+  {- Unfolding: (Text.Parsec.Token.LanguageDef
+                   @ GHC.Base.String
+                   @ ()
+                   @ Data.Functor.Identity.Identity
+                   TigerLexer.lexer106
+                   TigerLexer.lexer104
+                   (GHC.Types.[] @ GHC.Types.Char)
+                   GHC.Types.True
+                   TigerLexer.lexer102
+                     `cast`
+                   (Sym (Text.Parsec.Prim.N:ParsecT[0]
+                             <GHC.Base.String>_R
+                             <()>_R
+                             <Data.Functor.Identity.Identity>_R
+                             <GHC.Types.Char>_R))
+                   TigerLexer.lexer100
+                     `cast`
+                   (Sym (Text.Parsec.Prim.N:ParsecT[0]
+                             <GHC.Base.String>_R
+                             <()>_R
+                             <Data.Functor.Identity.Identity>_R
+                             <GHC.Types.Char>_R))
+                   TigerLexer.lexer97
+                     `cast`
+                   (Sym (Text.Parsec.Prim.N:ParsecT[0]
+                             <GHC.Base.String>_R
+                             <()>_R
+                             <Data.Functor.Identity.Identity>_R
+                             <GHC.Types.Char>_R))
+                   TigerLexer.lexer95
+                   TigerLexer.lexer41
+                   TigerLexer.lexer2
+                   GHC.Types.False) -}
+96558d9100732f7610bc08eeeea27936
+  lexer10 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer23
+                   TigerLexer.lexer11) -}
+4e611d794c99251673529d94d97ccca3
+  lexer100 ::
+    Text.Parsec.Prim.State GHC.Base.String ()
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> Data.Functor.Identity.Identity b
+  {- Arity: 5,
+     Strictness: <S(LS(LSS)S),1*U(U,U(U,U,U),U)><L,U><L,U><L,C(C1(C1(U)))><L,C(U)>,
+     Unfolding: (\ @ b
+                   (s1 :: Text.Parsec.Prim.State GHC.Base.String ())
+                   (cok :: GHC.Types.Char
+                           -> Text.Parsec.Prim.State GHC.Base.String ()
+                           -> Text.Parsec.Error.ParseError
+                           -> Data.Functor.Identity.Identity b)
+                   (cerr :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eok :: GHC.Types.Char
+                           -> Text.Parsec.Prim.State GHC.Base.String ()
+                           -> Text.Parsec.Error.ParseError
+                           -> Data.Functor.Identity.Identity b)
+                   (eerr :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b) ->
+                 case s1 of ww { Text.Parsec.Prim.State ww1 ww2 ww3 ->
+                 case ww2 of ww4 { Text.Parsec.Pos.SourcePos ww5 ww6 ww7 ->
+                 Text.Parsec.Char.$wsatisfy
+                   @ GHC.Base.String
+                   @ Data.Functor.Identity.Identity
+                   @ ()
+                   (TigerLexer.$s$fStream[]mtok @ GHC.Types.Char)
+                   GHC.Unicode.isAlphaNum
+                   @ b
+                   ww1
+                   ww5
+                   ww6
+                   ww7
+                   ww3
+                   cok
+                   (\ (err :: Text.Parsec.Error.ParseError) ->
+                    let {
+                      err1 :: Text.Parsec.Error.ParseError
+                      = case err of ww11 { Text.Parsec.Error.ParseError ww12 ww13 ->
+                        Text.Parsec.Prim.$wsetExpectErrors
+                          ww12
+                          ww13
+                          Text.Parsec.Char.alphaNum2 }
+                    } in
+                    TigerLexer.lexer_n
+                      `cast`
+                    (Text.Parsec.Prim.N:ParsecT[0]
+                         <GHC.Base.String>_R
+                         <()>_R
+                         <Data.Functor.Identity.Identity>_R
+                         <GHC.Types.Char>_R)
+                      @ b
+                      ww
+                      cok
+                      cerr
+                      (\ (y :: GHC.Types.Char)
+                         (s' :: Text.Parsec.Prim.State GHC.Base.String ())
+                         (err' :: Text.Parsec.Error.ParseError) ->
+                       eok y s' (Text.Parsec.Error.mergeError err1 err'))
+                      (\ (err' :: Text.Parsec.Error.ParseError) ->
+                       eerr (Text.Parsec.Error.mergeError err1 err'))) } }) -}
+84a7be0ed529f7b3a515d22ac10086f5
+  lexer101 :: GHC.Types.Char
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.C# '_'#) -}
+7c686629e15b721898ef12b0af29b8e9
+  lexer102 ::
+    Text.Parsec.Prim.State GHC.Base.String ()
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> Data.Functor.Identity.Identity b
+  {- Arity: 5, Strictness: <L,U><L,U><L,U><L,C(C1(C1(U)))><L,C(U)>,
+     Unfolding: (\ @ b
+                   (eta :: Text.Parsec.Prim.State GHC.Base.String ())
+                   (eta1 :: GHC.Types.Char
+                            -> Text.Parsec.Prim.State GHC.Base.String ()
+                            -> Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eta2 :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eta3 :: GHC.Types.Char
+                            -> Text.Parsec.Prim.State GHC.Base.String ()
+                            -> Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eta4 :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b) ->
+                 Text.Parsec.Prim.<?>2
+                   @ GHC.Base.String
+                   @ ()
+                   @ Data.Functor.Identity.Identity
+                   @ GHC.Types.Char
+                   TigerLexer.lexer103
+                     `cast`
+                   (Sym (Text.Parsec.Prim.N:ParsecT[0]
+                             <GHC.Base.String>_R
+                             <()>_R
+                             <Data.Functor.Identity.Identity>_R
+                             <GHC.Types.Char>_R))
+                   Text.Parsec.Char.letter2
+                   @ b
+                   eta
+                   eta1
+                   eta2
+                   eta3
+                   eta4) -}
+e03de004876559d0498d5bb204941f25
+  lexer103 ::
+    Text.Parsec.Prim.State GHC.Base.String ()
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> Data.Functor.Identity.Identity b
+  {- Arity: 5,
+     Strictness: <S(LS(LSS)S),1*U(U,U(U,U,U),U)><L,C(C1(C1(U)))><L,A><L,A><L,C(U)>,
+     Unfolding: InlineRule (5, True, False)
+                (\ @ b
+                   (w2 :: Text.Parsec.Prim.State GHC.Base.String ())
+                   (w3 :: GHC.Types.Char
+                          -> Text.Parsec.Prim.State GHC.Base.String ()
+                          -> Text.Parsec.Error.ParseError
+                          -> Data.Functor.Identity.Identity b)
+                   (w4 :: Text.Parsec.Error.ParseError
+                          -> Data.Functor.Identity.Identity b)
+                   (w5 :: GHC.Types.Char
+                          -> Text.Parsec.Prim.State GHC.Base.String ()
+                          -> Text.Parsec.Error.ParseError
+                          -> Data.Functor.Identity.Identity b)
+                   (w6 :: Text.Parsec.Error.ParseError
+                          -> Data.Functor.Identity.Identity b) ->
+                 case w2 of ww { Text.Parsec.Prim.State ww1 ww2 ww3 ->
+                 case ww2 of ww4 { Text.Parsec.Pos.SourcePos ww5 ww6 ww7 ->
+                 Text.Parsec.Char.$wsatisfy
+                   @ GHC.Base.String
+                   @ Data.Functor.Identity.Identity
+                   @ ()
+                   (TigerLexer.$s$fStream[]mtok @ GHC.Types.Char)
+                   GHC.Unicode.isAlpha
+                   @ b
+                   ww1
+                   ww5
+                   ww6
+                   ww7
+                   ww3
+                   w3
+                   w6 } }) -}
+7b81c9aeac5b6735b8e257e8aac497b2
+  lexer104 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer105) -}
+a1b8e9ce22f286b9b3db98d72fc28cc4
+  lexer105 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("*/"#) -}
+ae64c50695d1e42580a4c82a64fa2f98
+  lexer106 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer107) -}
+6f338b5ea8ec49fbdf0dbae74c4e7e84
+  lexer107 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("/*"#) -}
+49a48af9f2d1e43ab72d2e6a0c2a1350
+  lexer11 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer21
+                   TigerLexer.lexer12) -}
+275ef8b16a564e49cd97b60fc27ff89b
+  lexer12 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer19
+                   TigerLexer.lexer13) -}
+e522e8c25fb1e095bafdb9a124a633f1
+  lexer13 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer17
+                   TigerLexer.lexer14) -}
+e53f3bc9d2aa6e2dbf43a471ca3575fb
+  lexer14 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer15
+                   (GHC.Types.[] @ GHC.Base.String)) -}
+51708ac65309af6decf74eeda0e582a8
+  lexer15 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer16) -}
+d0e0452954303f05e0a12c7408467606
+  lexer16 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("\""#) -}
+fc894108d4cfddd5227f6329b16fa411
+  lexer17 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer18) -}
+6109678c87841d933f3fed62b2a27fd5
+  lexer18 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("/"#) -}
+03c683df9aec01a021833dae6773ea28
+  lexer19 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer20) -}
+4fe40f71af34e767e22dd53eba40c44b
+  lexer2 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer39
+                   TigerLexer.lexer3) -}
+f7c13129f113663f42ad5834d90fc769
+  lexer20 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("*"#) -}
+552d527726ac9cb74e5ea45e8305e200
+  lexer21 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer22) -}
+6c6de23a1d2b007e0739b62df1590232
+  lexer22 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("-"#) -}
+4f14e93cbb62cddbd95c8c11aee18d61
+  lexer23 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer24) -}
+e998c944fc71d63b7fb1151aa3e41e59
+  lexer24 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("+"#) -}
+832c8a8731ebe0223c480b02b974439b
+  lexer25 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer26) -}
+f4069c79b1af46572ebeb628476f2781
+  lexer26 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("<>"#) -}
+dbd01df7f683967c36dc747609693154
+  lexer27 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer28) -}
+7acad18f98e8eed441e9873052f0ef81
+  lexer28 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: (">="#) -}
+6761af782bcb601bb83b7386edd2da25
+  lexer29 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer30) -}
+cd11a0e01d2c7147830eb59a274ae96e
+  lexer3 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer37
+                   TigerLexer.lexer4) -}
+8261aec3eee9f2d71c92915e57337fa3
+  lexer30 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: (">"#) -}
+c460a7754809b22b769a183ddb939fb6
+  lexer31 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer32) -}
+57e7edc0ac769d12be67547f4ca060b5
+  lexer32 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("<="#) -}
+e6a97d29483a7dfeea201917d8f23249
+  lexer33 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer34) -}
+872c23fb841a39dbd5cbe85d8e2026a2
+  lexer34 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("<"#) -}
+dc45374fe69cc77792b0f7b3e7e82869
+  lexer35 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer36) -}
+e5a649c5a81e18c895db5a44e08002ec
+  lexer36 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("|"#) -}
+5ac9d629abd5050a98e5e54937d13c89
+  lexer37 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer38) -}
+211f475fd4ab3b427288ae0c0347b0b9
+  lexer38 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("&"#) -}
+58700a82625f3baa80022876fe86ac8d
+  lexer39 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer40) -}
+d514c44f22daa905030a648c19adae00
+  lexer4 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer35
+                   TigerLexer.lexer5) -}
+354150a22036d010f1560ca63cb71dbf
+  lexer40 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("="#) -}
+12b1292101932099dfaba34d5b137947
+  lexer41 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer93
+                   TigerLexer.lexer42) -}
+b8be00ca5b1a05457bbc29b421b60962
+  lexer42 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer91
+                   TigerLexer.lexer43) -}
+0f0273ca228b79fa7dae55112f3542fc
+  lexer43 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer89
+                   TigerLexer.lexer44) -}
+0e487925e72a24d84cf183fc26d34880
+  lexer44 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer87
+                   TigerLexer.lexer45) -}
+fb09e5b6226bfe0ea5f96d57f7c4363f
+  lexer45 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer85
+                   TigerLexer.lexer46) -}
+be6fad71bd796d3a8369d0def34f3b9b
+  lexer46 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer83
+                   TigerLexer.lexer47) -}
+52b2055c59b22e6b1c67155f1afb1055
+  lexer47 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer81
+                   TigerLexer.lexer48) -}
+6025b495903f541cbaf788ff26ef9215
+  lexer48 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer79
+                   TigerLexer.lexer49) -}
+8d717d71d7a9193a137ae79f965231f2
+  lexer49 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer77
+                   TigerLexer.lexer50) -}
+14740612a4668f5e1c121bfbde6f1300
+  lexer5 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer33
+                   TigerLexer.lexer6) -}
+f98f2391f0e3871f0880aa209353ef5d
+  lexer50 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer75
+                   TigerLexer.lexer51) -}
+cb8e7fadaeaaa4d6e5b2c56e9913823b
+  lexer51 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer73
+                   TigerLexer.lexer52) -}
+7ede82c7f6c875c3f55c094a9f64d058
+  lexer52 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer71
+                   TigerLexer.lexer53) -}
+917d713f586d3f3dba49c5441de0caa7
+  lexer53 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer69
+                   TigerLexer.lexer54) -}
+700e7652e8b81d2cfe837492dd0defa5
+  lexer54 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer67
+                   TigerLexer.lexer55) -}
+1bcfe3abb22021f0eb8df4b500c60ae5
+  lexer55 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer65
+                   TigerLexer.lexer56) -}
+a1610763928c2c288c99a30442f656ba
+  lexer56 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer63
+                   TigerLexer.lexer57) -}
+5bbb8184a22b7fe6e438102c2f77afbd
+  lexer57 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer61
+                   TigerLexer.lexer58) -}
+5493fb5bfe56c819d3e54b6da99c35ed
+  lexer58 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer59
+                   (GHC.Types.[] @ GHC.Base.String)) -}
+7c6cdf27f3fe6d36d7d1579696dc1d81
+  lexer59 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer60) -}
+984d1149eb8f6e32a9ad1ba6844cf01d
+  lexer6 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer31
+                   TigerLexer.lexer7) -}
+b126aae4adf7149b1c7aa5a605921d93
+  lexer60 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("()"#) -}
+8fc69b2c6abb839f42cd5e39a918a311
+  lexer61 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer62) -}
+2586e09f7cee92fceb6e694997b9c068
+  lexer62 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("nil"#) -}
+ec9b124cf967d8c59441284ad450c403
+  lexer63 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer64) -}
+c4c55010bb0c38fef4971be9e9b0f7b3
+  lexer64 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("break"#) -}
+efe5352ed231799d4e2a267e2f38adf9
+  lexer65 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer66) -}
+a233fd71c81c15b26324392738f03881
+  lexer66 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("to"#) -}
+d14d6151b19ebcfe089130c65883dad4
+  lexer67 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer68) -}
+0eaecbfdc3f8dc4beb9aaed0f80dbee1
+  lexer68 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("for"#) -}
+814fd591d5a2b84e78060617d9a74eb1
+  lexer69 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer70) -}
+e76519b433a814b10162ba07159aa7fa
+  lexer7 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer29
+                   TigerLexer.lexer8) -}
+d494bc781233df7cb71ca8b49496f1ee
+  lexer70 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("do"#) -}
+acdb56c51eb072722c7bc05e4b4c8637
+  lexer71 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer72) -}
+86d39e3ebd41f09c4c139bc7acd7732f
+  lexer72 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("while"#) -}
+66f7f3b4fcf4e421e96b65d2aa9f6e26
+  lexer73 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer74) -}
+d902b8b39974896b583968267f4a85d5
+  lexer74 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("else"#) -}
+39362be94759ce40f7eea991ffcd2603
+  lexer75 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer76) -}
+7d970b80831f45be83dd5ae3bcfcc029
+  lexer76 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("then"#) -}
+37e8444001ecac0569571ca30fb5cb97
+  lexer77 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer78) -}
+27b3464a4845bf8f933b4b0bcd6bd550
+  lexer78 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("if"#) -}
+a2a8a10da77c45a12ea6094666529231
+  lexer79 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer80) -}
+40d86af12332a4d0c4ce45df3759d12e
+  lexer8 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer27
+                   TigerLexer.lexer9) -}
+d66eb986f49df3acac1eac7677aaa06a
+  lexer80 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("of"#) -}
+ede8b3de2be9f0129d5bf420936776ff
+  lexer81 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer82) -}
+92cd24d7eafe625ad46dbc57c706f2f3
+  lexer82 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("array"#) -}
+425a1b84a272543219beb2546cc475e2
+  lexer83 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer84) -}
+d387576a56ec129a027351c391c23e1c
+  lexer84 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("type"#) -}
+00ef26686289577e6543fc7bfa83eecc
+  lexer85 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer86) -}
+5357d1a6e43eb0914f904ea25f1e93bb
+  lexer86 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("function"#) -}
+0ac167422b49a5a7ceba3a33dfa4682c
+  lexer87 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer88) -}
+19c755fdaa66d97bed894647cbbb3ce9
+  lexer88 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("in"#) -}
+873ebcf6c401585011c9de3ef6b33c0b
+  lexer89 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer90) -}
+9ae94a88e6bedc2fdf8c25dac5227f4a
+  lexer9 :: [GHC.Base.String]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Base.String
+                   TigerLexer.lexer25
+                   TigerLexer.lexer10) -}
+51872654440bb49b90c57c8ecb68139f
+  lexer90 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("end"#) -}
+f9937cc4731728bd9adf45a39bf975c3
+  lexer91 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer92) -}
+247da6eb8596454a777105d10a709ffb
+  lexer92 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("let"#) -}
+0d4c35a4935b61a885e1cfc9bc2e05ec
+  lexer93 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer94) -}
+90af5c62cb933edc14d31d2657232a92
+  lexer94 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("var"#) -}
+fec28001105adbe00f359f35fdee6003
+  lexer95 ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Types.Char
+  {- Unfolding: (Text.Parsec.Char.char
+                   @ GHC.Base.String
+                   @ Data.Functor.Identity.Identity
+                   @ ()
+                   (TigerLexer.$s$fStream[]mtok @ GHC.Types.Char)
+                   TigerLexer.lexer96) -}
+83dfbfea81ef49d70649de45f7849abd
+  lexer96 :: GHC.Types.Char
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.C# '='#) -}
+982decab24888c02bfd933e8158d4b75
+  lexer97 ::
+    Text.Parsec.Prim.State GHC.Base.String ()
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (GHC.Types.Char
+        -> Text.Parsec.Prim.State GHC.Base.String ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b)
+    -> Data.Functor.Identity.Identity b
+  {- Arity: 5,
+     Strictness: <S(LS(LSS)S),1*U(U,U(U,U,U),U)><L,C(C1(C1(U)))><L,A><L,A><L,C(U)>,
+     Unfolding: (\ @ b
+                   (eta :: Text.Parsec.Prim.State GHC.Base.String ())
+                   (eta1 :: GHC.Types.Char
+                            -> Text.Parsec.Prim.State GHC.Base.String ()
+                            -> Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eta2 :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eta3 :: GHC.Types.Char
+                            -> Text.Parsec.Prim.State GHC.Base.String ()
+                            -> Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b)
+                   (eta4 :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b) ->
+                 case eta of ww { Text.Parsec.Prim.State ww1 ww2 ww3 ->
+                 case ww2 of ww4 { Text.Parsec.Pos.SourcePos ww5 ww6 ww7 ->
+                 Text.Parsec.Char.$wsatisfy
+                   @ GHC.Base.String
+                   @ Data.Functor.Identity.Identity
+                   @ ()
+                   (TigerLexer.$s$fStream[]mtok @ GHC.Types.Char)
+                   TigerLexer.lexer98
+                   @ b
+                   ww1
+                   ww5
+                   ww6
+                   ww7
+                   ww3
+                   eta1
+                   eta4 } }) -}
+b6380f10088481a6e68acea855c04620
+  lexer98 :: GHC.Types.Char -> GHC.Types.Bool
+  {- Arity: 1, Strictness: <L,U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (c :: GHC.Types.Char) ->
+                 GHC.List.elem
+                   @ GHC.Types.Char
+                   GHC.Classes.$fEqChar
+                   c
+                   TigerLexer.lexer_cs) -}
+c00c5492428d5740e3b1c37fff1da99b
+  lexer99 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: (":,;=&|<=>+-*/."#) -}
+306ed420bf5d734b9be28c73a6734dc6
+  lexer_cs :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerLexer.lexer99) -}
+41f98247a598b5423e49fa082a71f57e
+  lexer_n ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Types.Char
+  {- Unfolding: (Text.Parsec.Char.char
+                   @ GHC.Base.String
+                   @ Data.Functor.Identity.Identity
+                   @ ()
+                   (TigerLexer.$s$fStream[]mtok @ GHC.Types.Char)
+                   TigerLexer.lexer101) -}
+d600884a5d539c2574259b5f27d75dc5
+  number ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Types.Int
+  {- Arity: 5,
+     Strictness: <L,U><L,C(C1(C1(U)))><L,U><L,C(C1(C1(U)))><L,U>,
+     Unfolding: InlineRule (0, True, True)
+                TigerLexer.number1
+                  `cast`
+                (Sym (Text.Parsec.Prim.N:ParsecT[0]
+                          <[GHC.Types.Char]>_R
+                          <()>_R
+                          <Data.Functor.Identity.Identity>_R
+                          <GHC.Types.Int>_R)) -}
+d83351328bcb3d948eccc7ab0ef24f12
+  number1 ::
+    Text.Parsec.Prim.State [GHC.Types.Char] ()
+    -> (GHC.Types.Int
+        -> Text.Parsec.Prim.State [GHC.Types.Char] ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b1)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b1)
+    -> (GHC.Types.Int
+        -> Text.Parsec.Prim.State [GHC.Types.Char] ()
+        -> Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b1)
+    -> (Text.Parsec.Error.ParseError
+        -> Data.Functor.Identity.Identity b1)
+    -> Data.Functor.Identity.Identity b1
+  {- Arity: 5,
+     Strictness: <L,U><L,C(C1(C1(U)))><L,U><L,C(C1(C1(U)))><L,U>,
+     Unfolding: (\ @ b1
+                   (s1 :: Text.Parsec.Prim.State [GHC.Types.Char] ())
+                   (cok :: GHC.Types.Int
+                           -> Text.Parsec.Prim.State [GHC.Types.Char] ()
+                           -> Text.Parsec.Error.ParseError
+                           -> Data.Functor.Identity.Identity b1)
+                   (cerr :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b1)
+                   (eok :: GHC.Types.Int
+                           -> Text.Parsec.Prim.State [GHC.Types.Char] ()
+                           -> Text.Parsec.Error.ParseError
+                           -> Data.Functor.Identity.Identity b1)
+                   (eerr :: Text.Parsec.Error.ParseError
+                            -> Data.Functor.Identity.Identity b1) ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds7
+                   `cast`
+                 (Text.Parsec.Prim.N:ParsecT[0]
+                      <[GHC.Types.Char]>_R
+                      <()>_R
+                      <Data.Functor.Identity.Identity>_R
+                      <GHC.Integer.Type.Integer>_R)
+                   @ b1
+                   s1
+                   (\ (x :: GHC.Integer.Type.Integer)
+                      (s2 :: Text.Parsec.Prim.State [GHC.Types.Char] ())
+                      (err :: Text.Parsec.Error.ParseError) ->
+                    cok
+                      (case GHC.Integer.Type.integerToInt x of wild1 { DEFAULT ->
+                       GHC.Types.I# wild1 })
+                      s2
+                      (case s2 of wild1 { Text.Parsec.Prim.State ds37 ds38 ds39 ->
+                       case ds38 of ww10 { Text.Parsec.Pos.SourcePos ww11 ww12 ww13 ->
+                       case err of ww { Text.Parsec.Error.ParseError ww1 ww2 ->
+                       case ww1 of ww3 { Text.Parsec.Pos.SourcePos ww4 ww5 ww6 ->
+                       case Text.Parsec.Error.$wmergeError
+                              ww4
+                              ww5
+                              ww6
+                              ww2
+                              ww11
+                              ww12
+                              ww13
+                              (GHC.Types.[]
+                                 @ Text.Parsec.Error.Message) of ww14 { (#,#) ww15 ww16 ->
+                       Text.Parsec.Error.ParseError ww15 ww16 } } } } }))
+                   cerr
+                   (\ (x :: GHC.Integer.Type.Integer)
+                      (s2 :: Text.Parsec.Prim.State [GHC.Types.Char] ())
+                      (err :: Text.Parsec.Error.ParseError) ->
+                    eok
+                      (case GHC.Integer.Type.integerToInt x of wild1 { DEFAULT ->
+                       GHC.Types.I# wild1 })
+                      s2
+                      (case s2 of wild1 { Text.Parsec.Prim.State ds37 ds38 ds39 ->
+                       case ds38 of ww10 { Text.Parsec.Pos.SourcePos ww11 ww12 ww13 ->
+                       case err of ww { Text.Parsec.Error.ParseError ww1 ww2 ->
+                       case ww1 of ww3 { Text.Parsec.Pos.SourcePos ww4 ww5 ww6 ->
+                       case Text.Parsec.Error.$wmergeError
+                              ww4
+                              ww5
+                              ww6
+                              ww2
+                              ww11
+                              ww12
+                              ww13
+                              (GHC.Types.[]
+                                 @ Text.Parsec.Error.Message) of ww14 { (#,#) ww15 ww16 ->
+                       Text.Parsec.Error.ParseError ww15 ww16 } } } } }))
+                   eerr }) -}
+6a4a38afd3d5fcfbf69fdf164a6705d8
+  parens ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity a
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds16 @ a }) -}
+85f7c0ad0b657b6f690e45ffb5465a74
+  reserved ::
+    GHC.Base.String
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity ()
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds2 }) -}
+dce1373f235b0a5d50623d41c81208f4
+  reservedOp ::
+    GHC.Base.String
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity ()
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds4 }) -}
+c8ac5b04aea94d1051c71a711f2e9ecd
+  semiSep ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity [a]
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds25 @ a }) -}
+41252ac341928e8d9855eefa37a40800
+  semiSep1 ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity a
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity [a]
+  {- Unfolding: (\ @ a ->
+                 case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ->
+                 ds26 @ a }) -}
+90b2f163ad6560da32815c0d63082e94
+  stringLiteral ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity GHC.Base.String
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds6 }) -}
+be02f24ef3ce8a9506eb94033a675ebd
+  symbol ::
+    GHC.Base.String
+    -> Text.Parsec.Prim.ParsecT
+         GHC.Base.String () Data.Functor.Identity.Identity GHC.Base.String
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds14 }) -}
+3cf93e7406bae092535d185331455c55
+  toInt :: GHC.Integer.Type.Integer -> GHC.Types.Int
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,1*U>m,
+     Unfolding: InlineRule (0, True, True)
+                GHC.Num.$fNumInt_$cfromInteger -}
+53320484bb65cdf95eb40903645a5232
+  whiteSpace ::
+    Text.Parsec.Prim.ParsecT
+      GHC.Base.String () Data.Functor.Identity.Identity ()
+  {- Unfolding: (case TigerLexer.lexer of wild { Text.Parsec.Token.TokenParser ds1 ds2 ds3 ds4 ds5 ds6 ds7 ds8 ds9 ds10 ds11 ds12 ds13 ds14 ds15 ds16 ds17 ds18 ds19 ds20 ds21 ds22 ds23 ds24 ds25 ds26 ds27 ds28 ds29 ->
+                 ds16 }) -}
+"SPEC/TigerLexer $fStream[]mtok @ Identity _" [orphan] forall @ tok
+                                                              (v :: GHC.Base.Monad
+                                                                      Data.Functor.Identity.Identity)
+  Text.Parsec.Prim.$fStream[]mtok @ Data.Functor.Identity.Identity
+                                  @ tok
+                                  v
+  = TigerLexer.$s$fStream[]mtok @ tok
+"SPEC/TigerLexer $fStream[]mtok_$cuncons @ Identity _" [orphan] forall @ tok
+                                                                       ($dMonad :: GHC.Base.Monad
+                                                                                     Data.Functor.Identity.Identity)
+  Text.Parsec.Prim.$fStream[]mtok_$cuncons @ Data.Functor.Identity.Identity
+                                           @ tok
+                                           $dMonad
+  = TigerLexer.$s$fStream[]mtok_$s$fStream[]mtok_$cuncons @ tok
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: none
+require own pkg trusted: False
+

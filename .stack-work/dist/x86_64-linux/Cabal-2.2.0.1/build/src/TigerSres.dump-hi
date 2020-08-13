@@ -1,0 +1,445 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:18:32.623105336 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerSres 8043
+  interface hash: 87412aadfe57962f581d8e43a082f575
+  ABI hash: 736a8c3d44c38ca7dce2cd358d4a7a6f
+  export-list hash: 6e8f6a6b66e3dc7ac3e0689632dcf9b1
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 84a707957232ceed2ddebd5ca4ca265a
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  TigerSres.EnvEntry{TigerSres.Func TigerSres.Var}
+  TigerSres.Externa{TigerSres.Propia TigerSres.Runtime}
+  TigerSres.FunEntry
+  TigerSres.ValEntry
+module dependencies: State TigerErrores TigerSymbol TigerTemp
+                     TigerTips TigerUnique
+package dependencies: array-0.5.2.0 base-4.11.1.0* binary-0.8.5.1
+                      bytestring-0.10.8.2 containers-0.5.11.0 deepseq-1.4.3.0
+                      ghc-prim-0.5.2.0 integer-gmp-1.0.2.0 mtl-2.2.2 text-1.2.3.0
+                      transformers-0.5.5.0
+orphans: text-1.2.3.0:Data.Text binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show
+         HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerUnique
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         text-1.2.3.0:Data.Text
+import  -/  TigerTemp de3b8ff373a73b9b291ae6f59a678eef
+  exports: 2391c2332908a7f3d5d168a67d1d057d
+  Label 810eccfebde2d22bfef77a99189c28f8
+import  -/  TigerTips d8b887be1cc120ab6fc657b6944287b8
+  exports: de993eb0eee0af29cedaca5e1a8f86bd
+  Tipo 25d41e0f248a57e8442fd0e3172a3e9f
+import  -/  TigerUnique 2c7b8a003ba6cddf20e41223ec1f0139
+  exports: fb658a085da3f6734ecff0198e21e4ae
+  Unique a8946959a472517f9eeacb91a0a901b7
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:GHC.Show 73be67392447c974f19c3befd83c46c0
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  ghc-prim-0.5.2.0:GHC.Classes 122abfcd7450c6c11602933c9ca5f80d
+65088e639baa08d6e5eca771c2272dc2
+  $fShowEnvEntry :: GHC.Show.Show TigerSres.EnvEntry
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerSres.EnvEntry
+                  TigerSres.$fShowEnvEntry_$cshowsPrec
+                  TigerSres.$fShowEnvEntry_$cshow
+                  TigerSres.$fShowEnvEntry_$cshowList -}
+65088e639baa08d6e5eca771c2272dc2
+  $fShowEnvEntry1 :: TigerSres.EnvEntry -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: (\ (w :: TigerSres.EnvEntry) (w1 :: GHC.Base.String) ->
+                 TigerSres.$w$cshowsPrec 0# w w1) -}
+539bd582aef286e0c9dc7fd3f56cd987
+  $fShowEnvEntry10 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 0#) -}
+23dfa6c4c812cc1f69b14b2e8e44a42b
+  $fShowEnvEntry2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerSres.$fShowEnvEntry3) -}
+8eacbd35966fd5d06fed4b362a9c0c00
+  $fShowEnvEntry3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Func "#) -}
+2ab91a905a601c2d08476d32723c6434
+  $fShowEnvEntry4 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerSres.$fShowEnvEntry5) -}
+fe81aa7dbc92237fe959b5eb2f3cb99a
+  $fShowEnvEntry5 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Propia"#) -}
+926f697110e3f34c4ef45693686ad898
+  $fShowEnvEntry6 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   TigerSres.$fShowEnvEntry7) -}
+16ef885a0fff284789dae29af385029e
+  $fShowEnvEntry7 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Runtime"#) -}
+5f5459fcd62b04f62884c076d9272d3c
+  $fShowEnvEntry8 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 11#) -}
+22d3b4a0619816ede775b63c350b5d1f
+  $fShowEnvEntry9 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Var "#) -}
+65088e639baa08d6e5eca771c2272dc2
+  $fShowEnvEntry_$cshow :: TigerSres.EnvEntry -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: TigerSres.EnvEntry) ->
+                 TigerSres.$fShowEnvEntry_$cshowsPrec
+                   TigerSres.$fShowEnvEntry10
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+65088e639baa08d6e5eca771c2272dc2
+  $fShowEnvEntry_$cshowList :: [TigerSres.EnvEntry] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerSres.EnvEntry]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__
+                   @ TigerSres.EnvEntry
+                   TigerSres.$fShowEnvEntry1
+                   ls
+                   s) -}
+65088e639baa08d6e5eca771c2272dc2
+  $fShowEnvEntry_$cshowsPrec ::
+    GHC.Types.Int -> TigerSres.EnvEntry -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <S(S),1*U(U)><S,1*U><L,U>, Inline: [0],
+     Unfolding: InlineRule (3, True, False)
+                (\ (w :: GHC.Types.Int)
+                   (w1 :: TigerSres.EnvEntry)
+                   (w2 :: GHC.Base.String) ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 TigerSres.$w$cshowsPrec ww1 w1 w2 }) -}
+d98aba089e52420809ae0082ee5e93f8
+  $fShowExterna :: GHC.Show.Show TigerSres.Externa
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerSres.Externa
+                  TigerSres.$fShowExterna_$cshowsPrec
+                  TigerSres.$fShowExterna_$cshow
+                  TigerSres.$fShowExterna_$cshowList -}
+d98aba089e52420809ae0082ee5e93f8
+  $fShowExterna1 :: TigerSres.Externa -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,1*U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ds :: TigerSres.Externa) (eta :: GHC.Base.String) ->
+                 case ds of wild {
+                   TigerSres.Runtime
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerSres.$fShowEnvEntry6)
+                        eta
+                   TigerSres.Propia
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerSres.$fShowEnvEntry4)
+                        eta }) -}
+d98aba089e52420809ae0082ee5e93f8
+  $fShowExterna_$cshow :: TigerSres.Externa -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: TigerSres.Externa) ->
+                 case x of wild {
+                   TigerSres.Runtime -> TigerSres.$fShowEnvEntry6
+                   TigerSres.Propia -> TigerSres.$fShowEnvEntry4 }) -}
+d98aba089e52420809ae0082ee5e93f8
+  $fShowExterna_$cshowList :: [TigerSres.Externa] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerSres.Externa]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__
+                   @ TigerSres.Externa
+                   TigerSres.$fShowExterna1
+                   ls
+                   s) -}
+d98aba089e52420809ae0082ee5e93f8
+  $fShowExterna_$cshowsPrec ::
+    GHC.Types.Int -> TigerSres.Externa -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <L,A><S,1*U><L,1*U>,
+     Unfolding: InlineRule (3, True, False)
+                (\ (ds :: GHC.Types.Int)
+                   (ds1 :: TigerSres.Externa)
+                   (eta :: GHC.Base.String) ->
+                 case ds1 of wild {
+                   TigerSres.Runtime
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerSres.$fShowEnvEntry6)
+                        eta
+                   TigerSres.Propia
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerSres.$fShowEnvEntry4)
+                        eta }) -}
+2af578c9e84d34c49395786db7a76bac
+  $tc'Func :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11147300524282239246##
+                   7061900010177240727##
+                   TigerSres.$trModule
+                   TigerSres.$tc'Func2
+                   0#
+                   TigerSres.$tc'Func1) -}
+d817d0b3e961117789ba799387d1779c
+  $tc'Func1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+3770d142cb6b2abf232d4271884f5b88
+  $tc'Func2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$tc'Func3) -}
+04c75853c7031c5494a83c04269a17c0
+  $tc'Func3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Func"#) -}
+429f6830c93a97a3fb8c855ae8298697
+  $tc'Propia :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4290387412092446015##
+                   11016246236989522178##
+                   TigerSres.$trModule
+                   TigerSres.$tc'Propia2
+                   0#
+                   TigerSres.$tc'Propia1) -}
+581ed26b2eb902489b4251974ec93ee3
+  $tc'Propia1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m1, Inline: [~] -}
+85b8eb27bbe227efcc2fac404fccd441
+  $tc'Propia2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$tc'Propia3) -}
+98d9d0b359b6cf6ba0f98fb9e209e8e1
+  $tc'Propia3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Propia"#) -}
+be5060517e1ee93ff92dd5e480007445
+  $tc'Runtime :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8713983597101204144##
+                   3096315956205367071##
+                   TigerSres.$trModule
+                   TigerSres.$tc'Runtime1
+                   0#
+                   TigerSres.$tc'Propia1) -}
+006c85551ae396e9de1032af9998f2f9
+  $tc'Runtime1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$tc'Runtime2) -}
+b6ef0dfbf18cddf6b0123b95445d0275
+  $tc'Runtime2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Runtime"#) -}
+857c56c5ebb160a32ccb20099d4dc70c
+  $tc'Var :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   3774326128522861011##
+                   4817130202719570976##
+                   TigerSres.$trModule
+                   TigerSres.$tc'Var2
+                   0#
+                   TigerSres.$tc'Var1) -}
+8158617df0ccdbeb3243eb3734e98137
+  $tc'Var1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+6aaa12df5657dbe62ca58f938c207cf2
+  $tc'Var2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$tc'Var3) -}
+8ebfdeaf194f2a1df3ab1d96c81c0e9d
+  $tc'Var3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'Var"#) -}
+078368ba703b2a73b35b974951db3484
+  $tcEnvEntry :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8778158155311230796##
+                   13404302507528326652##
+                   TigerSres.$trModule
+                   TigerSres.$tcEnvEntry1
+                   0#
+                   GHC.Types.krep$*) -}
+6bfdc16dd525e3cfcf8befa5f49be0e5
+  $tcEnvEntry1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$tcEnvEntry2) -}
+413e7724a78f60ec51ad5e0a74d4a35c
+  $tcEnvEntry2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("EnvEntry"#) -}
+4b2ad6e947b30877b4ed51f953f24c29
+  $tcExterna :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   7739950554640554793##
+                   6175272023157492316##
+                   TigerSres.$trModule
+                   TigerSres.$tcExterna1
+                   0#
+                   GHC.Types.krep$*) -}
+2f6ad8a31466d1d4699e76921bb2b88b
+  $tcExterna1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$tcExterna2) -}
+02cfe54d573b77db6549c0c2ee49d21e
+  $tcExterna2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Externa"#) -}
+4855ae62c5933fcf046501c7762e413a
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module
+                   TigerSres.$trModule3
+                   TigerSres.$trModule1) -}
+6a5980b2552101ee4b2b00784ed422eb
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$trModule2) -}
+245074e8932701fad884f69a6229fc30
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("TigerSres"#) -}
+3d6caadee45a1416884b1189ba9a433b
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerSres.$trModule4) -}
+7b8e363caef64afd6585773d2aec0f7f
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+65088e639baa08d6e5eca771c2272dc2
+  $w$cshowsPrec ::
+    GHC.Prim.Int#
+    -> TigerSres.EnvEntry -> GHC.Base.String -> GHC.Base.String
+  {- Arity: 3, Strictness: <S,U><S,1*U><L,U>, Inline: [0],
+     Unfolding: (\ (ww :: GHC.Prim.Int#)
+                   (w :: TigerSres.EnvEntry)
+                   (w1 :: GHC.Base.String) ->
+                 case w of wild {
+                   TigerSres.Var b1
+                   -> case GHC.Prim.>=# ww 11# of lwild {
+                        DEFAULT
+                        -> GHC.CString.unpackAppendCString#
+                             TigerSres.$fShowEnvEntry9
+                             (TigerTips.$fShowTipo_$cshowsPrec TigerSres.$fShowEnvEntry8 b1 w1)
+                        1#
+                        -> GHC.Types.:
+                             @ GHC.Types.Char
+                             GHC.Show.$fShow(,)4
+                             (GHC.CString.unpackAppendCString#
+                                TigerSres.$fShowEnvEntry9
+                                (TigerTips.$fShowTipo_$cshowsPrec
+                                   TigerSres.$fShowEnvEntry8
+                                   b1
+                                   (GHC.Types.: @ GHC.Types.Char GHC.Show.$fShow(,)2 w1))) }
+                   TigerSres.Func b1
+                   -> let {
+                        g :: GHC.Base.String -> GHC.Base.String
+                          {- Arity: 1, Strictness: <L,U> -}
+                        = \ (s :: GHC.Base.String)[OneShot] ->
+                          case b1 of wild1 { (,,,,) a1 b2 c1 d1 e1 ->
+                          GHC.Types.:
+                            @ GHC.Types.Char
+                            GHC.Show.$fShow(,)4
+                            (case GHC.Show.$w$cshowsPrec4
+                                    0#
+                                    a1
+                                    (GHC.Types.:
+                                       @ GHC.Types.Char
+                                       GHC.Show.showList__1
+                                       (GHC.Show.$fShow(,,,,)_$sgo2
+                                          (GHC.Types.: @ GHC.Types.Char GHC.Show.$fShow(,)2 s)
+                                          (\ (w2 :: GHC.Base.String)[OneShot] ->
+                                           case Data.Text.Show.$w$cshowsPrec
+                                                  b2
+                                                  w2 of ww1 { (#,#) ww2 ww3 ->
+                                           GHC.Types.: @ GHC.Types.Char ww2 ww3 })
+                                          (GHC.Types.:
+                                             @ GHC.Show.ShowS
+                                             (TigerTips.$fShowTipo_$cshowList c1)
+                                             (GHC.Types.:
+                                                @ GHC.Show.ShowS
+                                                (TigerTips.$fShowTipo_$cshowsPrec
+                                                   GHC.Show.$fShow(,)1
+                                                   d1)
+                                                (GHC.Types.:
+                                                   @ GHC.Show.ShowS
+                                                   (\ (eta :: GHC.Base.String) ->
+                                                    case e1 of wild2 {
+                                                      TigerSres.Runtime
+                                                      -> GHC.Base.++
+                                                           @ GHC.Types.Char
+                                                           TigerSres.$fShowEnvEntry6
+                                                           eta
+                                                      TigerSres.Propia
+                                                      -> GHC.Base.++
+                                                           @ GHC.Types.Char
+                                                           TigerSres.$fShowEnvEntry4
+                                                           eta })
+                                                   (GHC.Types.[]
+                                                      @ GHC.Show.ShowS)))))) of ww2 { (#,#) ww3 ww4 ->
+                             GHC.Types.: @ GHC.Types.Char ww3 ww4 }) }
+                      } in
+                      case GHC.Prim.>=# ww 11# of lwild {
+                        DEFAULT
+                        -> GHC.Base.++ @ GHC.Types.Char TigerSres.$fShowEnvEntry2 (g w1)
+                        1#
+                        -> GHC.Types.:
+                             @ GHC.Types.Char
+                             GHC.Show.$fShow(,)4
+                             (GHC.Base.++
+                                @ GHC.Types.Char
+                                TigerSres.$fShowEnvEntry2
+                                (g (GHC.Types.: @ GHC.Types.Char GHC.Show.$fShow(,)2 w1))) } }) -}
+65088e639baa08d6e5eca771c2272dc2
+  data EnvEntry = Var TigerSres.ValEntry | Func TigerSres.FunEntry
+d98aba089e52420809ae0082ee5e93f8
+  data Externa = Runtime | Propia
+53d7998c8e31c98bccc392c3c28770ef
+  type FunEntry =
+    (TigerUnique.Unique, TigerTemp.Label, [TigerTips.Tipo],
+     TigerTips.Tipo, TigerSres.Externa)
+9f3561ebe49b1e866f29ce36bbaacde4
+  type ValEntry = TigerTips.Tipo
+instance [safe] GHC.Show.Show [TigerSres.EnvEntry]
+  = TigerSres.$fShowEnvEntry
+instance [safe] GHC.Show.Show [TigerSres.Externa]
+  = TigerSres.$fShowExterna
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+

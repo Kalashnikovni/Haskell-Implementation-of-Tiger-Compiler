@@ -1,0 +1,600 @@
+
+==================== FINAL INTERFACE ====================
+2019-06-15 23:18:31.485817961 UTC
+
+interface HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerTips 8043
+  interface hash: 0deb50792a30e53cccf281c28c5070a1
+  ABI hash: d8b887be1cc120ab6fc657b6944287b8
+  export-list hash: de993eb0eee0af29cedaca5e1a8f86bd
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 84a707957232ceed2ddebd5ca4ca265a
+  opt_hash: 14e536840aca4e889cad654e6f9b79c1
+  hpc_hash: 93b885adfe0da089cdf634904fd59f71
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  TigerTips.TBool
+  TigerTips.equivTipo
+  TigerTips.errorTipos
+  TigerTips.Posicion
+  TigerTips.RWO{TigerTips.RO TigerTips.RW}
+  TigerTips.Tipo{TigerTips.RefRecord TigerTips.TArray TigerTips.TInt TigerTips.TNil TigerTips.TRecord TigerTips.TString TigerTips.TUnit}
+module dependencies: State TigerErrores TigerSymbol TigerUnique
+package dependencies: array-0.5.2.0 base-4.11.1.0* binary-0.8.5.1
+                      bytestring-0.10.8.2 containers-0.5.11.0 deepseq-1.4.3.0
+                      ghc-prim-0.5.2.0 integer-gmp-1.0.2.0 mtl-2.2.2 text-1.2.3.0
+                      transformers-0.5.5.0
+orphans: text-1.2.3.0:Data.Text binary-0.8.5.1:Data.Binary.Generic
+         bytestring-0.10.8.2:Data.ByteString.Builder
+         text-1.2.3.0:Data.Text.Show
+         HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ:TigerUnique
+         transformers-0.5.5.0:Control.Monad.Trans.Error
+         base-4.11.1.0:GHC.Float base-4.11.1.0:GHC.Base
+family instance modules: base-4.11.1.0:Control.Applicative
+                         base-4.11.1.0:Data.Complex base-4.11.1.0:Data.Functor.Compose
+                         base-4.11.1.0:Data.Functor.Const
+                         base-4.11.1.0:Data.Functor.Identity
+                         base-4.11.1.0:Data.Functor.Product base-4.11.1.0:Data.Functor.Sum
+                         base-4.11.1.0:Data.Monoid base-4.11.1.0:Data.Semigroup
+                         base-4.11.1.0:Data.Semigroup.Internal base-4.11.1.0:Data.Version
+                         base-4.11.1.0:Data.Void base-4.11.1.0:GHC.Exts
+                         base-4.11.1.0:GHC.Generics base-4.11.1.0:GHC.IO.Exception
+                         containers-0.5.11.0:Data.IntMap.Internal
+                         containers-0.5.11.0:Data.IntSet.Internal
+                         containers-0.5.11.0:Data.Map.Internal
+                         containers-0.5.11.0:Data.Sequence.Internal
+                         containers-0.5.11.0:Data.Set.Internal containers-0.5.11.0:Data.Tree
+                         text-1.2.3.0:Data.Text
+import  -/  TigerErrores d6b896dc50bb043f0cebb81f57be9e99
+  exports: 80457cd72eafb0c7ff967c549f37684c
+  Demon 3be4cda8de144480ec2c07e6e8cc4259
+  derror a65d27c25b5e004f00231fb3895a1bf4
+import  -/  TigerSymbol 4628943ae21548f9838cca1c81589f49
+  exports: 3aa8690c7d65c85b2775cbd880ffcd19
+  Symbol 80a54d65275119c925e5daf83dc9ca3b
+import  -/  TigerUnique 2c7b8a003ba6cddf20e41223ec1f0139
+  exports: fb658a085da3f6734ecff0198e21e4ae
+  Unique a8946959a472517f9eeacb91a0a901b7
+import  -/  base-4.11.1.0:GHC.Base 604111500e81281298777e721c75643b
+import  -/  base-4.11.1.0:GHC.Show 73be67392447c974f19c3befd83c46c0
+import  -/  base-4.11.1.0:Prelude 0750c25585e2b797cd78291d423d39dd
+import  -/  ghc-prim-0.5.2.0:GHC.Classes 122abfcd7450c6c11602933c9ca5f80d
+import  -/  text-1.2.3.0:Data.Text 4f359e32d6f1c9011b171e00ff8fb023
+c84664fe3a4e5e4f31d1e9673452a7a7
+  $bTBool :: TigerTips.Tipo
+  {- HasNoCafRefs, Strictness: m4,
+     Unfolding: (TigerTips.TInt TigerTips.RW) -}
+192bb250fdcc901ed5a26185a102541d
+  $fEqRWO :: GHC.Classes.Eq TigerTips.RWO
+  DFunId
+  {- HasNoCafRefs, Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTips.RWO TigerTips.$fEqRWO_$c== TigerTips.$fEqRWO_$c/= -}
+192bb250fdcc901ed5a26185a102541d
+  $fEqRWO_$c/= :: TigerTips.RWO -> TigerTips.RWO -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><S,1*U>,
+     Inline: (sat-args=2),
+     Unfolding: InlineRule (2, False, False)
+                (\ (x :: TigerTips.RWO) (y :: TigerTips.RWO) ->
+                 case x of wild {
+                   TigerTips.RW
+                   -> case y of wild1 {
+                        TigerTips.RW -> GHC.Types.False TigerTips.RO -> GHC.Types.True }
+                   TigerTips.RO
+                   -> case y of wild1 {
+                        TigerTips.RW -> GHC.Types.True
+                        TigerTips.RO -> GHC.Types.False } }) -}
+192bb250fdcc901ed5a26185a102541d
+  $fEqRWO_$c== :: TigerTips.RWO -> TigerTips.RWO -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><S,1*U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ds :: TigerTips.RWO) (ds1 :: TigerTips.RWO) ->
+                 case ds of wild {
+                   TigerTips.RW
+                   -> case ds1 of wild1 {
+                        TigerTips.RW -> GHC.Types.True TigerTips.RO -> GHC.Types.False }
+                   TigerTips.RO
+                   -> case ds1 of wild1 {
+                        TigerTips.RW -> GHC.Types.False
+                        TigerTips.RO -> GHC.Types.True } }) -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fEqTipo :: GHC.Classes.Eq TigerTips.Tipo
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTips.Tipo TigerTips.$fEqTipo_$c== TigerTips.$fEqTipo_$c/= -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fEqTipo_$c/= :: TigerTips.Tipo -> TigerTips.Tipo -> GHC.Types.Bool
+  {- Arity: 2, Strictness: <S,1*U><S,1*U>, Inline: (sat-args=2),
+     Unfolding: InlineRule (2, False, False)
+                (\ (x :: TigerTips.Tipo) (y :: TigerTips.Tipo) ->
+                 case TigerTips.$fEqTipo_$c== x y of wild {
+                   GHC.Types.False -> GHC.Types.True
+                   GHC.Types.True -> GHC.Types.False }) -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fEqTipo_$c== :: TigerTips.Tipo -> TigerTips.Tipo -> GHC.Types.Bool
+  {- Arity: 2, Strictness: <S,1*U><S,1*U> -}
+192bb250fdcc901ed5a26185a102541d
+  $fShowRWO :: GHC.Show.Show TigerTips.RWO
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTips.RWO
+                  TigerTips.$fShowRWO_$cshowsPrec
+                  TigerTips.$fShowRWO_$cshow
+                  TigerTips.$fShowRWO_$cshowList -}
+192bb250fdcc901ed5a26185a102541d
+  $fShowRWO1 :: TigerTips.RWO -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,1*U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ds :: TigerTips.RWO) (eta :: GHC.Base.String) ->
+                 case ds of wild {
+                   TigerTips.RW
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerTips.$fShowRWO4)
+                        eta
+                   TigerTips.RO
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerTips.$fShowRWO2)
+                        eta }) -}
+b2e83d2e9cc23c64e942bad70e78ce05
+  $fShowRWO2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTips.$fShowRWO3) -}
+0c8296eaa5eb502df88410e9dc65acc7
+  $fShowRWO3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("RO"#) -}
+77e7979a68b714d14411a1c4e515d38e
+  $fShowRWO4 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTips.$fShowRWO5) -}
+29765a4ebbc545784dfbee048e0a90b0
+  $fShowRWO5 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("RW"#) -}
+192bb250fdcc901ed5a26185a102541d
+  $fShowRWO_$cshow :: TigerTips.RWO -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: TigerTips.RWO) ->
+                 case x of wild {
+                   TigerTips.RW -> TigerTips.$fShowRWO4
+                   TigerTips.RO -> TigerTips.$fShowRWO2 }) -}
+192bb250fdcc901ed5a26185a102541d
+  $fShowRWO_$cshowList :: [TigerTips.RWO] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerTips.RWO]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__ @ TigerTips.RWO TigerTips.$fShowRWO1 ls s) -}
+192bb250fdcc901ed5a26185a102541d
+  $fShowRWO_$cshowsPrec ::
+    GHC.Types.Int -> TigerTips.RWO -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <L,A><S,1*U><L,1*U>,
+     Unfolding: InlineRule (3, True, False)
+                (\ (ds :: GHC.Types.Int)
+                   (ds1 :: TigerTips.RWO)
+                   (eta :: GHC.Base.String) ->
+                 case ds1 of wild {
+                   TigerTips.RW
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerTips.$fShowRWO4)
+                        eta
+                   TigerTips.RO
+                   -> GHC.Base.augment
+                        @ GHC.Types.Char
+                        (\ @ b
+                           (c :: GHC.Types.Char -> b -> b)[OneShot]
+                           (n :: b)[OneShot] ->
+                         GHC.Base.foldr @ GHC.Types.Char @ b c n TigerTips.$fShowRWO2)
+                        eta }) -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fShowTipo :: GHC.Show.Show TigerTips.Tipo
+  DFunId
+  {- Strictness: m, Inline: CONLIKE,
+     Unfolding: DFun:.
+                  @ TigerTips.Tipo
+                  TigerTips.$fShowTipo_$cshowsPrec
+                  TigerTips.$fShowTipo_$cshow
+                  TigerTips.$fShowTipo_$cshowList -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fShowTipo1 :: TigerTips.Tipo -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (TigerTips.$fShowTipo_$cshowsPrec
+                   TigerTips.$fShowTipo2) -}
+07d9f9a701be6f47a9b401fd90505798
+  $fShowTipo2 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 0#) -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fShowTipo_$cshow :: TigerTips.Tipo -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: TigerTips.Tipo) ->
+                 TigerTips.$fShowTipo_$cshowsPrec
+                   TigerTips.$fShowTipo2
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fShowTipo_$cshowList :: [TigerTips.Tipo] -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S,1*U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ls :: [TigerTips.Tipo]) (s :: GHC.Base.String) ->
+                 GHC.Show.showList__ @ TigerTips.Tipo TigerTips.$fShowTipo1 ls s) -}
+25d41e0f248a57e8442fd0e3172a3e9f
+  $fShowTipo_$cshowsPrec ::
+    GHC.Types.Int -> TigerTips.Tipo -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <L,1*U(U)><S,1*U><L,U> -}
+6cd74bf4571ce57aaab5f657ffdb7332
+  $mTBool ::
+    forall (rep :: GHC.Types.RuntimeRep) (r :: TYPE rep).
+    TigerTips.Tipo
+    -> (GHC.Prim.Void# -> r) -> (GHC.Prim.Void# -> r) -> r
+  {- Arity: 3, HasNoCafRefs,
+     Strictness: <S,1*U><L,1*C1(U)><L,1*C1(U)>,
+     Unfolding: InlineRule (3, True, False)
+                (\ @ rep :: GHC.Types.RuntimeRep
+                   @ r :: TYPE rep
+                   (scrut :: TigerTips.Tipo)
+                   (cont :: GHC.Prim.Void# -> r)
+                   (fail :: GHC.Prim.Void# -> r) ->
+                 case scrut of wild {
+                   DEFAULT -> fail GHC.Prim.void#
+                   TigerTips.TInt ds
+                   -> case ds of wild1 {
+                        TigerTips.RW -> cont GHC.Prim.void#
+                        TigerTips.RO -> fail GHC.Prim.void# } }) -}
+ba4998bb7e32f3f3c808d474af9fcfe1
+  $tc'RO :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   9700346585594212145##
+                   18016186309315432055##
+                   TigerTips.$trModule
+                   TigerTips.$tc'RO2
+                   0#
+                   TigerTips.$tc'RO1) -}
+7d908dc0fd478da630f7ad13bcddde36
+  $tc'RO1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m1, Inline: [~] -}
+7b44d54db62aad47dd1381a2e377d778
+  $tc'RO2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'RO3) -}
+c386b493caff01d0c09d6633b8d5c4fd
+  $tc'RO3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'RO"#) -}
+ebfad911ea0a480cabd352854e7744c5
+  $tc'RW :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   2889785722093529369##
+                   11437362398417322022##
+                   TigerTips.$trModule
+                   TigerTips.$tc'RW1
+                   0#
+                   TigerTips.$tc'RO1) -}
+1a41cc1b63bc4b4dabe15946c98d4b6a
+  $tc'RW1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'RW2) -}
+5565f029b37956327e8ec42d7d9d940e
+  $tc'RW2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'RW"#) -}
+a83a8aa37d300d81ea2cf7fa781a05a4
+  $tc'RefRecord :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   15802689595748642167##
+                   17313775571918203193##
+                   TigerTips.$trModule
+                   TigerTips.$tc'RefRecord2
+                   0#
+                   TigerTips.$tc'RefRecord1) -}
+9b23bc18eeee8c37854bdf36de304b48
+  $tc'RefRecord1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+d6a2da0e98987dcd33cb30b49640395c
+  $tc'RefRecord2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'RefRecord3) -}
+979e6f74feef4eb4f16345472bdd9f35
+  $tc'RefRecord3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'RefRecord"#) -}
+71668c5f6fd5af325e742aca5c9eb1b7
+  $tc'TArray :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11415267421416743098##
+                   4777399106193089565##
+                   TigerTips.$trModule
+                   TigerTips.$tc'TArray2
+                   0#
+                   TigerTips.$tc'TArray1) -}
+51838dcb1b9ea7ee4189e8ee2997013c
+  $tc'TArray1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+a5f728f04477888b3e5290259e835b49
+  $tc'TArray2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'TArray3) -}
+9be0830d7e56d91ef74239682e688f0e
+  $tc'TArray3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'TArray"#) -}
+e3a281692cae296e4eadbf2d9aa774e8
+  $tc'TInt :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   5547567260740650004##
+                   11043617516404282588##
+                   TigerTips.$trModule
+                   TigerTips.$tc'TInt2
+                   0#
+                   TigerTips.$tc'TInt1) -}
+396bfea1faccec425a0f5f5f3949b63a
+  $tc'TInt1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+2bd74ceb242fd54bf919adc794da3666
+  $tc'TInt2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'TInt3) -}
+de450d9240e2e8feea52101e94529418
+  $tc'TInt3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'TInt"#) -}
+47bc7da77273a2606b74244fbe989144
+  $tc'TNil :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   5197181145910404561##
+                   12566646294554701699##
+                   TigerTips.$trModule
+                   TigerTips.$tc'TNil2
+                   0#
+                   TigerTips.$tc'TNil1) -}
+04a543575f3a2b14bc7c64b055180225
+  $tc'TNil1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m1, Inline: [~] -}
+01c63832c52cd119be981262fcf4d65e
+  $tc'TNil2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'TNil3) -}
+62763628b8aaf103b1514967139aaea4
+  $tc'TNil3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'TNil"#) -}
+6b1c7780f2eb38851ee6c35a15243d0a
+  $tc'TRecord :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6390440493853769303##
+                   2032039182440099546##
+                   TigerTips.$trModule
+                   TigerTips.$tc'TRecord2
+                   0#
+                   TigerTips.$tc'TRecord1) -}
+b4ca6563f0ecfe815da023c0ccbf58c4
+  $tc'TRecord1 :: GHC.Types.KindRep
+  {- HasNoCafRefs, Strictness: m4, Inline: [~] -}
+f558d87d175dc510a28da121e2bcd6ad
+  $tc'TRecord2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'TRecord3) -}
+6bd4d786fcd4c748359de2c817e6dfdd
+  $tc'TRecord3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'TRecord"#) -}
+798550fb3b16ea5ec4086b417a8afee6
+  $tc'TString :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6932892718978108045##
+                   4578690786646397408##
+                   TigerTips.$trModule
+                   TigerTips.$tc'TString1
+                   0#
+                   TigerTips.$tc'TNil1) -}
+341cfaea76596f95132e406ae427ddaf
+  $tc'TString1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'TString2) -}
+909ff28e9dba128c74b13a5683933b3a
+  $tc'TString2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'TString"#) -}
+3df4a401781b0b78fb81865765dd4b5d
+  $tc'TUnit :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4412134076575820751##
+                   732527915761861020##
+                   TigerTips.$trModule
+                   TigerTips.$tc'TUnit1
+                   0#
+                   TigerTips.$tc'TNil1) -}
+61f0d3581e5f2a3938b2d608e17946a2
+  $tc'TUnit1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tc'TUnit2) -}
+213d15b79a0a2f9df6a878bd15304adb
+  $tc'TUnit2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("'TUnit"#) -}
+c6d9916c5a9cc3387ef707ede6851698
+  $tcRWO :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   3759674351666540739##
+                   13939750120220802436##
+                   TigerTips.$trModule
+                   TigerTips.$tcRWO1
+                   0#
+                   GHC.Types.krep$*) -}
+332de680ec4489433dface202f0e2846
+  $tcRWO1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tcRWO2) -}
+04ce8bb0ae28ac074ac9bf3735204c79
+  $tcRWO2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("RWO"#) -}
+e071cd124fe6172067aede07f7b5391e
+  $tcTipo :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   7937521397389417080##
+                   4255007201304399756##
+                   TigerTips.$trModule
+                   TigerTips.$tcTipo1
+                   0#
+                   GHC.Types.krep$*) -}
+c081549d7da05d496eca55ca24a97728
+  $tcTipo1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$tcTipo2) -}
+7fdf4114712a792e5cbe2e37b1149ecb
+  $tcTipo2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Tipo"#) -}
+4b68543456b386f43cdf56936a874dcb
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module
+                   TigerTips.$trModule3
+                   TigerTips.$trModule1) -}
+79afc81ad71896ea1fad48cdde8ac83a
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$trModule2) -}
+79a989ace5f8ace0db8899f819fb2114
+  $trModule2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("TigerTips"#) -}
+cd26c5bd484a6c2167ff47a8c2533c4f
+  $trModule3 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS TigerTips.$trModule4) -}
+28698f8e81cc8ee47806044399048c17
+  $trModule4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs,
+     Unfolding: ("HaskTiger-0.1.0.0-E2V2C9MNTGC8IfNMs3zKtJ"#) -}
+40de7f4281c90531db5b8c686b375a3b
+  $wouter ::
+    GHC.Prim.MutableByteArray# GHC.Prim.RealWorld
+    -> GHC.Prim.Int#
+    -> [GHC.Types.Char]
+    -> GHC.Prim.Int#
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld,
+          Data.Text.Internal.Text #)
+  {- Arity: 5, Strictness: <L,U><S,U><S,1*U><S,U><S,U>,
+     Inline: [0] -}
+06252208a44db545c65de906ec745773
+  type Posicion = GHC.Types.Int
+192bb250fdcc901ed5a26185a102541d
+  data RWO = RW | RO
+1748018f4f130d3f6572ce50bdb6d786
+  pattern TigerTips.TBool :: TigerTips.Tipo
+25d41e0f248a57e8442fd0e3172a3e9f
+  data Tipo
+    = TUnit
+    | TString
+    | TNil
+    | TInt TigerTips.RWO
+    | TArray TigerTips.Tipo TigerUnique.Unique
+    | TRecord [(TigerSymbol.Symbol, TigerTips.Tipo,
+                TigerTips.Posicion)]
+              TigerUnique.Unique
+    | RefRecord TigerSymbol.Symbol
+417cc21230f09cf4db1db90eb4e81eb2
+  equivTipo :: TigerTips.Tipo -> TigerTips.Tipo -> GHC.Types.Bool
+  {- Arity: 2, Strictness: <S,1*U><S,1*U>,
+     Unfolding: (\ (ds :: TigerTips.Tipo) (ds1 :: TigerTips.Tipo) ->
+                 case ds of wild {
+                   DEFAULT -> TigerTips.$fEqTipo_$c== wild ds1
+                   TigerTips.TNil
+                   -> case ds1 of wild1 {
+                        DEFAULT -> TigerTips.$fEqTipo_$c== TigerTips.TNil wild1
+                        TigerTips.TRecord ds2 ds3 -> GHC.Types.True }
+                   TigerTips.TInt ds2
+                   -> case ds1 of wild1 {
+                        DEFAULT -> TigerTips.$fEqTipo_$c== wild wild1
+                        TigerTips.TInt ds3 -> GHC.Types.True }
+                   TigerTips.TArray ds2 u1
+                   -> case ds1 of wild1 {
+                        DEFAULT -> TigerTips.$fEqTipo_$c== wild wild1
+                        TigerTips.TArray ds3 u2 -> GHC.Integer.Type.eqInteger u1 u2 }
+                   TigerTips.TRecord ds2 ds3
+                   -> case ds1 of wild1 {
+                        DEFAULT -> TigerTips.$fEqTipo_$c== wild wild1
+                        TigerTips.TNil -> GHC.Types.True
+                        TigerTips.TRecord ds4 u2
+                        -> GHC.Integer.Type.eqInteger ds3 u2 } }) -}
+87561ae0689bed8803c0443a0dd72285
+  errorTipos ::
+    TigerErrores.Demon w => TigerTips.Tipo -> TigerTips.Tipo -> w a
+  {- Arity: 3,
+     Strictness: <S(C(S)LLL),1*U(1*C1(U),A,A,A)><L,1*U><L,1*U>,
+     Unfolding: (\ @ w :: * -> *
+                   @ a
+                   ($dDemon :: TigerErrores.Demon w)
+                   (t1 :: TigerTips.Tipo)
+                   (t2 :: TigerTips.Tipo) ->
+                 TigerErrores.derror
+                   @ w
+                   $dDemon
+                   @ a
+                   (case GHC.CString.unpackAppendCString#
+                           TigerTips.errorTipos4
+                           (GHC.Base.++
+                              @ GHC.Types.Char
+                              (TigerTips.$fShowTipo_$cshowsPrec
+                                 TigerTips.$fShowTipo2
+                                 t1
+                                 (GHC.Types.[] @ GHC.Types.Char))
+                              (GHC.CString.unpackAppendCString#
+                                 TigerTips.errorTipos3
+                                 (GHC.Base.++
+                                    @ GHC.Types.Char
+                                    (TigerTips.$fShowTipo_$cshowsPrec
+                                       TigerTips.$fShowTipo2
+                                       t2
+                                       (GHC.Types.[] @ GHC.Types.Char))
+                                    TigerTips.errorTipos1))) of dt { DEFAULT ->
+                    case GHC.Magic.runRW#
+                           @ ('GHC.Types.TupleRep
+                                '['GHC.Types.TupleRep '[], 'GHC.Types.LiftedRep])
+                           @ (# GHC.Prim.State# GHC.Prim.RealWorld, Data.Text.Internal.Text #)
+                           (\ (s1 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                            case GHC.Prim.newByteArray#
+                                   @ GHC.Prim.RealWorld
+                                   10#
+                                   s1 of ds1 { (#,#) ipv ipv1 ->
+                            TigerTips.$wouter ipv1 4# dt 0# ipv }) of ds1 { (#,#) ipv ipv1 ->
+                    ipv1 } })) -}
+a5904c0e894265702713562ff4a1175c
+  errorTipos1 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# TigerTips.errorTipos2) -}
+51de365281d18f295b0fde18611249de
+  errorTipos2 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("*."#) -}
+8bc435b93238194c01299dd7adf67351
+  errorTipos3 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("* es distinto a *"#) -}
+6011f51274dd8b03784e4a410ca35a0d
+  errorTipos4 :: GHC.Prim.Addr#
+  {- HasNoCafRefs, Unfolding: ("Error de tipos. Tipo *"#) -}
+instance [safe] GHC.Classes.Eq [TigerTips.RWO] = TigerTips.$fEqRWO
+instance [safe] GHC.Classes.Eq [TigerTips.Tipo]
+  = TigerTips.$fEqTipo
+instance [safe] GHC.Show.Show [TigerTips.RWO] = TigerTips.$fShowRWO
+instance [safe] GHC.Show.Show [TigerTips.Tipo]
+  = TigerTips.$fShowTipo
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: safe
+require own pkg trusted: False
+
