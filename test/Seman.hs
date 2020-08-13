@@ -15,15 +15,14 @@ import System.Directory
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite Seman [for TigerSeman testing] in progress =======" >>
-  --putStrLn "Resultados con calculos de escapes" >>
-  --testerPrintDir "./test/test_code/good" >> 
-  --putStrLn "Good:" >>
-  --testDir good_loc (testGood good_loc tester) >>
-  --putStrLn "Type:" >>
-  --testDir type_loc (testGood type_loc tester) >>
-  --putStrLn "Bad:" >>
-  --testDir bad_loc (testBad bad_loc tester) >>
-  testerPrint "./test/test_code/good" "merge.tig" >>
+  putStrLn "Resultados con calculos de escapes" >>
+  testerPrintDir "./test/test_code/good" >> 
+  putStrLn "Good:" >>
+  testDir good_loc (testGood good_loc tester) >>
+  putStrLn "Type:" >>
+  testDir type_loc (testGood type_loc tester) >>
+  putStrLn "Bad:" >>
+  testDir bad_loc (testBad bad_loc tester) >>
   putStrLn "\n======= Test suite FIN ======="
 
 tester = either (fail $ "Revisar etapas previas al análisis semántico, y código del programa")

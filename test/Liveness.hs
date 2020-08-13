@@ -37,7 +37,7 @@ import System.Directory
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite Liveness [] in progress =======" >>
-  testerPrintDir "./test/test_code/good/fortry" >>
+  testerPrintDir "./test/test_code/good" >>
   putStrLn "\n======= Test suite FIN ======="  
 
 type EstadoTest = StGen
@@ -101,8 +101,6 @@ testerPrint loc f out =
      let (res, st) = runSt (testerLiveness str) 0
      writeFile out (Lazy.unpack $ defaultVis $ fst res)
      printMap $ snd res
-     --printMap $ use $ fst res
-     --printMap $ def $ fst res
 
 printMap :: (Show a, Show b) => Map a b -> IO ()
 printMap m =

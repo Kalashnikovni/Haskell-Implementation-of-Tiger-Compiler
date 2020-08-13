@@ -13,13 +13,12 @@ import Text.Parsec
 main :: IO ()
 main =
   putStrLn "\n======= Test PARSER in progress =======" >>
-  --putStrLn "Print results, good:" >>
-  --testerPrintDir "./test/test_code/good" >>
-  --putStrLn "Print results, type:" >>
-  --testerPrintDir "./test/test_code/type" >>
-  --putStrLn "Bad:" >>
-  --testerPrintDir "./test/test_code/syntax" >>
-  testerPrint "./test/test_code/good" "merge.tig" show >>
+  putStrLn "Print results, good:" >>
+  testerPrintDir "./test/test_code/good" >>
+  putStrLn "Print results, type:" >>
+  testerPrintDir "./test/test_code/type" >>
+  putStrLn "Bad:" >>
+  testerPrintDir "./test/test_code/syntax" >>
   putStrLn "\n======= Test FIN ======="
 
 type EstadoTest = StGen

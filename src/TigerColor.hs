@@ -591,7 +591,7 @@ registerAllocation instrs fr =
   do putInstrs instrs
      putFrame fr
      putInit $ (P.foldl (\set i -> S.union (makeInit i) set) (S.empty) instrs) S.\\ (keysSet precolored)
-     putOffset $ locSize fr + 2
+     putOffset $ locSize fr + 2 -- +1 for statick link, +1 to go to empty space
      mainColor fr
      applyColors
      newInstrs <- getInstrs

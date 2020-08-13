@@ -405,7 +405,6 @@ transExp(IfExp co th Nothing p) =
      return (res , TUnit)
 transExp(IfExp co th (Just el) p) = 
   do (bco, condType) <- transExp co
-     trace (show co ++ show bco) $ return ()
      C.unless (equivTipo condType TBool) $ errorTiposMsg p "El tipo de la condicion no es booleano" condType TBool
      (bth, ttType) <- transExp th
      (bel, ffType) <- transExp el

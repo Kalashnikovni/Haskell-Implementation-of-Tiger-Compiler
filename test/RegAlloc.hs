@@ -32,7 +32,7 @@ import System.Directory
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite RegAlloc [] in progress =======" >>
-  testerPrint "./test/test_code/good" "merge3.tig" >>
+  testerPrintDir "./test/test_code/good" >>
   putStrLn "\n======= Test suite FIN ======="  
 
 type EstadoTest = StGen

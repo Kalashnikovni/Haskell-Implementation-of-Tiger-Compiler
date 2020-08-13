@@ -39,6 +39,7 @@ import System.Directory
 import qualified System.Environment as Env
 import System.Exit
 import System.IO
+import System.Process
 
 import Text.Parsec (runParser)
 
@@ -89,6 +90,7 @@ compilerOptions argv = case getOpt Permute options argv of
 -- /////////////////////////////////////////////////////////////////////////////////////////////////////// --
 
 outDir = "./output"
+execDir = "./output/exec"
 
 main :: IO ()
 main = 
@@ -130,7 +132,8 @@ main =
                                                                  putStrLn $ show alloc
                                                                  putStrLn "") (snd assemInstrs)) 
      let (newFileName, _) = P.span (\c -> c /= '.') (L.last $ S.splitOn "/" s)
-     writeFile (outDir ++ "/" ++ newFileName ++ ".s") 
+     let assemName = outDir ++ "/" ++ newFileName ++ ".s"
+     writeFile assemName 
                (".data\n" ++
                 (P.concat $ P.map renderStrFrag (fst assemInstrs)) ++ 
                 "\n.text\n" ++
@@ -138,6 +141,8 @@ main =
                 (P.concat $ P.map (\(ins, fr, _) -> renderInstr ins fr) (snd assemInstrs)) ++
                 "\nfinal:\n" ++
                 (P.concat $ P.map formatInstr (mkEpil defaultFrame)))
+     callCommand $ "gcc -g " ++ assemName ++ " " ++ outDir ++ "/runtime.c" ++ 
+                   " -o " ++ execDir ++ "/" ++ newFileName 
 
 
 

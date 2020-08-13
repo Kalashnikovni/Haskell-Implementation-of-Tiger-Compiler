@@ -12,17 +12,3 @@ do
   echo "$entry"
   stack exec -- HaskTiger $entry
 done
-
-cd $out_dir
-
-# Produce object files
-for out in "$out_dir"/*
-do
-  bname=${out##*/}
-  fname=${bname%.s}
-  #echo $bname
-  #echo $fname
-  if [ ! $fname == $bname ]; then
-    gcc -g $bname $runtime -o "${exec_dir}/${fname}"
-  fi
-done

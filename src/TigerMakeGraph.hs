@@ -113,7 +113,7 @@ addJEdges (Just j) v tl g =
                                        False -> mkEdge g' (v, jj)
                        Nothing -> g') g j   
 
--- Print graph in .dot format
+-- Print graph in .dot format. For debugging purposes
 defaultVis :: FlowGraph -> Lazy.Text
 defaultVis fg =
   let (vs, es) = (vertices $ control fg, edges $ control fg)  

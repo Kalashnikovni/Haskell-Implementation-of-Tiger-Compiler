@@ -1,0 +1,5 @@
+let
+  var aux := "Hello!"
+in
+  print(aux); 0
+end

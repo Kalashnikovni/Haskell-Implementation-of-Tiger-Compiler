@@ -21,8 +21,8 @@ import TigerParser (parse)
 main :: IO ()
 main = 
   putStrLn "\n======= Test suite Translate [for TigerTrans testing] in progress =======" >>
-  --putStrLn "Show results good:" >>
-  testerPrint "./test/test_code/good" "queens.tig" >>
+  putStrLn "Show results good:" >>
+  testerPrintDir "./test/test_code/good" >>
   putStrLn "\n======= Test suite FIN ======="
 
 type EstadoTest = StGen
